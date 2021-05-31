@@ -1,0 +1,9 @@
+scu_18xx_43xx.h:135:20:void Chip_SCU_PinMuxSet(uint8_t, uint8_t, uint16_t)	16	static
+gpio_18xx_43xx.h:154:20:void Chip_GPIO_SetPinDIROutput(LPC_GPIO_T*, uint8_t, uint8_t)	16	static
+gpio_18xx_43xx.h:407:20:void Chip_GPIO_SetPinOutHigh(LPC_GPIO_T*, uint8_t, uint8_t)	16	static
+gpio_18xx_43xx.h:449:20:void Chip_GPIO_SetPinOutLow(LPC_GPIO_T*, uint8_t, uint8_t)	16	static
+relay.cpp:14:6:void relay_init()	8	static
+relay.cpp:41:6:void relay_main_pwr(bool)	16	static
+relay.cpp:55:6:void relay_lift_pwr(bool)	16	static
+relay.cpp:72:6:void relay_lift_dir(lift_direction)	16	static
+relay.cpp:86:6:void relay_spare_led(bool)	16	static

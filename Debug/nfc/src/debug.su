@@ -1,0 +1,5 @@
+debug.cpp:21:6:void debugInit()	8	static
+debug.cpp:32:6:void debugLocalSetLevel(debugLevels)	16	static
+debug.cpp:41:6:void debugNetSetLevel(debugLevels)	16	static
+debug.cpp:50:6:void debugToFile(const char*)	24	static
+debug.cpp:61:6:void debugClose()	8	static

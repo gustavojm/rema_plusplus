@@ -1,0 +1,3 @@
+wait.cpp:13:6:void wait_10cycles()	0	static
+wait.cpp:31:6:void wait_cycles(uint32_t)	24	static
+wait.cpp:48:6:void wait_ms(uint32_t)	24	static

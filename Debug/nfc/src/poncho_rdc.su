@@ -1,0 +1,9 @@
+scu_18xx_43xx.h:135:20:void Chip_SCU_PinMuxSet(uint8_t, uint8_t, uint16_t)	16	static
+gpio_18xx_43xx.h:154:20:void Chip_GPIO_SetPinDIROutput(LPC_GPIO_T*, uint8_t, uint8_t)	16	static
+gpio_18xx_43xx.h:407:20:void Chip_GPIO_SetPinOutHigh(LPC_GPIO_T*, uint8_t, uint8_t)	16	static
+gpio_18xx_43xx.h:449:20:void Chip_GPIO_SetPinOutLow(LPC_GPIO_T*, uint8_t, uint8_t)	16	static
+poncho_rdc.cpp:13:6:void poncho_rdc_init()	8	static
+poncho_rdc.cpp:40:6:void poncho_rdc_reset(bool)	16	static
+poncho_rdc.cpp:55:6:void poncho_rdc_sample(bool)	16	static
+poncho_rdc.cpp:70:6:void poncho_rdc_arm_wr_fsync(bool)	16	static
+poncho_rdc.cpp:85:6:void poncho_rdc_pole_wr_fsync(bool)	16	static

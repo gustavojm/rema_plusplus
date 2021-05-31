@@ -1,0 +1,11 @@
+ds-18b20.cpp:88:16:uint8_t ds18b20_read_scratchpad(uint8_t, uint8_t*)	24	static
+ds-18b20.cpp:133:9:uint8_t ds18b20_start_conversion(uint8_t)	16	static
+ds-18b20.cpp:176:9:uint8_t ds18b20_set_resolution(uint8_t, DS18B20_ResolutionBits)	24	static
+ds-18b20.cpp:213:9:uint8_t ds18b20_read_temperature(uint8_t)	32	static
+ds-18b20.cpp:232:9:uint8_t ds18b20_read_resolution(uint8_t)	32	static
+ds-18b20.cpp:257:9:uint8_t ds18b20_get_temperature_raw(uint16_t, uint32_t*)	16	static
+ds-18b20.cpp:275:9:uint8_t ds18b20_get_temperature_float(uint8_t, float*)	24	static
+ds-18b20.cpp:296:9:uint8_t ds18b20_get_ROM_code(uint8_t, uint8_t**)	16	static
+ds-18b20.cpp:311:9:uint8_t ds18b20_read_ROM(uint8_t)	24	static
+ds-18b20.cpp:343:6:void ds18b20_init()	16	static
+ds-18b20.cpp:357:9:uint8_t ds18b20_search_and_assign_ROM_codes()	32	static

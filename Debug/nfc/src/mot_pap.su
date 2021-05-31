@@ -1,0 +1,15 @@
+std_abs.h:56:3:long int std::abs(long int)	16	static
+debug.h:56:27:const char* levelText(debugLevels)	24	static
+debug.h:137:21:)	24	static
+mot_pap.cpp:21:1:mot_pap::mot_pap(const char*)	16	static
+mot_pap.cpp:34:10:uint16_t mot_pap::offset_correction(uint16_t, uint16_t, uint8_t)	32	static
+mot_pap.cpp:48:6:void mot_pap::read_corrected_pos()	16	static
+mot_pap.cpp:60:24:mot_pap_direction mot_pap::direction_calculate(int32_t)	16	static
+mot_pap.cpp:70:6:bool mot_pap::free_run_speed_ok(uint32_t)	16	static
+mot_pap.cpp:82:6:void mot_pap::supervise()	56	static
+mot_pap.cpp:145:6:void mot_pap::move_free_run(mot_pap_direction, uint32_t)	64	static
+mot_pap.cpp:174:6:void mot_pap::move_closed_loop(uint16_t)	64	static
+mot_pap.cpp:213:6:void mot_pap::stop()	48	static
+mot_pap.cpp:224:6:void mot_pap::isr()	24	static
+mot_pap.cpp:249:6:void mot_pap::update_position()	16	static
+mot_pap.cpp:255:13:JSON_Value* mot_pap::json()	32	static

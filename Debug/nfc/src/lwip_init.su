@@ -1,0 +1,4 @@
+core_cm4.h:1467:22:void NVIC_EnableIRQ(IRQn_Type)	16	static
+core_cm4.h:1550:22:void NVIC_SetPriority(IRQn_Type, uint32_t)	16	static
+lwip_init.cpp:48:13:void tcpip_init_done_signal(void*)	16	static
+lwip_init.cpp:55:17:void vStackIpSetup(void*)	72	static
