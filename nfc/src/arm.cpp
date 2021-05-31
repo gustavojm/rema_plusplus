@@ -24,7 +24,9 @@ QueueHandle_t arm_queue = NULL;
 SemaphoreHandle_t arm_supervisor_semaphore;
 
 mot_pap arm("arm");
-static struct ad2s1210 rdc;
+static ad2s1210 rdc;
+tmr tmr(LPC_TIMER1, RGU_TIMER1_RST, CLK_MX_TIMER1, TIMER1_IRQn);
+struct mot_pap::gpios gpios;
 
 /**
  * @brief 	handles the arm movement.
@@ -34,25 +36,20 @@ static struct ad2s1210 rdc;
  */
 static void arm_task(void *par)
 {
-	struct mot_pap_msg *msg_rcv;
+	struct mot_pap::msg *msg_rcv;
 
 	while (true) {
 		if (xQueueReceive(arm_queue, &msg_rcv, portMAX_DELAY) == pdPASS) {
 			lDebug(Info, "arm: command received");
 
-			arm.stalled = false; 		// If a new command was received, assume we are not stalled
-			arm.stalled_counter = 0;
-			arm.already_there = false;
-
-			arm.read_corrected_pos();
-
+			arm.new_cmd_received();
 			switch (msg_rcv->type) {
-			case MOT_PAP_TYPE_FREE_RUNNING:
+			case mot_pap::MOT_PAP_TYPE_FREE_RUNNING:
 				arm.move_free_run(msg_rcv->free_run_direction,
 						msg_rcv->free_run_speed);
 				break;
 
-			case MOT_PAP_TYPE_CLOSED_LOOP:
+			case mot_pap::MOT_PAP_TYPE_CLOSED_LOOP:
 				arm.move_closed_loop(msg_rcv->closed_loop_setpoint);
 				break;
 
@@ -88,7 +85,7 @@ void arm_init()
 {
 	arm_queue = xQueueCreate(5, sizeof(struct mot_pap_msg*));
 
-	arm.offset = 41230;
+	arm.set_offset(41230);
 
 	rdc.gpios.reset = &poncho_rdc_reset;
 	rdc.gpios.sample = &poncho_rdc_sample;
@@ -97,23 +94,19 @@ void arm_init()
 	rdc.fclkin = 8192000;
 	rdc.fexcit = 2000;
 	rdc.reversed = true;
-	ad2s1210_init(&rdc);
+	rdc.init();
 
-	arm.rdc = &rdc;
+	arm.set_rdc(&rdc);
 
-	arm.gpios.direction = &dout_arm_dir;
-	arm.gpios.pulse = &dout_arm_pulse;
+	gpios.direction = &dout_arm_dir;
+	gpios.pulse = &dout_arm_pulse;
+	arm.set_gpios(gpios);
 
-	arm.tmr.started = false;
-	arm.tmr.lpc_timer = LPC_TIMER1;
-	arm.tmr.rgu_timer_rst = RGU_TIMER1_RST;
-	arm.tmr.clk_mx_timer = CLK_MX_TIMER1;
-	arm.tmr.timer_IRQn = TIMER1_IRQn;
 
-	tmr_init(&arm.tmr);
+	arm.set_timer(&tmr);
 
 	arm_supervisor_semaphore = xSemaphoreCreateBinary();
-	arm.supervisor_semaphore = arm_supervisor_semaphore;
+	arm.set_supervisor_semaphore (arm_supervisor_semaphore);
 
 	if (arm_supervisor_semaphore != NULL) {
 		// Create the 'handler' task, which is the task to which interrupt processing is deferred
@@ -136,7 +129,7 @@ void arm_init()
  */
 void TIMER1_IRQHandler(void)
 {
-	if (tmr_match_pending(&(arm.tmr))) {
+	if (tmr.match_pending()) {
 		arm.isr();
 	}
 }
@@ -147,7 +140,7 @@ void TIMER1_IRQHandler(void)
  */
 uint16_t arm_get_RDC_position()
 {
-	return ad2s1210_read_position(arm.rdc);
+	return rdc.read_position();
 }
 
 
@@ -158,7 +151,7 @@ uint16_t arm_get_RDC_position()
  */
 void arm_set_offset(uint16_t offset)
 {
-	arm.offset = offset;
+	arm.set_offset(offset);
 }
 
 /**

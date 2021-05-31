@@ -81,6 +81,8 @@ nfc/src/net_commands.o nfc/src/net_commands.d: \
  /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/pole.h \
  /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/mot_pap.h \
  /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/tmr.h \
+ /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/ad2s1210.h \
+ /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/poncho_rdc.h \
  /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/arm.h \
  /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/parson.h \
  /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/json_wp.h \
@@ -256,6 +258,10 @@ nfc/src/net_commands.o nfc/src/net_commands.d: \
 /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/mot_pap.h:
 
 /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/tmr.h:
+
+/home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/ad2s1210.h:
+
+/home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/poncho_rdc.h:
 
 /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/arm.h:
 

@@ -11,4 +11,4 @@ net_commands.cpp:96:13:JSON_Value* arm_free_run_cmd(const JSON_Value*)	64	static
 net_commands.cpp:114:13:JSON_Value* network_settings_cmd(const JSON_Value*)	104	static
 net_commands.cpp:169:13:JSON_Value* mem_info_cmd(const JSON_Value*)	32	static
 net_commands.cpp:178:13:JSON_Value* temperature_info_cmd(const JSON_Value*)	40	static
-net_commands.cpp:240:13:JSON_Value* cmd_execute(const char*, const JSON_Value*)	48	static
+net_commands.cpp:240:13:JSON_Value* cmd_execute(const char*, const JSON_Value*)	56	static

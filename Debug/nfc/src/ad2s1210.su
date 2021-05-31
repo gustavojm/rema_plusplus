@@ -2,25 +2,25 @@ board.h:198:20:void udelay(int32_t)	24	static
 debug.h:56:27:const char* levelText(debugLevels)	24	static
 debug.h:137:21:)	24	static
 spi.h:24:19:int spi_write(void*, size_t, void (*)(bool))	48	static
-ad2s1210.cpp:22:16:int32_t ad2s1210_config_write(ad2s1210*, uint8_t)	24	static
-ad2s1210.cpp:40:16:uint8_t ad2s1210_config_read(ad2s1210*, uint8_t)	88	dynamic
-ad2s1210.cpp:76:17:uint16_t ad2s1210_config_read_two(ad2s1210*, uint8_t)	88	dynamic
-ad2s1210.cpp:117:16:int32_t ad2s1210_update_frequency_control_word(ad2s1210*)	48	static
-ad2s1210.cpp:138:9:int32_t ad2s1210_soft_reset(ad2s1210*)	24	static
-ad2s1210.cpp:153:6:void ad2s1210_hard_reset(ad2s1210*)	16	static
-ad2s1210.cpp:165:10:uint32_t ad2s1210_get_fclkin(ad2s1210*)	16	static
-ad2s1210.cpp:177:9:int32_t ad2s1210_set_fclkin(ad2s1210*, uint32_t)	40	static
-ad2s1210.cpp:200:10:uint32_t ad2s1210_get_fexcit(ad2s1210*)	16	static
-ad2s1210.cpp:212:9:int32_t ad2s1210_set_fexcit(ad2s1210*, uint32_t)	40	static
-ad2s1210.cpp:234:16:uint8_t ad2s1210_get_control(ad2s1210*)	24	static
-ad2s1210.cpp:248:16:int32_t ad2s1210_set_control(ad2s1210*, uint8_t)	48	static
-ad2s1210.cpp:275:9:uint8_t ad2s1210_get_resolution(ad2s1210*)	16	static
-ad2s1210.cpp:287:9:int32_t ad2s1210_set_resolution(ad2s1210*, uint8_t)	48	static
-ad2s1210.cpp:313:9:uint8_t ad2s1210_get_reg(ad2s1210*, uint8_t)	24	static
-ad2s1210.cpp:328:9:int32_t ad2s1210_set_reg(ad2s1210*, uint8_t, uint8_t)	24	static
-ad2s1210.cpp:347:9:int32_t ad2s1210_init(ad2s1210*)	56	static
-ad2s1210.cpp:386:10:uint16_t ad2s1210_read_position(ad2s1210*)	24	static
-ad2s1210.cpp:414:9:int16_t ad2s1210_read_velocity(ad2s1210*)	24	static
-ad2s1210.cpp:441:9:uint8_t ad2s1210_get_fault_register(ad2s1210*)	24	static
-ad2s1210.cpp:454:6:void ad2s1210_print_fault_register(ad2s1210*)	72	static
-ad2s1210.cpp:481:9:uint8_t ad2s1210_clear_fault_register(ad2s1210*)	24	static
+ad2s1210.cpp:21:9:int32_t ad2s1210::config_write(uint8_t)	24	static
+ad2s1210.cpp:38:9:uint8_t ad2s1210::config_read(uint8_t)	88	dynamic
+ad2s1210.cpp:74:10:uint16_t ad2s1210::config_read_two(uint8_t)	88	dynamic
+ad2s1210.cpp:113:9:int32_t ad2s1210::update_frequency_control_word()	48	static
+ad2s1210.cpp:133:9:int32_t ad2s1210::soft_reset()	24	static
+ad2s1210.cpp:147:6:void ad2s1210::hard_reset()	16	static
+ad2s1210.cpp:158:10:uint32_t ad2s1210::get_fclkin()	16	static
+ad2s1210.cpp:169:9:int32_t ad2s1210::set_fclkin(uint32_t)	40	static
+ad2s1210.cpp:191:10:uint32_t ad2s1210::get_fexcit()	16	static
+ad2s1210.cpp:202:9:int32_t ad2s1210::set_fexcit(uint32_t)	40	static
+ad2s1210.cpp:223:9:uint8_t ad2s1210::get_control()	24	static
+ad2s1210.cpp:236:9:int32_t ad2s1210::set_control(uint8_t)	48	static
+ad2s1210.cpp:262:9:uint8_t ad2s1210::get_resolution()	16	static
+ad2s1210.cpp:273:9:int32_t ad2s1210::set_resolution(uint8_t)	48	static
+ad2s1210.cpp:298:9:uint8_t ad2s1210::get_reg(uint8_t)	24	static
+ad2s1210.cpp:312:9:int32_t ad2s1210::set_reg(uint8_t, uint8_t)	24	static
+ad2s1210.cpp:328:9:int32_t ad2s1210::init()	56	static
+ad2s1210.cpp:366:10:uint16_t ad2s1210::read_position()	24	static
+ad2s1210.cpp:393:9:int16_t ad2s1210::read_velocity()	24	static
+ad2s1210.cpp:419:9:uint8_t ad2s1210::get_fault_register()	24	static
+ad2s1210.cpp:431:6:void ad2s1210::print_fault_register()	72	static
+ad2s1210.cpp:457:9:uint8_t ad2s1210::clear_fault_register()	24	static

@@ -4,7 +4,7 @@ gpio_18xx_43xx.h:407:20:void Chip_GPIO_SetPinOutHigh(LPC_GPIO_T*, uint8_t, uint8
 gpio_18xx_43xx.h:449:20:void Chip_GPIO_SetPinOutLow(LPC_GPIO_T*, uint8_t, uint8_t)	16	static
 gpio_18xx_43xx.h:477:20:void Chip_GPIO_SetPinToggle(LPC_GPIO_T*, uint8_t, uint8_t)	16	static
 dout.cpp:11:6:void dout_init()	8	static
-dout.cpp:33:6:void dout_arm_dir(mot_pap_direction)	16	static
+dout.cpp:33:6:void dout_arm_dir(mot_pap::direction)	16	static
 dout.cpp:46:6:void dout_arm_pulse()	8	static
-dout.cpp:58:6:void dout_pole_dir(mot_pap_direction)	16	static
+dout.cpp:58:6:void dout_pole_dir(mot_pap::direction)	16	static
 dout.cpp:71:6:void dout_pole_pulse()	8	static

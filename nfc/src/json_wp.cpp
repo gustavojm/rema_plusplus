@@ -59,7 +59,7 @@ int json_wp(char *rx_buff, char **tx_buff)
 				"commands");
 
 		if (commands != NULL) {
-			for (int i = 0; i < json_array_get_count(commands); i++) {
+			for (uint32_t i = 0; i < json_array_get_count(commands); i++) {
 				JSON_Object *command = json_array_get_object(commands, i);
 				char const *command_name = json_object_get_string(command,
 						"command");

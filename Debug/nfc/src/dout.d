@@ -76,6 +76,8 @@ nfc/src/dout.o nfc/src/dout.d: ../nfc/src/dout.cpp \
  /home/gustavo/FreeRTOS/rtu_plusplus/freertos/inc/../inc/queue.h \
  /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/tmr.h \
  /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/parson.h \
+ /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/ad2s1210.h \
+ /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/poncho_rdc.h \
  /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/mot_pap.h
 
 /home/gustavo/FreeRTOS/CIAA_NXP_board/inc/board.h:
@@ -231,5 +233,9 @@ nfc/src/dout.o nfc/src/dout.d: ../nfc/src/dout.cpp \
 /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/tmr.h:
 
 /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/parson.h:
+
+/home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/ad2s1210.h:
+
+/home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/poncho_rdc.h:
 
 /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/mot_pap.h:

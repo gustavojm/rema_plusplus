@@ -1,12 +1,17 @@
+mot_pap.h:92:7:void mot_pap::set_offset(uint16_t)	16	static
+mot_pap.h:97:7:void mot_pap::set_rdc(ad2s1210*)	16	static
+mot_pap.h:102:7:void mot_pap::set_timer(tmr*)	16	static
+mot_pap.h:107:7:void mot_pap::set_gpios(mot_pap::gpios)	24	static
+mot_pap.h:112:7:void mot_pap::set_supervisor_semaphore(SemaphoreHandle_t)	16	static
 debug.h:56:27:const char* levelText(debugLevels)	24	static
 debug.h:137:21:)	24	static
-arm.cpp:35:13:void arm_task(void*)	40	static
-arm.cpp:75:13:void arm_supervisor_task(void*)	16	static
-arm.cpp:87:6:void arm_init()	32	static
-arm.cpp:137:6:void TIMER1_IRQHandler()	8	static
-arm.cpp:148:10:uint16_t arm_get_RDC_position()	8	static
-arm.cpp:159:6:void arm_set_offset(uint16_t)	16	static
-arm.cpp:168:17:mot_pap* arm_get_status()	8	static
-arm.cpp:178:13:JSON_Value* arm_json()	8	static
-arm.cpp:180:1:void __static_initialization_and_destruction_0(int, int)	16	static
-arm.cpp:180:1:cpp)	8	static
+arm.cpp:37:13:void arm_task(void*)	40	static
+arm.cpp:72:13:void arm_supervisor_task(void*)	16	static
+arm.cpp:84:6:void arm_init()	32	static
+arm.cpp:130:6:void TIMER1_IRQHandler()	8	static
+arm.cpp:141:10:uint16_t arm_get_RDC_position()	8	static
+arm.cpp:152:6:void arm_set_offset(uint16_t)	16	static
+arm.cpp:161:17:mot_pap* arm_get_status()	8	static
+arm.cpp:171:13:JSON_Value* arm_json()	8	static
+arm.cpp:173:1:void __static_initialization_and_destruction_0(int, int)	24	static
+arm.cpp:173:1:cpp)	8	static

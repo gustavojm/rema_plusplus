@@ -93,7 +93,7 @@ double stb_linear_remap(double x, double x_min, double x_max,
 	{
 		int i = 1;
 		int int_part, fract_part;
-		char *fmt = "%i.%i";
+		const char *fmt = "%i.%i";
 		for (; decimals != 0; i *= 10, decimals--)
 		;
 		int_part = (int) v;

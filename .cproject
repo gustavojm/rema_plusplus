@@ -20,7 +20,7 @@
 						<toolChain id="com.crt.advproject.toolchain.exe.debug.413307928" name="NXP MCU Tools" superClass="com.crt.advproject.toolchain.exe.debug">
 							<targetPlatform binaryParser="org.eclipse.cdt.core.ELF;org.eclipse.cdt.core.GNU_ELF" id="com.crt.advproject.platform.exe.debug.1898359140" name="ARM-based MCU (Debug)" superClass="com.crt.advproject.platform.exe.debug"/>
 							<builder buildPath="${workspace_loc:/rtu_plusplus}/Debug" id="com.crt.advproject.builder.exe.debug.133175689" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="com.crt.advproject.builder.exe.debug"/>
-							<tool command="arm-none-eabi-c++ -fpermissive" id="com.crt.advproject.cpp.exe.debug.119518936" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.debug">
+							<tool command="arm-none-eabi-c++" id="com.crt.advproject.cpp.exe.debug.119518936" name="MCU C++ Compiler" superClass="com.crt.advproject.cpp.exe.debug">
 								<option id="com.crt.advproject.cpp.thumb.406302871" name="Thumb mode" superClass="com.crt.advproject.cpp.thumb" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="com.crt.advproject.cpp.specs.1516172812" name="Specs" superClass="com.crt.advproject.cpp.specs" useByScannerDiscovery="false" value="com.crt.advproject.cpp.specs.newlibnano" valueType="enumerated"/>
 								<option id="com.crt.advproject.cpp.arch.201315045" name="Architecture" superClass="com.crt.advproject.cpp.arch" useByScannerDiscovery="true" value="com.crt.advproject.cpp.target.cm4" valueType="enumerated"/>
@@ -312,7 +312,14 @@
 	<storageModule moduleId="com.crt.advproject">
 		<boardId>LPCXpresso4337</boardId>
 	</storageModule>
-	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/rtu_plusplus"/>
+		</configuration>
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/rtu_plusplus"/>
+		</configuration>
+	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
@@ -326,4 +333,5 @@
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.crt.advproject.GCCManagedMakePerProjectProfile"/>
 		</scannerConfigBuildInfo>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

@@ -11,11 +11,11 @@ extern "C" {
 
 void dout_init();
 
-void dout_arm_dir(enum mot_pap_direction dir);
+void dout_arm_dir(enum mot_pap::direction dir);
 
 void dout_arm_pulse(void);
 
-void dout_pole_dir(enum mot_pap_direction dir);
+void dout_pole_dir(enum mot_pap::direction dir);
 
 void dout_pole_pulse(void);
 

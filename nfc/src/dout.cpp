@@ -30,9 +30,9 @@ void dout_init()
  * 					  MOT_PAP_DIRECTION_CCW
  * @returns	nothing
  */
-void dout_arm_dir(enum mot_pap_direction dir)
+void dout_arm_dir(enum mot_pap::direction dir)
 {
-	if (dir == MOT_PAP_DIRECTION_CW) {
+	if (dir == mot_pap::MOT_PAP_DIRECTION_CW) {
 		Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, 5, 12);
 	} else {
 		Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, 5, 12);
@@ -55,9 +55,9 @@ void dout_arm_pulse(void)
  * 					  MOT_PAP_DIRECTION_CCW
  * @returns	nothing
  */
-void dout_pole_dir(enum mot_pap_direction dir)
+void dout_pole_dir(enum mot_pap::direction dir)
 {
-	if (dir == MOT_PAP_DIRECTION_CW) {
+	if (dir == mot_pap::MOT_PAP_DIRECTION_CW) {
 		Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, 5, 14);
 	} else {
 		Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, 5, 14);

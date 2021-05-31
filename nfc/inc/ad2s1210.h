@@ -6,10 +6,6 @@
 
 #include "poncho_rdc.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* The default value of the control register on power-up */
 #define AD2S1210_DEF_CONTROL			0x7E
 
@@ -74,50 +70,60 @@ struct ad2s1210_gpios {
  * @struct 	ad2s1210
  * @brief	RDC device instance specific state.
  */
-struct ad2s1210 {
+class ad2s1210 {
+public:
+
 	struct ad2s1210_gpios gpios;///< specific gpio function pointers for this instance
 	uint32_t fclkin;			///< frequency of clock input
 	uint32_t fexcit;			///< excitation frequency
 	bool hysteresis;			///< cache of whether hysteresis is enabled
 	bool reversed;				///< if set will reverse the position readings
 	uint8_t resolution;			///< chip resolution could be 10/12/14/16-bit
+
+	int32_t init();
+
+	int32_t soft_reset();
+
+	void hard_reset();
+
+	uint32_t get_fclkin();
+
+	int32_t set_fclkin(uint32_t fclkin);
+
+	uint32_t get_fexcit();
+
+	int32_t set_fexcit(uint32_t fexcit);
+
+	uint8_t get_resolution();
+
+	int32_t set_resolution(uint8_t res);
+
+	uint8_t get_reg(uint8_t address);
+
+	int32_t set_reg(uint8_t address, uint8_t data);
+
+	uint16_t read_position();
+
+	int16_t read_velocity();
+
+	uint8_t get_fault_register();
+
+	void print_fault_register();
+
+	uint8_t clear_fault_register();
+
+private:
+	int32_t config_write(uint8_t data);
+
+	uint8_t config_read(uint8_t address);
+
+	uint16_t config_read_two(uint8_t address);
+
+	int32_t update_frequency_control_word();
+
+	uint8_t get_control();
+
+	int32_t set_control(uint8_t data);
 };
-
-int32_t ad2s1210_init(struct ad2s1210 *me);
-
-int32_t ad2s1210_soft_reset(struct ad2s1210 *me);
-
-void ad2s1210_hard_reset(struct ad2s1210 *me);
-
-uint32_t ad2s1210_get_fclkin(struct ad2s1210 *me);
-
-int32_t ad2s1210_set_fclkin(struct ad2s1210 *me, uint32_t fclkin);
-
-uint32_t ad2s1210_get_fexcit(struct ad2s1210 *me);
-
-int32_t ad2s1210_set_fexcit(struct ad2s1210 *me, uint32_t fexcit);
-
-uint8_t ad2s1210_get_resolution(struct ad2s1210 *me);
-
-int32_t ad2s1210_set_resolution(struct ad2s1210 *me, uint8_t res);
-
-uint8_t ad2s1210_get_reg(struct ad2s1210 *me, uint8_t address);
-
-int32_t ad2s1210_set_reg(struct ad2s1210 *me, uint8_t address,
-		uint8_t data);
-
-uint16_t ad2s1210_read_position(struct ad2s1210 *me);
-
-int16_t ad2s1210_read_velocity(struct ad2s1210 *me);
-
-uint8_t ad2s1210_get_fault_register(struct ad2s1210 *me);
-
-void ad2s1210_print_fault_register(struct ad2s1210 *me);
-
-uint8_t ad2s1210_clear_fault_register(struct ad2s1210 *me);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* AD2S1210_H_ */

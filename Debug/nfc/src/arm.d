@@ -76,12 +76,13 @@ nfc/src/arm.o nfc/src/arm.d: ../nfc/src/arm.cpp \
  /home/gustavo/FreeRTOS/rtu_plusplus/freertos/inc/../inc/queue.h \
  /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/tmr.h \
  /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/parson.h \
+ /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/ad2s1210.h \
+ /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/poncho_rdc.h \
  /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/mot_pap.h \
  /home/gustavo/FreeRTOS/rtu_plusplus/freertos/inc/task.h \
  /home/gustavo/FreeRTOS/rtu_plusplus/freertos/inc/../inc/list.h \
  /home/gustavo/FreeRTOS/rtu_plusplus/freertos/inc/queue.h \
  /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/ad2s1210.h \
- /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/poncho_rdc.h \
  /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/debug.h \
  /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/dout.h \
  /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/tmr.h
@@ -240,6 +241,10 @@ nfc/src/arm.o nfc/src/arm.d: ../nfc/src/arm.cpp \
 
 /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/parson.h:
 
+/home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/ad2s1210.h:
+
+/home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/poncho_rdc.h:
+
 /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/mot_pap.h:
 
 /home/gustavo/FreeRTOS/rtu_plusplus/freertos/inc/task.h:
@@ -249,8 +254,6 @@ nfc/src/arm.o nfc/src/arm.d: ../nfc/src/arm.cpp \
 /home/gustavo/FreeRTOS/rtu_plusplus/freertos/inc/queue.h:
 
 /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/ad2s1210.h:
-
-/home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/poncho_rdc.h:
 
 /home/gustavo/FreeRTOS/rtu_plusplus/nfc/inc/debug.h:
 

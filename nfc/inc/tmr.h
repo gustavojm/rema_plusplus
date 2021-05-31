@@ -6,33 +6,28 @@
 
 #include "board.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-struct tmr {
-	bool 		started;
+class tmr {
+private:
+	bool started;
 	LPC_TIMER_T *lpc_timer;
-	uint32_t	rgu_timer_rst;
-	uint32_t	clk_mx_timer;
-	uint32_t	timer_IRQn;
+	CHIP_RGU_RST_T rgu_timer_rst;
+	CHIP_CCU_CLK_T clk_mx_timer;
+	IRQn_Type timer_IRQn;
+
+public:
+	tmr(LPC_TIMER_T *lpc_timer, CHIP_RGU_RST_T rgu_timer_rst, CHIP_CCU_CLK_T clk_mx_timer,
+			IRQn_Type timer_IRQn);
+
+	int32_t set_freq(uint32_t tick_rate_hz);
+
+	void start();
+
+	void stop();
+
+	uint32_t is_started();
+
+	bool match_pending();
+
 };
-
-
-void tmr_init(struct tmr *me);
-
-int32_t tmr_set_freq(struct tmr *me, uint32_t tick_rate_hz);
-
-void tmr_start(struct tmr *me);
-
-void tmr_stop(struct tmr *me);
-
-uint32_t tmr_started(struct tmr *me);
-
-bool tmr_match_pending(struct tmr *me);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* TMR_H_ */

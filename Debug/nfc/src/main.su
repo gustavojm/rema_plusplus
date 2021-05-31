@@ -1,6 +1,6 @@
 main.cpp:39:13:void prvSetupHardware()	8	static
 main.cpp:84:6:void msDelay(uint32_t)	16	static
 main.cpp:93:5:int main()	16	static
-main.cpp:113:17:void vApplicationStackOverflowHook(void**, signed char*)	24	static
-main.cpp:136:6:void vAssertCalled(long unsigned int, const char*)	24	static
-main.cpp:153:17:void prvGetRegistersFromStack(uint32_t*)	48	static
+main.cpp:112:17:void vApplicationStackOverflowHook(void**, signed char*)	24	static
+main.cpp:135:6:void vAssertCalled(long unsigned int, const char*)	24	static
+main.cpp:152:17:void prvGetRegistersFromStack(uint32_t*)	48	static

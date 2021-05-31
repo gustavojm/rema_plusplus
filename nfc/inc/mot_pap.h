@@ -8,6 +8,7 @@
 #include "semphr.h"
 #include "tmr.h"
 #include "parson.h"
+#include "ad2s1210.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,33 +29,6 @@ extern "C" {
 
 extern bool stall_detection;
 
-enum mot_pap_direction {
-	MOT_PAP_DIRECTION_CW, MOT_PAP_DIRECTION_CCW,
-};
-
-enum mot_pap_type {
-	MOT_PAP_TYPE_FREE_RUNNING, MOT_PAP_TYPE_CLOSED_LOOP, MOT_PAP_TYPE_STOP
-};
-
-/**
- * @struct 	mot_pap_msg
- * @brief	messages to POLE or ARM tasks.
- */
-struct mot_pap_msg {
-	enum mot_pap_type type;
-	enum mot_pap_direction free_run_direction;
-	uint32_t free_run_speed;
-	uint16_t closed_loop_setpoint;
-};
-
-/**
- * @struct 	mot_pap_gpios
- * @brief	pointers to functions to handle GPIO lines of this stepper motor.
- */
-struct mot_pap_gpios {
-	void (*direction)(enum mot_pap_direction dir); ///< pointer to direction line function handler
-	void (*pulse)(void);			///< pointer to pulse line function handler
-};
 
 #ifdef __cplusplus
 }
@@ -66,26 +40,78 @@ struct mot_pap_gpios {
  */
 class mot_pap {
 public:
+	enum direction {
+		MOT_PAP_DIRECTION_CW, MOT_PAP_DIRECTION_CCW,
+	};
+
+	enum type {
+		MOT_PAP_TYPE_FREE_RUNNING, MOT_PAP_TYPE_CLOSED_LOOP, MOT_PAP_TYPE_STOP
+	};
+
+	/**
+	 * @struct 	mot_pap_msg
+	 * @brief	messages to POLE or ARM tasks.
+	 */
+	struct msg {
+		enum type type;
+		enum direction free_run_direction;
+		uint32_t free_run_speed;
+		uint16_t closed_loop_setpoint;
+	};
+
+	/**
+	 * @struct 	mot_pap_gpios
+	 * @brief	pointers to functions to handle GPIO lines of this stepper motor.
+	 */
+	struct gpios {
+		void (*direction)(enum direction dir); ///< pointer to direction line function handler
+		void (*pulse)(void);			///< pointer to pulse line function handler
+	};
+
+
 	const char *name;
-	enum mot_pap_type type;
-	enum mot_pap_direction dir;
+	enum type type;
+	enum direction dir;
 	uint16_t posCmd;
 	uint16_t posAct;
 	uint32_t freq;
 	bool stalled;
 	bool already_there;
 	uint16_t stalled_counter;
-	struct ad2s1210 *rdc;
+	ad2s1210 *rdc;
 	SemaphoreHandle_t supervisor_semaphore;
-	struct mot_pap_gpios gpios;
-	struct tmr tmr;
-	enum mot_pap_direction last_dir;
+	struct gpios gpios;
+	class tmr *tmr;
+	enum direction last_dir;
 	uint16_t last_pos;
 	uint32_t half_pulses;// counts steps from the last call to supervisor task
 	uint16_t offset;
 
-
 	mot_pap(const char *name);
+
+	void set_offset(uint16_t offset)
+	{
+		this->offset = offset;
+	}
+
+	void set_rdc(ad2s1210 *rdc)
+	{
+		this->rdc = rdc;
+	}
+
+	void set_timer(class tmr *tmr)
+	{
+		this->tmr = tmr;
+	}
+
+	void set_gpios(struct gpios gpios)
+	{
+		this->gpios = gpios;
+	}
+
+	void set_supervisor_semaphore (SemaphoreHandle_t supervisor_semaphore) {
+		this->supervisor_semaphore = supervisor_semaphore;
+	}
 
 	uint16_t offset_correction(uint16_t pos, uint16_t offset,
 			uint8_t resolution);
@@ -94,7 +120,9 @@ public:
 
 	void supervise();
 
-	void move_free_run(enum mot_pap_direction direction, uint32_t speed);
+	void new_cmd_received();
+
+	void move_free_run(enum direction direction, uint32_t speed);
 
 	void move_closed_loop(uint16_t setpoint);
 
@@ -104,7 +132,7 @@ public:
 
 	void update_position();
 
-	enum mot_pap_direction direction_calculate(int32_t error);
+	enum mot_pap::direction direction_calculate(int32_t error);
 
 	bool free_run_speed_ok(uint32_t speed);
 

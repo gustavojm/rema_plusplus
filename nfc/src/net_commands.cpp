@@ -16,7 +16,7 @@
 bool stall_detection = true;
 
 typedef struct {
-	char *cmd_name;
+	const char *cmd_name;
 	JSON_Value* (*cmd_function)(JSON_Value const *pars);
 } cmd_entry;
 
@@ -240,13 +240,13 @@ const cmd_entry cmds_table[] = {
 JSON_Value* cmd_execute(char const *cmd, JSON_Value const *pars)
 {
 	bool cmd_found = false;
-	for (int i = 0; i < (sizeof(cmds_table) / sizeof(cmds_table[0])); i++) {
+	for (uint32_t i = 0; i < (sizeof(cmds_table) / sizeof(cmds_table[0])); i++) {
 		if (!strcmp(cmd, cmds_table[i].cmd_name)) {
 			return cmds_table[i].cmd_function(pars);
 		}
 	}
 	if (!cmd_found) {
-		lDebug(Error, "No matching command found");
+		lDebug(Error, "No matching command found: %s", cmd);
 	}
 	return NULL;
 }
