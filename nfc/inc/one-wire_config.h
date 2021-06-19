@@ -21,7 +21,7 @@ extern "C" {
 #define ONE_WIRE_CONFIG_C_WRITE_0_LOW_TIME                60       /* C: standard 60 us, Low time writing zero bit */
 #define ONE_WIRE_CONFIG_D_WRITE_0_HIGH_TIME               10       /* D: standard 10 us, High time after writing zero bit (C) */
 /* read */
-#define ONE_WIRE_CONFIG_A_READ_LOW_TIME                   6 	   /* Low time to start read */
+#define ONE_WIRE_CONFIG_A_READ_LOW_TIME                   6        /* Low time to start read */
 #define ONE_WIRE_CONFIG_E_BEFORE_READ_DELAY_TIME          3        /* E: standard 9 us, wait time after starting read (when to read bit) */
 #define ONE_WIRE_CONFIG_F_AFTER_READ_DELAY_TIME           55       /* F: standard 55 us, wait time after reading bit (E)  */
 /* reset */

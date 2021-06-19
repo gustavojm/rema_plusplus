@@ -11,7 +11,7 @@
 /* LWIP and ENET phy */
 #include "arch/lpc18xx_43xx_emac.h"
 #include "arch/lpc_arch.h"
-#include "arch/sys_arch.h"							  
+#include "arch/sys_arch.h"
 #include "lpc_phy.h" /* For the PHY monitor support */
 
 /* LPC */
@@ -34,11 +34,10 @@
 #include <iostream>
 
 /* GPa 201117 1850 Iss2: agregado de Heap_4.c*/
-uint8_t __attribute__((section ("." "data" ".$" "RamLoc40"))) ucHeap[configTOTAL_HEAP_SIZE];
+uint8_t __attribute__((section("." "data" ".$" "RamLoc40"))) ucHeap[configTOTAL_HEAP_SIZE];
 
 /* Sets up system hardware */
-static void prvSetupHardware(void)
-        {
+static void prvSetupHardware(void) {
 #if defined(__FPU_PRESENT) && __FPU_PRESENT == 1
     fpuInit();
 #endif
@@ -55,15 +54,15 @@ static void prvSetupHardware(void)
 
     Board_Init();
     settings_init();
-    //settings_erase();
-    //dout_init();
-    //relay_init();
+    // settings_erase();
+    // dout_init();
+    // relay_init();
     poncho_rdc_init();
 
     arm_init();
-    //pole_init();
-    //lift_init();
-    //temperature_init();
+    // pole_init();
+    // lift_init();
+    // temperature_init();
     temperature_ds18b20_init();
     mem_check_init();
 
@@ -76,22 +75,20 @@ static void prvSetupHardware(void)
  ****************************************************************************/
 
 /**
- * @brief	MilliSecond delay function based on FreeRTOS
- * @param	ms	: Number of milliSeconds to delay
- * @returns	nothing
+ * @brief    MilliSecond delay function based on FreeRTOS
+ * @param    ms    : Number of milliSeconds to delay
+ * @returns    nothing
  * Needed for some functions, do not use prior to FreeRTOS running
  */
-void msDelay(uint32_t ms)
-        {
+void msDelay(uint32_t ms) {
     vTaskDelay((configTICK_RATE_HZ * ms) / 1000);
 }
 
 /**
- * @brief	main routine for example_lwip_tcpec+ho_freertos_18xx43xx
- * @returns	function should not exit
+ * @brief    main routine for example_lwip_tcpec+ho_freertos_18xx43xx
+ * @returns    function should not exit
  */
-int main(void)
-        {
+int main(void) {
     debugLocalSetLevel(Info);
     debugNetSetLevel(Error);
 
@@ -109,9 +106,8 @@ int main(void)
 }
 
 #if (configCHECK_FOR_STACK_OVERFLOW > 0)
-extern "C" void vApplicationStackOverflowHook( xTaskHandle *pxTask,
-        signed char *pcTaskName)
-        {
+extern "C" void vApplicationStackOverflowHook(xTaskHandle *pxTask,
+        signed char *pcTaskName) {
     volatile signed char *name;
     volatile xTaskHandle *pxT;
 
@@ -122,18 +118,17 @@ extern "C" void vApplicationStackOverflowHook( xTaskHandle *pxTask,
     (void) pxT;
 
     while (1)
-        ;
+        {}
 }
 #endif
 
 /*-----------------------------------------------------------*/
 /**
- * @brief	configASSERT callback function
- * @param 	ulLine		: line where configASSERT was called
- * @param 	pcFileName	: file where configASSERT was called
+ * @brief     configASSERT callback function
+ * @param     ulLine        : line where configASSERT was called
+ * @param     pcFileName    : file where configASSERT was called
  */
-void vAssertCalled(unsigned long ulLine, const char *const pcFileName)
-        {
+void vAssertCalled(unsigned long ulLine, const char *const pcFileName) {
     volatile uint32_t ulSetToNonZeroInDebuggerToContinue = 0;
 
     taskENTER_CRITICAL();
@@ -149,8 +144,7 @@ void vAssertCalled(unsigned long ulLine, const char *const pcFileName)
 }
 /*-----------------------------------------------------------*/
 
-extern "C" void prvGetRegistersFromStack(uint32_t *pulFaultStackAddress)
-        {
+extern "C" void prvGetRegistersFromStack(uint32_t *pulFaultStackAddress) {
     /* These are volatile to try and prevent the compiler/linker optimising them
      away as the variables never actually get used.  If the debugger won't show the
      values of the variables, make them global my moving their declaration outside
@@ -185,6 +179,6 @@ extern "C" void prvGetRegistersFromStack(uint32_t *pulFaultStackAddress)
 
     /* When the following line is hit, the variables contain the register values. */
     for (;;)
-        ;
+        {}
 }
 
