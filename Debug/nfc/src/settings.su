@@ -1,7 +1,0 @@
-debug.h:56:27:const char* levelText(debugLevels)	24	static
-debug.h:136:21:)	24	static
-settings.cpp:17:24:settings settings_defaults()	16	static
-settings.cpp:32:6:void settings_init()	8	static
-settings.cpp:40:6:void settings_erase()	32	static
-settings.cpp:49:6:void settings_save(settings)	48	static
-settings.cpp:63:17:settings settings_read()	64	static
