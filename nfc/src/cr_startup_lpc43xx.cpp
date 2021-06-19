@@ -7,14 +7,14 @@
 // Copyright(C) NXP Semiconductors, 2013-2015, 2020
 // All rights reserved.
 //
-// NXP Confidential. This software is owned or controlled by NXP and may only be 
-// used strictly in accordance with the applicable license terms.  
+// NXP Confidential. This software is owned or controlled by NXP and may only be
+// used strictly in accordance with the applicable license terms.
 //
-// By expressly accepting such terms or by downloading, installing, activating 
-// and/or otherwise using the software, you are agreeing that you have read, and 
-// that you agree to comply with and are bound by, such license terms.  
-// 
-// If you do not agree to be bound by the applicable license terms, then you may not 
+// By expressly accepting such terms or by downloading, installing, activating
+// and/or otherwise using the software, you are agreeing that you have read, and
+// that you agree to comply with and are bound by, such license terms.
+//
+// If you do not agree to be bound by the applicable license terms, then you may not
 // retain, install, activate or otherwise use the software.
 //*****************************************************************************
 
@@ -50,7 +50,7 @@ extern void SystemInit(void);
 //*****************************************************************************
 //
 // Forward declaration of the default handlers. These are aliased.
-// When the application defines a handler (with the same name), this will 
+// When the application defines a handler (with the same name), this will
 // automatically take precedence over these weak definitions
 //
 //*****************************************************************************
@@ -70,7 +70,7 @@ WEAK void IntDefaultHandler(void);
 //
 // Forward declaration of the specific IRQ handlers. These are aliased
 // to the IntDefaultHandler, which is a 'forever' loop. When the application
-// defines a handler (with the same name), this will automatically take 
+// defines a handler (with the same name), this will automatically take
 // precedence over these weak definitions
 //
 //*****************************************************************************
@@ -169,88 +169,88 @@ WEAK extern void __valid_user_code_checksum();
 //
 //*****************************************************************************
 extern void (*const g_pfnVectors[])(void);
-__attribute__ ((used,section(".isr_vector")))
+__attribute__((used, section(".isr_vector")))
 void (*const g_pfnVectors[])(void) = {
     // Core Level - CM4
-        &_vStackTop,// The initial stack pointer
-        ResetISR,// The reset handler
-        NMI_Handler,// The NMI handler
-        HardFault_Handler,// The hard fault handler
-        MemManage_Handler,// The MPU fault handler
-        BusFault_Handler,// The bus fault handler
-        UsageFault_Handler,// The usage fault handler
-        __valid_user_code_checksum,// LPC MCU Checksum
-        0,// Reserved
-        0,// Reserved
-        0,// Reserved
-        SVC_Handler,// SVCall handler
-        DebugMon_Handler,// Debug monitor handler
-        0,// Reserved
-        PendSV_Handler,// The PendSV handler
-        SysTick_Handler,// The SysTick handler
+        &_vStackTop,    // The initial stack pointer
+        ResetISR,       // The reset handler
+        NMI_Handler,    // The NMI handler
+        HardFault_Handler,   // The hard fault handler
+        MemManage_Handler,   // The MPU fault handler
+        BusFault_Handler,    // The bus fault handler
+        UsageFault_Handler,  // The usage fault handler
+        __valid_user_code_checksum,  // LPC MCU Checksum
+        0,  // Reserved
+        0,  // Reserved
+        0,  // Reserved
+        SVC_Handler,        // SVCall handler
+        DebugMon_Handler,   // Debug monitor handler
+        0,  // Reserved
+        PendSV_Handler,     // The PendSV handler
+        SysTick_Handler,    // The SysTick handler
 
         // Chip Level - LPC43 (M4)
-        DAC_IRQHandler,// 16
+        DAC_IRQHandler,     // 16
 #if defined (__USE_LPCOPEN)
-        M0APP_IRQHandler,         // 17 CortexM4/M0 (LPC43XX ONLY)
+        M0APP_IRQHandler,   // 17 CortexM4/M0 (LPC43XX ONLY)
 #else
-        M0CORE_IRQHandler,        // 17
+        M0CORE_IRQHandler,  // 17
 #endif
-        DMA_IRQHandler,           // 18
-        0,// 19
-        FLASH_EEPROM_IRQHandler,// 20 ORed flash Bank A, flash Bank B, EEPROM interrupts
-        ETH_IRQHandler,// 21
-        SDIO_IRQHandler,// 22
-        LCD_IRQHandler,// 23
-        USB0_IRQHandler,// 24
-        USB1_IRQHandler,// 25
-        SCT_IRQHandler,// 26
-        RIT_IRQHandler,// 27
-        TIMER0_IRQHandler,// 28
-        TIMER1_IRQHandler,// 29
-        TIMER2_IRQHandler,// 30
-        TIMER3_IRQHandler,// 31
-        MCPWM_IRQHandler,// 32
-        ADC0_IRQHandler,// 33
-        I2C0_IRQHandler,// 34
-        I2C1_IRQHandler,// 35
-        SPI_IRQHandler,// 36
-        ADC1_IRQHandler,// 37
-        SSP0_IRQHandler,// 38
-        SSP1_IRQHandler,// 39
-        UART0_IRQHandler,// 40
-        UART1_IRQHandler,// 41
-        UART2_IRQHandler,// 42
-        UART3_IRQHandler,// 43
-        I2S0_IRQHandler,// 44
-        I2S1_IRQHandler,// 45
-        SPIFI_IRQHandler,// 46
-        SGPIO_IRQHandler,// 47
-        GPIO0_IRQHandler,// 48
-        GPIO1_IRQHandler,// 49
-        GPIO2_IRQHandler,// 50
-        GPIO3_IRQHandler,// 51
-        GPIO4_IRQHandler,// 52
-        GPIO5_IRQHandler,// 53
-        GPIO6_IRQHandler,// 54
-        GPIO7_IRQHandler,// 55
-        GINT0_IRQHandler,// 56
-        GINT1_IRQHandler,// 57
-        EVRT_IRQHandler,// 58
-        CAN1_IRQHandler,// 59
-        0,// 60
+        DMA_IRQHandler,     // 18
+        0,                  // 19
+        FLASH_EEPROM_IRQHandler,    // 20 ORed flash Bank A, flash Bank B, EEPROM interrupts
+        ETH_IRQHandler,     // 21
+        SDIO_IRQHandler,    // 22
+        LCD_IRQHandler,     // 23
+        USB0_IRQHandler,    // 24
+        USB1_IRQHandler,    // 25
+        SCT_IRQHandler,     // 26
+        RIT_IRQHandler,     // 27
+        TIMER0_IRQHandler,  // 28
+        TIMER1_IRQHandler,  // 29
+        TIMER2_IRQHandler,  // 30
+        TIMER3_IRQHandler,  // 31
+        MCPWM_IRQHandler,   // 32
+        ADC0_IRQHandler,    // 33
+        I2C0_IRQHandler,    // 34
+        I2C1_IRQHandler,    // 35
+        SPI_IRQHandler,     // 36
+        ADC1_IRQHandler,    // 37
+        SSP0_IRQHandler,    // 38
+        SSP1_IRQHandler,    // 39
+        UART0_IRQHandler,   // 40
+        UART1_IRQHandler,   // 41
+        UART2_IRQHandler,   // 42
+        UART3_IRQHandler,   // 43
+        I2S0_IRQHandler,    // 44
+        I2S1_IRQHandler,    // 45
+        SPIFI_IRQHandler,   // 46
+        SGPIO_IRQHandler,   // 47
+        GPIO0_IRQHandler,   // 48
+        GPIO1_IRQHandler,   // 49
+        GPIO2_IRQHandler,   // 50
+        GPIO3_IRQHandler,   // 51
+        GPIO4_IRQHandler,   // 52
+        GPIO5_IRQHandler,   // 53
+        GPIO6_IRQHandler,   // 54
+        GPIO7_IRQHandler,   // 55
+        GINT0_IRQHandler,   // 56
+        GINT1_IRQHandler,   // 57
+        EVRT_IRQHandler,    // 58
+        CAN1_IRQHandler,    // 59
+        0,                  // 60
 #if defined (__USE_LPCOPEN)
-        ADCHS_IRQHandler,         // 61 ADCHS combined interrupt
+        ADCHS_IRQHandler,   // 61 ADCHS combined interrupt
 #else
-        VADC_IRQHandler,          // 61
+        VADC_IRQHandler,    // 61
 #endif
-        ATIMER_IRQHandler,        // 62
-        RTC_IRQHandler,// 63
-        0,// 64
-        WDT_IRQHandler,// 65
-        M0SUB_IRQHandler,// 66
-        CAN0_IRQHandler,// 67
-        QEI_IRQHandler,// 68
+        ATIMER_IRQHandler,  // 62
+        RTC_IRQHandler,     // 63
+        0,                  // 64
+        WDT_IRQHandler,     // 65
+        M0SUB_IRQHandler,   // 66
+        CAN0_IRQHandler,    // 67
+        QEI_IRQHandler,     // 68
     };
 
 //*****************************************************************************
@@ -259,8 +259,7 @@ void (*const g_pfnVectors[])(void) = {
 // ResetISR() function in order to cope with MCUs with multiple banks of
 // memory.
 //*****************************************************************************
-__attribute__((section(".after_vectors"
-                )))
+__attribute__((section(".after_vectors")))
 void data_init(unsigned int romstart, unsigned int start, unsigned int len) {
     unsigned int *pulDest = (unsigned int*) start;
     unsigned int *pulSrc = (unsigned int*) romstart;
@@ -269,7 +268,7 @@ void data_init(unsigned int romstart, unsigned int start, unsigned int len) {
         *pulDest++ = *pulSrc++;
 }
 
-__attribute__ ((section(".after_vectors")))
+__attribute__((section(".after_vectors")))
 void bss_init(unsigned int start, unsigned int len) {
     unsigned int *pulDest = (unsigned int*) start;
     unsigned int loop;
@@ -296,7 +295,6 @@ extern unsigned int __bss_section_table_end;
 //
 //*****************************************************************************
 void ResetISR(void) {
-
 // *************************************************************
 // The following conditional block of code manually resets as
 // much of the peripheral set of the LPC43 as possible. This is
@@ -391,7 +389,7 @@ void ResetISR(void) {
     asm(" ORR R1, R1, #(0xF << 20)");
     // Write back the modified value to the CPACR
     asm("STR R1, [R0]");
-#endif // (__VFP_FP__) && !(__SOFTFP__)
+#endif  // (__VFP_FP__) && !(__SOFTFP__)
     // ******************************
     // Check to see if we are running the code from a non-zero
     // address (eg RAM, external flash), in which case we need
@@ -430,7 +428,6 @@ void ResetISR(void) {
     // main() shouldn't return, but if it does, we'll just enter an infinite loop
     //
     while (1) {
-        ;
     }
 }
 
@@ -438,47 +435,47 @@ void ResetISR(void) {
 // Default exception handlers. Override the ones here by defining your own
 // handler routines in your application code.
 //*****************************************************************************
-__attribute__ ((section(".after_vectors")))
+__attribute__((section(".after_vectors")))
 void NMI_Handler(void) {
     while (1) {
     }
 }
-__attribute__ ((section(".after_vectors")))
+__attribute__((section(".after_vectors")))
 void HardFault_Handler(void) {
     while (1) {
     }
 }
-__attribute__ ((section(".after_vectors")))
+__attribute__((section(".after_vectors")))
 void MemManage_Handler(void) {
     while (1) {
     }
 }
-__attribute__ ((section(".after_vectors")))
+__attribute__((section(".after_vectors")))
 void BusFault_Handler(void) {
     while (1) {
     }
 }
-__attribute__ ((section(".after_vectors")))
+__attribute__((section(".after_vectors")))
 void UsageFault_Handler(void) {
     while (1) {
     }
 }
-__attribute__ ((section(".after_vectors")))
+__attribute__((section(".after_vectors")))
 void SVC_Handler(void) {
     while (1) {
     }
 }
-__attribute__ ((section(".after_vectors")))
+__attribute__((section(".after_vectors")))
 void DebugMon_Handler(void) {
     while (1) {
     }
 }
-__attribute__ ((section(".after_vectors")))
+__attribute__((section(".after_vectors")))
 void PendSV_Handler(void) {
     while (1) {
     }
 }
-__attribute__ ((section(".after_vectors")))
+__attribute__((section(".after_vectors")))
 void SysTick_Handler(void) {
     while (1) {
     }
@@ -490,7 +487,7 @@ void SysTick_Handler(void) {
 // handler is not present in the application code.
 //
 //*****************************************************************************
-__attribute__ ((section(".after_vectors")))
+__attribute__((section(".after_vectors")))
 void IntDefaultHandler(void) {
     while (1) {
     }
