@@ -1,6 +1,6 @@
 board.h:198:20:void udelay(int32_t)	24	static
 debug.h:56:27:const char* levelText(debugLevels)	24	static
-debug.h:137:21:)	24	static
+debug.h:136:21:)	24	static
 spi.h:24:19:int spi_write(void*, size_t, void (*)(bool))	48	static
 ad2s1210.cpp:21:9:int32_t ad2s1210::config_write(uint8_t) const	24	static
 ad2s1210.cpp:37:9:uint8_t ad2s1210::config_read(uint8_t) const	96	static

@@ -97,7 +97,7 @@
 #define LWIP_NETCONN                    1
 #define MEMP_NUM_SYS_TIMEOUT            300
 
-#define LWIP_SO_RCVTIMEO 				1
+#define LWIP_SO_RCVTIMEO                 1
 
 #define LWIP_STATS                      0
 #define LINK_STATS                      0

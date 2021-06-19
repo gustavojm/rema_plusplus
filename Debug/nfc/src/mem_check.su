@@ -1,4 +1,4 @@
 debug.h:56:27:const char* levelText(debugLevels)	24	static
-debug.h:137:21:)	24	static
-mem_check.cpp:10:13:void mem_check_task(void*)	16	static
-mem_check.cpp:24:6:void mem_check_init()	32	static
+debug.h:136:21:)	24	static
+mem_check.cpp:9:13:void mem_check_task(void*)	16	static
+mem_check.cpp:23:6:void mem_check_init()	32	static

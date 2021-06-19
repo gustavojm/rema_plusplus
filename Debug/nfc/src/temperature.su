@@ -1,2 +1,2 @@
 temperature.cpp:16:6:void temperature_init()	16	static
-temperature.cpp:30:10:uint16_t temperature_read()	16	static
+temperature.cpp:29:10:uint16_t temperature_read()	16	static

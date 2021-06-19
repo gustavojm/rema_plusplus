@@ -50,31 +50,30 @@ extern "C" {
 #endif
 
 enum debugLevels {
-	Debug, Info, InfoLocal, Warn, Error,
+    Debug, Info, InfoLocal, Warn, Error,
 };
 
-static inline const char* levelText(enum debugLevels level)
-{
-	const char *ret;
-	switch (level) {
-	case Debug:
-		ret = "Debug";
-		break;
-	case Info:
-	case InfoLocal:
-		ret = "Info";
-		break;
-	case Warn:
-		ret = "Warn";
-		break;
-	case Error:
-		ret = "Error";
-		break;
-	default:
-		ret = "";
-		break;
-	}
-	return ret;
+static inline const char* levelText(enum debugLevels level) {
+    const char *ret;
+    switch (level) {
+    case Debug:
+        ret = "Debug";
+        break;
+    case Info:
+    case InfoLocal:
+        ret = "Info";
+        break;
+    case Warn:
+        ret = "Warn";
+        break;
+    case Error:
+        ret = "Error";
+        break;
+    default:
+        ret = "";
+        break;
+    }
+    return ret;
 }
 
 /**
@@ -122,47 +121,46 @@ void debugClose(void);
  * Expands a name into a string and a value.
  * @param name name of variable
  */
-#define debugV(name) #name,(name)
+#define debugV(name) #name, (name)
 
 /**
- * @brief 	outputs the name and value of a single variable.
- * @param 	fmt 	: format to print the var
- * @param 	name 	: name of the variable to print
+ * @brief     outputs the name and value of a single variable.
+ * @param     fmt     : format to print the var
+ * @param     name     : name of the variable to print
  */
 #define vDebug(fmt, name) debug("%s=(" fmt ")" , debugV(name))
 
 /** Simple alias for <tt>lDebug()</tt> */
 #define debug(fmt, ...) lDebug(1, fmt, ##__VA_ARGS__)
 
-static inline char* make_message(const char *fmt, ...)
-{
-	int size = 0;
-	char *p = NULL;
-	va_list ap;
+static inline char* make_message(const char *fmt, ...) {
+    int size = 0;
+    char *p = NULL;
+    va_list ap;
 
-	/* Determine required size */
+    /* Determine required size */
 
-	va_start(ap, fmt);
-	size = vsnprintf(p, size, fmt, ap);
-	va_end(ap);
+    va_start(ap, fmt);
+    size = vsnprintf(p, size, fmt, ap);
+    va_end(ap);
 
-	if (size < 0)
-		return NULL;
+    if (size < 0)
+        return NULL;
 
-	size++; /* For '\0' */
-	p = (char *) pvPortMalloc(size);
-	if (p == NULL)
-		return NULL;
+    size++; /* For '\0' */
+    p = (char*) pvPortMalloc(size);
+    if (p == NULL)
+        return NULL;
 
-	va_start(ap, fmt);
-	size = vsnprintf(p, size, fmt, ap);
-	if (size < 0) {
-		vPortFree(p);
-		return NULL;
-	}
-	va_end(ap);
+    va_start(ap, fmt);
+    size = vsnprintf(p, size, fmt, ap);
+    if (size < 0) {
+        vPortFree(p);
+        return NULL;
+    }
+    va_end(ap);
 
-	return p;
+    return p;
 }
 
 /**
@@ -173,25 +171,25 @@ static inline char* make_message(const char *fmt, ...)
  */
 #define lDebug(level, fmt, ...) \
 do { \
-		if (DEBUG_ENABLED && (debugLocalLevel <= level)) { \
-			if (uart_mutex != NULL) {	\
-				if (xSemaphoreTake(uart_mutex, portMAX_DELAY) == pdTRUE) { \
-					printf("%lu - %s %s[%d] %s() " fmt "\n", xTaskGetTickCount(), \
-					levelText(level), __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
-					xSemaphoreGive(uart_mutex); \
-				} \
-			} \
+        if (DEBUG_ENABLED && (debugLocalLevel <= level)) { \
+            if (uart_mutex != NULL) {    \
+                if (xSemaphoreTake(uart_mutex, portMAX_DELAY) == pdTRUE) { \
+                    printf("%lu - %s %s[%d] %s() " fmt "\n", xTaskGetTickCount(), \
+                    levelText(level), __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
+                    xSemaphoreGive(uart_mutex); \
+                } \
+            } \
        }\
-	   \
-	   if (DEBUG_ENABLED && debug_to_network && (debugNetLevel <= level) && (level != InfoLocal)) {\
-		   	char *dbg_msg = make_message("%u - %s %s[%d] %s() " fmt, xTaskGetTickCount(), \
-				levelText(level), __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
-			if (xQueueSend(debug_queue, &dbg_msg, (TickType_t) 0) != pdPASS) { \
-				vPortFree(dbg_msg); \
-				dbg_msg = NULL; \
-			} \
-	   } \
-} while(0)
+       \
+       if (DEBUG_ENABLED && debug_to_network && (debugNetLevel <= level) && (level != InfoLocal)) {\
+               char *dbg_msg = make_message("%u - %s %s[%d] %s() " fmt, xTaskGetTickCount(), \
+                levelText(level), __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
+            if (xQueueSend(debug_queue, &dbg_msg, (TickType_t) 0) != pdPASS) { \
+                vPortFree(dbg_msg); \
+                dbg_msg = NULL; \
+            } \
+       } \
+} while (0)
 
 #ifdef __cplusplus
 }

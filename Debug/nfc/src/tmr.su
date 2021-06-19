@@ -12,7 +12,7 @@ timer_18xx_43xx.h:217:20:void Chip_TIMER_SetMatch(LPC_TIMER_T*, int8_t, uint32_t
 timer_18xx_43xx.h:248:20:void Chip_TIMER_MatchEnableInt(LPC_TIMER_T*, int8_t)	16	static
 timer_18xx_43xx.h:270:20:void Chip_TIMER_ResetOnMatchEnable(LPC_TIMER_T*, int8_t)	16	static
 debug.h:56:27:const char* levelText(debugLevels)	24	static
-debug.h:137:21:)	24	static
+debug.h:136:21:)	24	static
 tmr.cpp:20:1:tmr::tmr(LPC_TIMER_T*, CHIP_RGU_RST_T, CHIP_CCU_CLK_T, IRQn_Type)	24	static
 tmr.cpp:47:9:int32_t tmr::set_freq(uint32_t)	40	static
 tmr.cpp:70:6:void tmr::start()	16	static

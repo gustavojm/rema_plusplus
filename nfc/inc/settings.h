@@ -10,10 +10,10 @@ extern "C" {
 #endif
 
 struct settings {
-	ip_addr_t	gw;
-	ip_addr_t	ipaddr;
-	ip_addr_t	netmask;
-	uint16_t	port;
+    ip_addr_t   gw;
+    ip_addr_t   ipaddr;
+    ip_addr_t   netmask;
+    uint16_t    port;
 };
 
 void settings_init();

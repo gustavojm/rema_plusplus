@@ -1,5 +1,5 @@
 eeprom_18xx_43xx.h:144:20:void Chip_EEPROM_SetAutoProg(LPC_EEPROM_T*, uint32_t)	16	static
 eeprom.cpp:5:6:void EEPROM_init()	8	static
-eeprom.cpp:14:6:void EEPROM_Read(uint32_t, uint32_t, uint32_t*, uint32_t)	32	static
-eeprom.cpp:24:6:void EEPROM_Erase(uint32_t)	24	static
-eeprom.cpp:34:6:void EEPROM_Write(uint32_t, uint32_t, uint32_t*, uint32_t)	32	static
+eeprom.cpp:13:6:void EEPROM_Read(uint32_t, uint32_t, uint32_t*, uint32_t)	32	static
+eeprom.cpp:22:6:void EEPROM_Erase(uint32_t)	24	static
+eeprom.cpp:31:6:void EEPROM_Write(uint32_t, uint32_t, uint32_t*, uint32_t)	32	static

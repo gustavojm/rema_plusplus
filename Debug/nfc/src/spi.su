@@ -2,4 +2,4 @@ ssp_18xx_43xx.h:239:20:void Chip_SSP_Enable(LPC_SSP_T*)	16	static
 ssp_18xx_43xx.h:413:20:void Chip_SSP_SetFormat(LPC_SSP_T*, uint32_t, uint32_t, uint32_t)	24	static
 board.h:198:20:void udelay(int32_t)	24	static
 spi.cpp:26:9:int32_t spi_sync_transfer(Chip_SSP_DATA_SETUP_T*, uint32_t, void (*)(bool))	32	static
-spi.cpp:60:6:void spi_init()	8	static
+spi.cpp:59:6:void spi_init()	8	static

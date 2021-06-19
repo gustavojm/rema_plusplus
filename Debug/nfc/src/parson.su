@@ -1,140 +1,140 @@
-parson.cpp:159:15:char* parson_strndup(const char*, size_t)	24	static
-parson.cpp:170:15:char* parson_strdup(const char*)	16	static
-parson.cpp:174:12:int hex_char_to_int(char)	16	static
-parson.cpp:185:12:int parse_utf16_hex(const char*, unsigned int*)	32	static
-parson.cpp:201:12:int num_bytes_in_utf8_sequence(unsigned char)	16	static
-parson.cpp:216:12:int verify_utf8_sequence(const unsigned char*, int*)	24	static
-parson.cpp:258:12:int is_valid_utf8(const char*, size_t)	24	static
-parson.cpp:270:12:int is_decimal(const char*, size_t)	16	static
-parson.cpp:285:15:char* read_file(const char*)	40	static
-parson.cpp:318:13:void remove_comments(char*, const char*, const char*)	56	static
-parson.cpp:354:22:JSON_Object* json_object_init(JSON_Value*)	24	static
-parson.cpp:367:20:JSON_Status json_object_add(JSON_Object*, const char*, JSON_Value*)	24	static
-parson.cpp:374:20:JSON_Status json_object_addn(JSON_Object*, const char*, size_t, JSON_Value*)	40	static
-parson.cpp:399:20:JSON_Status json_object_resize(JSON_Object*, size_t)	24	static
-parson.cpp:429:21:JSON_Value* json_object_getn_value(const JSON_Object*, const char*, size_t)	32	static
-parson.cpp:443:20:JSON_Status json_object_remove_internal(JSON_Object*, const char*, int)	32	static
-parson.cpp:466:20:JSON_Status json_object_dotremove_internal(JSON_Object*, const char*, int)	40	static
-parson.cpp:481:13:void json_object_free(JSON_Object*)	24	static
-parson.cpp:493:21:JSON_Array* json_array_init(JSON_Value*)	24	static
-parson.cpp:505:20:JSON_Status json_array_add(JSON_Array*, JSON_Value*)	24	static
-parson.cpp:518:20:JSON_Status json_array_resize(JSON_Array*, size_t)	24	static
-parson.cpp:536:13:void json_array_free(JSON_Array*)	24	static
-parson.cpp:546:21:JSON_Value* json_value_init_string_no_copy(char*, size_t)	24	static
-parson.cpp:559:20:JSON_Status skip_quotes(const char**)	16	static
-parson.cpp:579:12:int parse_utf16(const char**, char**)	40	static
-parson.cpp:628:14:char* process_string(const char*, size_t, size_t*)	48	static
-parson.cpp:685:15:char* get_quoted_string(const char**, size_t*)	32	static
-parson.cpp:696:21:JSON_Value* parse_value(const char**, size_t)	16	static
-parson.cpp:721:21:JSON_Value* parse_object_value(const char**, size_t)	40	static
-parson.cpp:785:21:JSON_Value* parse_array_value(const char**, size_t)	32	static
-parson.cpp:831:21:JSON_Value* parse_string_value(const char**)	32	static
-parson.cpp:846:21:JSON_Value* parse_boolean_value(const char**)	24	static
-parson.cpp:859:21:JSON_Value* parse_number_value(const char**)	32	static
-parson.cpp:871:21:JSON_Value* parse_null_value(const char**)	24	static
-parson.cpp:891:12:int json_serialize_to_buffer_r(const JSON_Value*, char*, int, int, char*)	80	static
-parson.cpp:1030:12:int json_serialize_string(const char*, size_t, char*)	40	static
-parson.cpp:1097:12:int append_indent(char*, int)	32	static
-parson.cpp:1106:12:int append_string(char*, const char*)	16	static
-parson.cpp:1117:14:JSON_Value* json_parse_file(const char*)	24	static
-parson.cpp:1128:14:JSON_Value* json_parse_file_with_comments(const char*)	24	static
-parson.cpp:1139:14:JSON_Value* json_parse_string(const char*)	16	static
-parson.cpp:1149:14:JSON_Value* json_parse_string_with_comments(const char*)	32	static
-parson.cpp:1166:14:JSON_Value* json_object_get_value(const JSON_Object*, const char*)	16	static
-parson.cpp:1173:14:const char* json_object_get_string(const JSON_Object*, const char*)	16	static
-parson.cpp:1177:8:size_t json_object_get_string_len(const JSON_Object*, const char*)	16	static
-parson.cpp:1181:8:double json_object_get_number(const JSON_Object*, const char*)	16	static
-parson.cpp:1185:15:JSON_Object* json_object_get_object(const JSON_Object*, const char*)	16	static
-parson.cpp:1189:14:JSON_Array* json_object_get_array(const JSON_Object*, const char*)	16	static
-parson.cpp:1193:5:int json_object_get_boolean(const JSON_Object*, const char*)	16	static
-parson.cpp:1197:14:JSON_Value* json_object_dotget_value(const JSON_Object*, const char*)	24	static
-parson.cpp:1206:14:const char* json_object_dotget_string(const JSON_Object*, const char*)	16	static
-parson.cpp:1210:8:size_t json_object_dotget_string_len(const JSON_Object*, const char*)	16	static
-parson.cpp:1214:8:double json_object_dotget_number(const JSON_Object*, const char*)	16	static
-parson.cpp:1218:15:JSON_Object* json_object_dotget_object(const JSON_Object*, const char*)	16	static
-parson.cpp:1222:14:JSON_Array* json_object_dotget_array(const JSON_Object*, const char*)	16	static
-parson.cpp:1226:5:int json_object_dotget_boolean(const JSON_Object*, const char*)	16	static
-parson.cpp:1230:8:size_t json_object_get_count(const JSON_Object*)	16	static
-parson.cpp:1234:14:const char* json_object_get_name(const JSON_Object*, size_t)	16	static
-parson.cpp:1241:14:JSON_Value* json_object_get_value_at(const JSON_Object*, size_t)	16	static
-parson.cpp:1248:13:JSON_Value* json_object_get_wrapping_value(const JSON_Object*)	16	static
-parson.cpp:1252:5:int json_object_has_value(const JSON_Object*, const char*)	16	static
-parson.cpp:1256:5:int json_object_has_value_of_type(const JSON_Object*, const char*, JSON_Value_Type)	32	static
-parson.cpp:1261:5:int json_object_dothas_value(const JSON_Object*, const char*)	16	static
-parson.cpp:1265:5:int json_object_dothas_value_of_type(const JSON_Object*, const char*, JSON_Value_Type)	32	static
-parson.cpp:1271:14:JSON_Value* json_array_get_value(const JSON_Array*, size_t)	16	static
-parson.cpp:1278:14:const char* json_array_get_string(const JSON_Array*, size_t)	16	static
-parson.cpp:1282:8:size_t json_array_get_string_len(const JSON_Array*, size_t)	16	static
-parson.cpp:1286:8:double json_array_get_number(const JSON_Array*, size_t)	16	static
-parson.cpp:1290:15:JSON_Object* json_array_get_object(const JSON_Array*, size_t)	16	static
-parson.cpp:1294:14:JSON_Array* json_array_get_array(const JSON_Array*, size_t)	16	static
-parson.cpp:1298:5:int json_array_get_boolean(const JSON_Array*, size_t)	16	static
-parson.cpp:1302:8:size_t json_array_get_count(const JSON_Array*)	16	static
-parson.cpp:1306:14:JSON_Value* json_array_get_wrapping_value(const JSON_Array*)	16	static
-parson.cpp:1311:17:JSON_Value_Type json_value_get_type(const JSON_Value*)	16	static
-parson.cpp:1315:15:JSON_Object* json_value_get_object(const JSON_Value*)	16	static
-parson.cpp:1319:14:JSON_Array* json_value_get_array(const JSON_Value*)	16	static
-parson.cpp:1323:28:const JSON_String* json_value_get_string_desc(const JSON_Value*)	16	static
-parson.cpp:1327:14:const char* json_value_get_string(const JSON_Value*)	24	static
-parson.cpp:1332:8:size_t json_value_get_string_len(const JSON_Value*)	24	static
-parson.cpp:1337:8:double json_value_get_number(const JSON_Value*)	16	static
-parson.cpp:1341:5:int json_value_get_boolean(const JSON_Value*)	16	static
-parson.cpp:1345:14:JSON_Value* json_value_get_parent(const JSON_Value*)	16	static
-parson.cpp:1349:6:void json_value_free(JSON_Value*)	16	static
-parson.cpp:1366:14:JSON_Value* json_value_init_object()	16	static
-parson.cpp:1381:14:JSON_Value* json_value_init_array()	16	static
-parson.cpp:1396:14:JSON_Value* json_value_init_string(const char*)	16	static
-parson.cpp:1403:14:JSON_Value* json_value_init_string_with_len(const char*, size_t)	24	static
-parson.cpp:1423:14:JSON_Value* json_value_init_number(double)	24	static
-parson.cpp:1438:14:JSON_Value* json_value_init_boolean(int)	24	static
-parson.cpp:1449:14:JSON_Value* json_value_init_null()	16	static
-parson.cpp:1459:14:JSON_Value* json_value_deep_copy(const JSON_Value*)	64	static
-parson.cpp:1539:8:size_t json_serialization_size(const JSON_Value*)	96	static
-parson.cpp:1545:13:JSON_Status json_serialize_to_buffer(const JSON_Value*, char*, size_t)	40	static
-parson.cpp:1558:13:JSON_Status json_serialize_to_file(const JSON_Value*, const char*)	32	static
-parson.cpp:1580:8:char* json_serialize_to_string(const JSON_Value*)	32	static
-parson.cpp:1599:8:size_t json_serialization_size_pretty(const JSON_Value*)	96	static
-parson.cpp:1605:13:JSON_Status json_serialize_to_buffer_pretty(const JSON_Value*, char*, size_t)	40	static
-parson.cpp:1618:13:JSON_Status json_serialize_to_file_pretty(const JSON_Value*, const char*)	32	static
-parson.cpp:1640:8:char* json_serialize_to_string_pretty(const JSON_Value*)	32	static
-parson.cpp:1659:6:void json_free_serialized_string(char*)	16	static
-parson.cpp:1663:13:JSON_Status json_array_remove(JSON_Array*, size_t)	24	static
-parson.cpp:1675:13:JSON_Status json_array_replace_value(JSON_Array*, size_t, JSON_Value*)	24	static
-parson.cpp:1685:13:JSON_Status json_array_replace_string(JSON_Array*, size_t, const char*)	32	static
-parson.cpp:1697:13:JSON_Status json_array_replace_string_with_len(JSON_Array*, size_t, const char*, size_t)	32	static
-parson.cpp:1709:13:JSON_Status json_array_replace_number(JSON_Array*, size_t, double)	32	static
-parson.cpp:1721:13:JSON_Status json_array_replace_boolean(JSON_Array*, size_t, int)	32	static
-parson.cpp:1733:13:JSON_Status json_array_replace_null(JSON_Array*, size_t)	24	static
-parson.cpp:1745:13:JSON_Status json_array_clear(JSON_Array*)	24	static
-parson.cpp:1757:13:JSON_Status json_array_append_value(JSON_Array*, JSON_Value*)	16	static
-parson.cpp:1764:13:JSON_Status json_array_append_string(JSON_Array*, const char*)	24	static
-parson.cpp:1776:13:JSON_Status json_array_append_string_with_len(JSON_Array*, const char*, size_t)	32	static
-parson.cpp:1788:13:JSON_Status json_array_append_number(JSON_Array*, double)	32	static
-parson.cpp:1800:13:JSON_Status json_array_append_boolean(JSON_Array*, int)	24	static
-parson.cpp:1812:13:JSON_Status json_array_append_null(JSON_Array*)	24	static
-parson.cpp:1824:13:JSON_Status json_object_set_value(JSON_Object*, const char*, JSON_Value*)	32	static
-parson.cpp:1845:13:JSON_Status json_object_set_string(JSON_Object*, const char*, const char*)	32	static
-parson.cpp:1854:13:JSON_Status json_object_set_string_with_len(JSON_Object*, const char*, const char*, size_t)	32	static
-parson.cpp:1863:13:JSON_Status json_object_set_number(JSON_Object*, const char*, double)	32	static
-parson.cpp:1872:13:JSON_Status json_object_set_boolean(JSON_Object*, const char*, int)	32	static
-parson.cpp:1881:13:JSON_Status json_object_set_null(JSON_Object*, const char*)	24	static
-parson.cpp:1890:13:JSON_Status json_object_dotset_value(JSON_Object*, const char*, JSON_Value*)	56	static
-parson.cpp:1932:13:JSON_Status json_object_dotset_string(JSON_Object*, const char*, const char*)	32	static
-parson.cpp:1944:13:JSON_Status json_object_dotset_string_with_len(JSON_Object*, const char*, const char*, size_t)	32	static
-parson.cpp:1956:13:JSON_Status json_object_dotset_number(JSON_Object*, const char*, double)	32	static
-parson.cpp:1968:13:JSON_Status json_object_dotset_boolean(JSON_Object*, const char*, int)	32	static
-parson.cpp:1980:13:JSON_Status json_object_dotset_null(JSON_Object*, const char*)	24	static
-parson.cpp:1992:13:JSON_Status json_object_remove(JSON_Object*, const char*)	16	static
-parson.cpp:1996:13:JSON_Status json_object_dotremove(JSON_Object*, const char*)	16	static
-parson.cpp:2000:13:JSON_Status json_object_clear(JSON_Object*)	24	static
-parson.cpp:2013:13:JSON_Status json_validate(const JSON_Value*, const JSON_Value*)	64	static
-parson.cpp:2073:5:int json_value_equals(const JSON_Value*, const JSON_Value*)	72	static
-parson.cpp:2138:17:JSON_Value_Type json_type(const JSON_Value*)	16	static
-parson.cpp:2142:15:JSON_Object* json_object(const JSON_Value*)	16	static
-parson.cpp:2146:14:JSON_Array* json_array(const JSON_Value*)	16	static
-parson.cpp:2150:14:const char* json_string(const JSON_Value*)	16	static
-parson.cpp:2154:8:size_t json_string_len(const JSON_Value*)	16	static
-parson.cpp:2158:8:double json_number(const JSON_Value*)	16	static
-parson.cpp:2162:5:int json_boolean(const JSON_Value*)	16	static
-parson.cpp:2166:6:void json_set_allocation_functions(JSON_Malloc_Function, JSON_Free_Function)	16	static
-parson.cpp:2171:6:void json_set_escape_slashes(int)	16	static
+parson.cpp:166:14:char* parson_strndup(const char*, size_t)	24	static
+parson.cpp:177:14:char* parson_strdup(const char*)	16	static
+parson.cpp:181:12:int hex_char_to_int(char)	16	static
+parson.cpp:192:12:int parse_utf16_hex(const char*, unsigned int*)	32	static
+parson.cpp:208:12:int num_bytes_in_utf8_sequence(unsigned char)	16	static
+parson.cpp:223:12:int verify_utf8_sequence(const unsigned char*, int*)	24	static
+parson.cpp:266:12:int is_valid_utf8(const char*, size_t)	24	static
+parson.cpp:278:12:int is_decimal(const char*, size_t)	16	static
+parson.cpp:293:14:char* read_file(const char*)	40	static
+parson.cpp:326:13:void remove_comments(char*, const char*, const char*)	56	static
+parson.cpp:364:21:JSON_Object* json_object_init(JSON_Value*)	24	static
+parson.cpp:377:20:JSON_Status json_object_add(JSON_Object*, const char*, JSON_Value*)	24	static
+parson.cpp:385:20:JSON_Status json_object_addn(JSON_Object*, const char*, size_t, JSON_Value*)	40	static
+parson.cpp:411:20:JSON_Status json_object_resize(JSON_Object*, size_t)	24	static
+parson.cpp:444:20:JSON_Value* json_object_getn_value(const JSON_Object*, const char*, size_t)	32	static
+parson.cpp:459:20:JSON_Status json_object_remove_internal(JSON_Object*, const char*, int)	32	static
+parson.cpp:483:20:JSON_Status json_object_dotremove_internal(JSON_Object*, const char*, int)	40	static
+parson.cpp:499:13:void json_object_free(JSON_Object*)	24	static
+parson.cpp:511:20:JSON_Array* json_array_init(JSON_Value*)	24	static
+parson.cpp:523:20:JSON_Status json_array_add(JSON_Array*, JSON_Value*)	24	static
+parson.cpp:536:20:JSON_Status json_array_resize(JSON_Array*, size_t)	24	static
+parson.cpp:555:13:void json_array_free(JSON_Array*)	24	static
+parson.cpp:565:20:JSON_Value* json_value_init_string_no_copy(char*, size_t)	24	static
+parson.cpp:578:20:JSON_Status skip_quotes(const char**)	16	static
+parson.cpp:598:12:int parse_utf16(const char**, char**)	40	static
+parson.cpp:647:14:char* process_string(const char*, size_t, size_t*)	48	static
+parson.cpp:722:14:char* get_quoted_string(const char**, size_t*)	32	static
+parson.cpp:733:20:JSON_Value* parse_value(const char**, size_t)	16	static
+parson.cpp:767:20:JSON_Value* parse_object_value(const char**, size_t)	40	static
+parson.cpp:833:20:JSON_Value* parse_array_value(const char**, size_t)	32	static
+parson.cpp:881:20:JSON_Value* parse_string_value(const char**)	32	static
+parson.cpp:896:20:JSON_Value* parse_boolean_value(const char**)	24	static
+parson.cpp:909:20:JSON_Value* parse_number_value(const char**)	32	static
+parson.cpp:921:20:JSON_Value* parse_null_value(const char**)	24	static
+parson.cpp:941:12:int json_serialize_to_buffer_r(const JSON_Value*, char*, int, int, char*)	80	static
+parson.cpp:1082:12:int json_serialize_string(const char*, size_t, char*)	40	static
+parson.cpp:1217:12:int append_indent(char*, int)	32	static
+parson.cpp:1226:12:int append_string(char*, const char*)	16	static
+parson.cpp:1237:13:JSON_Value* json_parse_file(const char*)	24	static
+parson.cpp:1248:13:JSON_Value* json_parse_file_with_comments(const char*)	24	static
+parson.cpp:1259:13:JSON_Value* json_parse_string(const char*)	16	static
+parson.cpp:1269:13:JSON_Value* json_parse_string_with_comments(const char*)	32	static
+parson.cpp:1286:13:JSON_Value* json_object_get_value(const JSON_Object*, const char*)	16	static
+parson.cpp:1293:13:const char* json_object_get_string(const JSON_Object*, const char*)	16	static
+parson.cpp:1298:8:size_t json_object_get_string_len(const JSON_Object*, const char*)	16	static
+parson.cpp:1302:8:double json_object_get_number(const JSON_Object*, const char*)	16	static
+parson.cpp:1306:14:JSON_Object* json_object_get_object(const JSON_Object*, const char*)	16	static
+parson.cpp:1311:13:JSON_Array* json_object_get_array(const JSON_Object*, const char*)	16	static
+parson.cpp:1315:5:int json_object_get_boolean(const JSON_Object*, const char*)	16	static
+parson.cpp:1319:13:JSON_Value* json_object_dotget_value(const JSON_Object*, const char*)	24	static
+parson.cpp:1330:13:const char* json_object_dotget_string(const JSON_Object*, const char*)	16	static
+parson.cpp:1335:8:size_t json_object_dotget_string_len(const JSON_Object*, const char*)	16	static
+parson.cpp:1340:8:double json_object_dotget_number(const JSON_Object*, const char*)	16	static
+parson.cpp:1344:14:JSON_Object* json_object_dotget_object(const JSON_Object*, const char*)	16	static
+parson.cpp:1349:13:JSON_Array* json_object_dotget_array(const JSON_Object*, const char*)	16	static
+parson.cpp:1354:5:int json_object_dotget_boolean(const JSON_Object*, const char*)	16	static
+parson.cpp:1358:8:size_t json_object_get_count(const JSON_Object*)	16	static
+parson.cpp:1362:13:const char* json_object_get_name(const JSON_Object*, size_t)	16	static
+parson.cpp:1369:13:JSON_Value* json_object_get_value_at(const JSON_Object*, size_t)	16	static
+parson.cpp:1376:13:JSON_Value* json_object_get_wrapping_value(const JSON_Object*)	16	static
+parson.cpp:1380:5:int json_object_has_value(const JSON_Object*, const char*)	16	static
+parson.cpp:1384:5:int json_object_has_value_of_type(const JSON_Object*, const char*, JSON_Value_Type)	32	static
+parson.cpp:1390:5:int json_object_dothas_value(const JSON_Object*, const char*)	16	static
+parson.cpp:1394:5:int json_object_dothas_value_of_type(const JSON_Object*, const char*, JSON_Value_Type)	32	static
+parson.cpp:1401:13:JSON_Value* json_array_get_value(const JSON_Array*, size_t)	16	static
+parson.cpp:1408:13:const char* json_array_get_string(const JSON_Array*, size_t)	16	static
+parson.cpp:1412:8:size_t json_array_get_string_len(const JSON_Array*, size_t)	16	static
+parson.cpp:1416:8:double json_array_get_number(const JSON_Array*, size_t)	16	static
+parson.cpp:1420:14:JSON_Object* json_array_get_object(const JSON_Array*, size_t)	16	static
+parson.cpp:1424:13:JSON_Array* json_array_get_array(const JSON_Array*, size_t)	16	static
+parson.cpp:1428:5:int json_array_get_boolean(const JSON_Array*, size_t)	16	static
+parson.cpp:1432:8:size_t json_array_get_count(const JSON_Array*)	16	static
+parson.cpp:1436:13:JSON_Value* json_array_get_wrapping_value(const JSON_Array*)	16	static
+parson.cpp:1441:17:JSON_Value_Type json_value_get_type(const JSON_Value*)	16	static
+parson.cpp:1445:14:JSON_Object* json_value_get_object(const JSON_Value*)	16	static
+parson.cpp:1449:13:JSON_Array* json_value_get_array(const JSON_Value*)	16	static
+parson.cpp:1453:27:const JSON_String* json_value_get_string_desc(const JSON_Value*)	16	static
+parson.cpp:1458:13:const char* json_value_get_string(const JSON_Value*)	24	static
+parson.cpp:1463:8:size_t json_value_get_string_len(const JSON_Value*)	24	static
+parson.cpp:1468:8:double json_value_get_number(const JSON_Value*)	16	static
+parson.cpp:1472:5:int json_value_get_boolean(const JSON_Value*)	16	static
+parson.cpp:1476:13:JSON_Value* json_value_get_parent(const JSON_Value*)	16	static
+parson.cpp:1480:6:void json_value_free(JSON_Value*)	16	static
+parson.cpp:1497:13:JSON_Value* json_value_init_object()	16	static
+parson.cpp:1512:13:JSON_Value* json_value_init_array()	16	static
+parson.cpp:1527:13:JSON_Value* json_value_init_string(const char*)	16	static
+parson.cpp:1534:13:JSON_Value* json_value_init_string_with_len(const char*, size_t)	24	static
+parson.cpp:1554:13:JSON_Value* json_value_init_number(double)	24	static
+parson.cpp:1569:13:JSON_Value* json_value_init_boolean(int)	24	static
+parson.cpp:1580:13:JSON_Value* json_value_init_null()	16	static
+parson.cpp:1590:13:JSON_Value* json_value_deep_copy(const JSON_Value*)	64	static
+parson.cpp:1675:8:size_t json_serialization_size(const JSON_Value*)	96	static
+parson.cpp:1681:13:JSON_Status json_serialize_to_buffer(const JSON_Value*, char*, size_t)	40	static
+parson.cpp:1695:13:JSON_Status json_serialize_to_file(const JSON_Value*, const char*)	32	static
+parson.cpp:1718:7:char* json_serialize_to_string(const JSON_Value*)	32	static
+parson.cpp:1737:8:size_t json_serialization_size_pretty(const JSON_Value*)	96	static
+parson.cpp:1743:13:JSON_Status json_serialize_to_buffer_pretty(const JSON_Value*, char*, size_t)	40	static
+parson.cpp:1757:13:JSON_Status json_serialize_to_file_pretty(const JSON_Value*, const char*)	32	static
+parson.cpp:1780:7:char* json_serialize_to_string_pretty(const JSON_Value*)	32	static
+parson.cpp:1800:6:void json_free_serialized_string(char*)	16	static
+parson.cpp:1804:13:JSON_Status json_array_remove(JSON_Array*, size_t)	24	static
+parson.cpp:1817:13:JSON_Status json_array_replace_value(JSON_Array*, size_t, JSON_Value*)	24	static
+parson.cpp:1829:13:JSON_Status json_array_replace_string(JSON_Array*, size_t, const char*)	32	static
+parson.cpp:1842:13:JSON_Status json_array_replace_string_with_len(JSON_Array*, size_t, const char*, size_t)	32	static
+parson.cpp:1855:13:JSON_Status json_array_replace_number(JSON_Array*, size_t, double)	32	static
+parson.cpp:1868:13:JSON_Status json_array_replace_boolean(JSON_Array*, size_t, int)	32	static
+parson.cpp:1881:13:JSON_Status json_array_replace_null(JSON_Array*, size_t)	24	static
+parson.cpp:1893:13:JSON_Status json_array_clear(JSON_Array*)	24	static
+parson.cpp:1905:13:JSON_Status json_array_append_value(JSON_Array*, JSON_Value*)	16	static
+parson.cpp:1912:13:JSON_Status json_array_append_string(JSON_Array*, const char*)	24	static
+parson.cpp:1924:13:JSON_Status json_array_append_string_with_len(JSON_Array*, const char*, size_t)	32	static
+parson.cpp:1937:13:JSON_Status json_array_append_number(JSON_Array*, double)	32	static
+parson.cpp:1949:13:JSON_Status json_array_append_boolean(JSON_Array*, int)	24	static
+parson.cpp:1961:13:JSON_Status json_array_append_null(JSON_Array*)	24	static
+parson.cpp:1973:13:JSON_Status json_object_set_value(JSON_Object*, const char*, JSON_Value*)	32	static
+parson.cpp:1995:13:JSON_Status json_object_set_string(JSON_Object*, const char*, const char*)	32	static
+parson.cpp:2005:13:JSON_Status json_object_set_string_with_len(JSON_Object*, const char*, const char*, size_t)	32	static
+parson.cpp:2015:13:JSON_Status json_object_set_number(JSON_Object*, const char*, double)	32	static
+parson.cpp:2025:13:JSON_Status json_object_set_boolean(JSON_Object*, const char*, int)	32	static
+parson.cpp:2035:13:JSON_Status json_object_set_null(JSON_Object*, const char*)	24	static
+parson.cpp:2044:13:JSON_Status json_object_dotset_value(JSON_Object*, const char*, JSON_Value*)	56	static
+parson.cpp:2087:13:JSON_Status json_object_dotset_string(JSON_Object*, const char*, const char*)	32	static
+parson.cpp:2100:13:JSON_Status json_object_dotset_string_with_len(JSON_Object*, const char*, const char*, size_t)	32	static
+parson.cpp:2113:13:JSON_Status json_object_dotset_number(JSON_Object*, const char*, double)	32	static
+parson.cpp:2126:13:JSON_Status json_object_dotset_boolean(JSON_Object*, const char*, int)	32	static
+parson.cpp:2139:13:JSON_Status json_object_dotset_null(JSON_Object*, const char*)	24	static
+parson.cpp:2151:13:JSON_Status json_object_remove(JSON_Object*, const char*)	16	static
+parson.cpp:2155:13:JSON_Status json_object_dotremove(JSON_Object*, const char*)	16	static
+parson.cpp:2159:13:JSON_Status json_object_clear(JSON_Object*)	24	static
+parson.cpp:2172:13:JSON_Status json_validate(const JSON_Value*, const JSON_Value*)	64	static
+parson.cpp:2236:5:int json_value_equals(const JSON_Value*, const JSON_Value*)	72	static
+parson.cpp:2302:17:JSON_Value_Type json_type(const JSON_Value*)	16	static
+parson.cpp:2306:14:JSON_Object* json_object(const JSON_Value*)	16	static
+parson.cpp:2310:13:JSON_Array* json_array(const JSON_Value*)	16	static
+parson.cpp:2314:13:const char* json_string(const JSON_Value*)	16	static
+parson.cpp:2318:8:size_t json_string_len(const JSON_Value*)	16	static
+parson.cpp:2322:8:double json_number(const JSON_Value*)	16	static
+parson.cpp:2326:5:int json_boolean(const JSON_Value*)	16	static
+parson.cpp:2330:6:void json_set_allocation_functions(JSON_Malloc_Function, JSON_Free_Function)	16	static
+parson.cpp:2336:6:void json_set_escape_slashes(int)	16	static

@@ -1,5 +1,5 @@
 debug.h:56:27:const char* levelText(debugLevels)	24	static
-debug.h:137:21:)	24	static
+debug.h:136:21:)	24	static
 lift.cpp:27:13:void lift_task(void*)	48	static
-lift.cpp:83:6:void lift_init()	32	static
-lift.cpp:99:14:lift* lift_status_get()	4	static
+lift.cpp:80:6:void lift_init()	32	static
+lift.cpp:95:14:lift* lift_status_get()	4	static

@@ -7,14 +7,14 @@
 extern "C" {
 #endif
 
-#define LIFT_DIRECTION_CHANGE_DELAY_MS	500
+#define LIFT_DIRECTION_CHANGE_DELAY_MS   500
 
 enum lift_direction {
-	LIFT_DIRECTION_UP = 0, LIFT_DIRECTION_DOWN = 1,
+    LIFT_DIRECTION_UP = 0, LIFT_DIRECTION_DOWN = 1,
 };
 
 enum lift_type {
-	LIFT_TYPE_UP = 0, LIFT_TYPE_DOWN = 1, LIFT_TYPE_STOP
+    LIFT_TYPE_UP = 0, LIFT_TYPE_DOWN = 1, LIFT_TYPE_STOP
 };
 
 /**
@@ -22,7 +22,7 @@ enum lift_type {
  * @brief	messages to lift_task.
  */
 struct lift_msg {
-	enum lift_type type;
+    enum lift_type type;
 };
 
 /**
@@ -30,7 +30,7 @@ struct lift_msg {
  * @brief	lift task status.
  */
 struct lift {
-	enum lift_type type;
+    enum lift_type type;
 };
 
 void lift_init();

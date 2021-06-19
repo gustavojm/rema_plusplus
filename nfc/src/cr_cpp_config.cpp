@@ -35,31 +35,31 @@
 
 #include <stdlib.h>
 
-void *operator new(size_t size)
-{
+void* operator new(size_t size)
+        {
     return malloc(size);
 }
 
-void *operator new[](size_t size)
-{
+void* operator new[](size_t size)
+        {
     return malloc(size);
 }
 
 void operator delete(void *p)
-{
+        {
     free(p);
 }
 
 void operator delete[](void *p)
-{
+        {
     free(p);
 }
 
 extern "C" int __aeabi_atexit(void *object,
-		void (*destructor)(void *),
-		void *dso_handle)
-{
-	return 0;
+        void (*destructor)(void*),
+        void *dso_handle)
+        {
+    return 0;
 }
 
 #ifdef CPP_NO_HEAP
@@ -85,7 +85,8 @@ extern "C" void free(void *) {
 namespace __gnu_cxx {
 void __verbose_terminate_handler()
 {
-  while(1);
+    while (1)
+        ;
 }
 }
 #endif
