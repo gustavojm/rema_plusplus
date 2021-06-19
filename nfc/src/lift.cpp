@@ -86,8 +86,6 @@ void lift_init()
 	lift_queue = xQueueCreate(5, sizeof(struct lift_msg*));
 
 	lift.type = LIFT_TYPE_STOP;
-	lift.upLimit = false;
-	lift.downLimit = false;
 
 	xTaskCreate(lift_task, "Lift", configMINIMAL_STACK_SIZE * 2, NULL,
 	LIFT_TASK_PRIORITY, NULL);

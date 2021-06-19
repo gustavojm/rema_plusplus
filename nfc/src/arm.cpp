@@ -27,6 +27,7 @@ mot_pap arm("arm");
 static ad2s1210 rdc;
 tmr tmr(LPC_TIMER1, RGU_TIMER1_RST, CLK_MX_TIMER1, TIMER1_IRQn);
 struct mot_pap::gpios gpios;
+ad2s1210_gpios rdc_gpios;
 
 /**
  * @brief 	handles the arm movement.
@@ -87,13 +88,11 @@ void arm_init()
 
 	arm.set_offset(41230);
 
-	rdc.gpios.reset = &poncho_rdc_reset;
-	rdc.gpios.sample = &poncho_rdc_sample;
-	rdc.gpios.wr_fsync = &poncho_rdc_arm_wr_fsync;
-	rdc.resolution = 16;
-	rdc.fclkin = 8192000;
-	rdc.fexcit = 2000;
-	rdc.reversed = true;
+	rdc_gpios.reset = &poncho_rdc_reset;
+	rdc_gpios.sample = &poncho_rdc_sample;
+	rdc_gpios.wr_fsync = &poncho_rdc_arm_wr_fsync;
+	rdc.set_gpios(rdc_gpios);
+
 	rdc.init();
 
 	arm.set_rdc(&rdc);
@@ -158,7 +157,7 @@ void arm_set_offset(uint16_t offset)
  * @brief	returns status of the arm task.
  * @returns copy of status structure of the task
  */
-struct mot_pap *arm_get_status(void)
+mot_pap *arm_get_status(void)
 {
 	arm.read_corrected_pos();
 	return &arm;

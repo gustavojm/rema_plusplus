@@ -31,6 +31,7 @@
 #include "lwip/ip_addr.h"
 #include "tcp_server.h"
 #include "mem_check.h"
+#include <iostream>
 
 /* GPa 201117 1850 Iss2: agregado de Heap_4.c*/
 uint8_t __attribute__((section ("." "data" ".$" "RamLoc40"))) ucHeap[configTOTAL_HEAP_SIZE];

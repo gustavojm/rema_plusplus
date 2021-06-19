@@ -31,8 +31,6 @@ struct lift_msg {
  */
 struct lift {
 	enum lift_type type;
-	volatile bool upLimit;
-	volatile bool downLimit;
 };
 
 void lift_init();
