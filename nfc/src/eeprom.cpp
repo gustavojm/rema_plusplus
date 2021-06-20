@@ -12,7 +12,8 @@ void EEPROM_init(void) {
 /* Read data from EEPROM */
 void EEPROM_Read(uint32_t pageOffset, uint32_t pageAddr, uint32_t *ptr,
         uint32_t size) {
-    uint32_t *pEepromMem = (uint32_t*) EEPROM_ADDRESS(pageAddr, pageOffset);
+    uint32_t *pEepromMem = reinterpret_cast<uint32_t*>(EEPROM_ADDRESS(pageAddr,
+            pageOffset));
     for (uint32_t i = 0; i < size / 4; i++) {
         ptr[i] = pEepromMem[i];
     }
@@ -20,7 +21,8 @@ void EEPROM_Read(uint32_t pageOffset, uint32_t pageAddr, uint32_t *ptr,
 
 /* Erase a page in EEPROM */
 void EEPROM_Erase(uint32_t pageAddr) {
-    uint32_t *pEepromMem = (uint32_t*) EEPROM_ADDRESS(pageAddr, 0);
+    uint32_t *pEepromMem = reinterpret_cast<uint32_t*>(EEPROM_ADDRESS(pageAddr,
+            0));
     for (int i = 0; i < EEPROM_PAGE_SIZE / 4; i++) {
         pEepromMem[i] = 0;
     }
@@ -30,7 +32,8 @@ void EEPROM_Erase(uint32_t pageAddr) {
 /* Write data to a page in EEPROM */
 void EEPROM_Write(uint32_t pageOffset, uint32_t pageAddr, uint32_t *ptr,
         uint32_t size) {
-    uint32_t *pEepromMem = (uint32_t*) EEPROM_ADDRESS(pageAddr, pageOffset);
+    uint32_t *pEepromMem = reinterpret_cast<uint32_t*>(EEPROM_ADDRESS(pageAddr,
+            pageOffset));
 
     if (size > EEPROM_PAGE_SIZE - pageOffset)
         size = EEPROM_PAGE_SIZE - pageOffset;

@@ -53,6 +53,8 @@ static void prvSetupHardware(void) {
     debugInit();
 
     Board_Init();
+
+    printf("TAMAÑO: %d", sizeof(uint32_t));
     settings_init();
     // settings_erase();
     // dout_init();
@@ -97,7 +99,7 @@ int main(void) {
     /* Task - Ethernet PHY Initialization  */
     xTaskCreate(vStackIpSetup, "StackIpSetup",
     configMINIMAL_STACK_SIZE * 4, NULL, (tskIDLE_PRIORITY + 1UL),
-            (xTaskHandle*) NULL);
+            reinterpret_cast<xTaskHandle*>(NULL));
 
     /* Start the scheduler itself. */
     vTaskStartScheduler();
@@ -128,7 +130,7 @@ extern "C" void vApplicationStackOverflowHook(xTaskHandle *pxTask,
  * @param     ulLine        : line where configASSERT was called
  * @param     pcFileName    : file where configASSERT was called
  */
-void vAssertCalled(unsigned long ulLine, const char *const pcFileName) {
+void vAssertCalled(uint32_t ulLine, const char *const pcFileName) {
     volatile uint32_t ulSetToNonZeroInDebuggerToContinue = 0;
 
     taskENTER_CRITICAL();

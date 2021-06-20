@@ -51,7 +51,7 @@ void settings_save(struct settings settings) {
     EEPROM_Erase(PAGE_ADDR);
 
     lDebug(Info, "EEPROM write...");
-    EEPROM_Write(0, PAGE_ADDR, (uint32_t*) &settings,
+    EEPROM_Write(0, PAGE_ADDR, reinterpret_cast<uint32_t*>(&settings),
             (sizeof settings + 3) & ~0x03);
 }
 
@@ -64,7 +64,7 @@ struct settings settings_read() {
     struct settings settings;
 
     lDebug(Info, "EEPROM Read...");
-    EEPROM_Read(0, PAGE_ADDR, (uint32_t*) &settings,
+    EEPROM_Read(0, PAGE_ADDR, reinterpret_cast<uint32_t*>(&settings),
             (sizeof settings + 3) & ~0x03);
 
     if ((settings.gw.addr == 0) || (settings.ipaddr.addr == 0)

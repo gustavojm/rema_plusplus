@@ -45,7 +45,7 @@ static struct netif lpc_netif;
 /* Callback for TCPIP thread to indicate TCPIP init is done */
 static void tcpip_init_done_signal(void *arg) {
     /* Tell main thread TCP/IP init is done */
-    *(s32_t*) arg = 1;
+    *reinterpret_cast<s32_t*>(arg) = 1;
 }
 
 /* LWIP kickoff and PHY link monitor thread */
@@ -58,7 +58,7 @@ extern "C" void vStackIpSetup(void *pvParameters) {
     /* Wait until the TCP/IP thread is finished before
      continuing or wierd things may happen */
     LWIP_DEBUGF(LWIP_DBG_ON, ("Waiting for TCPIP thread to initialize...\n"));
-    tcpip_init(tcpip_init_done_signal, (void*) &tcpipdone);
+    tcpip_init(tcpip_init_done_signal, const_cast<void*>(reinterpret_cast<volatile void*>(&tcpipdone)));
     while (!tcpipdone) {
         msDelay(1);
     }
@@ -125,12 +125,12 @@ extern "C" void vStackIpSetup(void *pvParameters) {
                 }
 
                 tcpip_callback_with_block((tcpip_callback_fn) netif_set_link_up,
-                        (void*) &lpc_netif, 1);
+                        reinterpret_cast<void*>(&lpc_netif), 1);
             } else {
                 relay_spare_led(0); /* LOW */
                 tcpip_callback_with_block(
                         (tcpip_callback_fn) netif_set_link_down,
-                        (void*) &lpc_netif, 1);
+                        reinterpret_cast<void*>(&lpc_netif), 1);
             }
 
             DEBUGOUT("Link connect status: %d\r\n",

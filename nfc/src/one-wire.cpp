@@ -347,11 +347,12 @@ void strcat_num_8_hex(uint8_t *dst, size_t dstSize, uint8_t num) {
     unsigned char hex;
 
     buf[2] = '\0';
-    hex = (char) (num & 0x0F);
-    buf[1] = (char) (hex + ((hex <= 9) ? '0' : ('A' - 10)));
-    hex = (char) ((num >> 4) & 0x0F);
-    buf[0] = (char) (hex + ((hex <= 9) ? '0' : ('A' - 10)));
-    strncat((char*) dst, (char*) buf, dstSize);
+    hex = static_cast<char>((num & 0x0F));
+    buf[1] = static_cast<char>((hex + ((hex <= 9) ? '0' : ('A' - 10))));
+    hex = static_cast<char>(((num >> 4) & 0x0F));
+    buf[0] = static_cast<char>((hex + ((hex <= 9) ? '0' : ('A' - 10))));
+    strncat(reinterpret_cast<char*>(dst), reinterpret_cast<char*>(buf),
+            dstSize);
 }
 
 /**

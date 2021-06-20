@@ -49,7 +49,7 @@ static void do_retransmit(const int sock) {
                 int to_write = ack_len;
 
                 char ack_buff[5];
-                sprintf(ack_buff, "%04x", ack_len);
+                snprintf(ack_buff, sizeof ack_buff, "%04x", ack_len);
                 send(sock, ack_buff, 4, 0);
 
                 while (to_write > 0) {
@@ -94,11 +94,6 @@ static void tcp_server_task(void *pvParameters) {
     }
     int opt = 1;
     setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-#if defined(CONFIG_EXAMPLE_IPV4) && defined(CONFIG_EXAMPLE_IPV6)
-    // Note that by default IPV6 binds to both protocols, it is must be disabled
-    // if both protocols used at the same time (used in CI)
-    setsockopt(listen_sock, IPPROTO_IPV6, IPV6_V6ONLY, &opt, sizeof(opt));
-#endif
 
     lDebug(Info, "Socket created");
 
@@ -120,7 +115,7 @@ static void tcp_server_task(void *pvParameters) {
     while (1) {
         lDebug(Info, "Socket listening");
 
-        struct sockaddr source_addr;  // Large enough for both IPv4 or IPv6
+        struct sockaddr source_addr;
         socklen_t addr_len = sizeof(source_addr);
         int sock = accept(listen_sock, (struct sockaddr*) &source_addr,
                 &addr_len);
@@ -140,11 +135,6 @@ static void tcp_server_task(void *pvParameters) {
             inet_ntoa_r(((struct sockaddr_in*)&source_addr)->sin_addr,
                     addr_str, sizeof(addr_str) - 1);
         }
-#ifdef CONFIG_EXAMPLE_IPV6
-        else if (source_addr.ss_family == PF_INET6) {
-            inet6_ntoa_r(((struct sockaddr_in6 *)&source_addr)->sin6_addr, addr_str, sizeof(addr_str) - 1);
-        }
-#endif
         lDebug(Info, "Socket accepted ip address: %s", addr_str);
 
         do_retransmit(sock);

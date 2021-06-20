@@ -75,7 +75,7 @@ void mot_pap::supervise() {
     posAct = offset_correction(rdc->read_position(), offset);
 
     if (stall_detection) {
-        if (abs((int) (posAct - last_pos)) < MOT_PAP_STALL_THRESHOLD) {
+        if (abs(static_cast<int>((posAct - last_pos))) < MOT_PAP_STALL_THRESHOLD) {
             stalled_counter++;
             if (stalled_counter >= MOT_PAP_STALL_MAX_COUNT) {
                 stalled = true;
@@ -92,14 +92,14 @@ void mot_pap::supervise() {
     if (type == MOT_PAP_TYPE_CLOSED_LOOP) {
         error = posCmd - posAct;
 
-        if ((abs((int) error) < MOT_PAP_POS_PROXIMITY_THRESHOLD)) {
+        if ((abs(static_cast<int>(error)) < MOT_PAP_POS_PROXIMITY_THRESHOLD)) {
             freq = MOT_PAP_MAX_FREQ / 4;
             tmr->stop();
             tmr->set_freq(MOT_PAP_MAX_FREQ / 4);
             tmr->start();
         }
 
-        already_there = (abs((int) error) < MOT_PAP_POS_THRESHOLD);
+        already_there = (abs(static_cast<int>(error)) < MOT_PAP_POS_THRESHOLD);
 
         if (already_there) {
             already_there = true;

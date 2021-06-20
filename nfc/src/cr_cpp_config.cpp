@@ -58,7 +58,7 @@ extern "C" int __aeabi_atexit(void *object, void (*destructor)(void*),
 
 #ifdef CPP_NO_HEAP
 extern "C" void *malloc(size_t) {
-    return (void *)0;
+    return reinterpret_cast<void *>(0);
 }
 
 extern "C" void free(void *) {

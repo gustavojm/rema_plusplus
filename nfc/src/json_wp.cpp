@@ -74,7 +74,7 @@ int json_wp(char *rx_buff, char **tx_buff) {
         }
 
         buff_len = json_serialization_size(tx_JSON_value); /* returns 0 on fail */
-        *tx_buff = (char*) pvPortMalloc(buff_len);
+        *tx_buff = reinterpret_cast<char*>(pvPortMalloc(buff_len));
         if (!(*tx_buff)) {
             lDebug(Error, "Out Of Memory");
             buff_len = 0;

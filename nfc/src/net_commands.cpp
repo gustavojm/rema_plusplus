@@ -95,7 +95,7 @@ JSON_Value* arm_free_run_cmd(JSON_Value const *pars) {
                 "speed");
 
         if (dir && speed != 0) {
-            lDebug(Info, "ARM_FREE_RUN DIR: %s, SPEED: %d", dir, (int) speed);
+            lDebug(Info, "ARM_FREE_RUN DIR: %s, SPEED: %d", dir, static_cast<int>(speed));
         }
         JSON_Value *ans = json_value_init_object();
         json_object_set_boolean(json_value_get_object(ans), "ACK", true);
@@ -165,11 +165,14 @@ JSON_Value* mem_info_cmd(JSON_Value const *pars) {
 
 JSON_Value* temperature_info_cmd(JSON_Value const *pars) {
     JSON_Value *ans = json_value_init_object();
-    float temp1, temp2;
+    float temp1;
+    float temp2;
     temperature_ds18b20_get(0, &temp1);
     temperature_ds18b20_get(1, &temp2);
-    json_object_set_number(json_value_get_object(ans), "TEMP1", (double) temp1);
-    json_object_set_number(json_value_get_object(ans), "TEMP2", (double) temp2);
+    json_object_set_number(json_value_get_object(ans), "TEMP1",
+            static_cast<double>(temp1));
+    json_object_set_number(json_value_get_object(ans), "TEMP2",
+            static_cast<double>(temp2));
     return ans;
 }
 

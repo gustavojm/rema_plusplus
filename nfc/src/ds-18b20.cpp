@@ -276,7 +276,8 @@ uint8_t ds18b20_get_temperature_float(uint8_t sensor_index, float *temperature) 
     raw = Sensor[sensor_index].Temperature;
     intPart = raw >> 4; /* integral part */
     fracPart = raw & 0xf; /* fractional part */
-    *temperature = ((float) intPart) + (((float) fracPart) * 0.0625);
+    *temperature = (static_cast<float>(intPart))
+            + ((static_cast<float>(fracPart)) * 0.0625);
     return ERR_OK;
 }
 
