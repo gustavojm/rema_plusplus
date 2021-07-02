@@ -8,6 +8,7 @@
  */
 #include <string.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "FreeRTOS.h"
 #include "task.h"
 
@@ -19,7 +20,6 @@
 #include "tcp_server.h"
 #include "debug.h"
 
-#define PORT                        (1234)
 #define KEEPALIVE_IDLE              (5)
 #define KEEPALIVE_INTERVAL          (5)
 #define KEEPALIVE_COUNT             (3)
@@ -58,10 +58,12 @@ static void do_retransmit(const int sock) {
                     if (written < 0) {
                         lDebug(Error, "Error occurred during sending: errno %d",
                                 errno);
+                        goto free_buffer;
                     }
                     to_write -= written;
                 }
 
+free_buffer:
                 if (tx_buffer) {
                     vPortFree(tx_buffer);
                     tx_buffer = NULL;
@@ -72,6 +74,8 @@ static void do_retransmit(const int sock) {
 }
 
 static void tcp_server_task(void *pvParameters) {
+    uint16_t port = reinterpret_cast<uintptr_t>(pvParameters);
+
     char addr_str[128];
     int ip_protocol = 0;
     int keepAlive = 1;
@@ -83,7 +87,7 @@ static void tcp_server_task(void *pvParameters) {
     struct sockaddr_in *dest_addr_ip4 = (struct sockaddr_in*) &dest_addr;
     dest_addr_ip4->sin_addr.s_addr = htonl(INADDR_ANY);
     dest_addr_ip4->sin_family = AF_INET;
-    dest_addr_ip4->sin_port = htons(PORT);
+    dest_addr_ip4->sin_port = htons(port);
     ip_protocol = IPPROTO_IP;
 
     int listen_sock = socket(AF_INET, SOCK_STREAM, ip_protocol);
@@ -104,7 +108,7 @@ static void tcp_server_task(void *pvParameters) {
         lDebug(Error, "IPPROTO: %d", AF_INET);
         goto CLEAN_UP;
     }
-    lDebug(Info, "Socket bound, port %d", PORT);
+    lDebug(Info, "Socket bound, port %d", port);
 
     err = listen(listen_sock, 1);
     if (err != 0) {
@@ -149,8 +153,8 @@ CLEAN_UP:
 }
 
 /*---------------------------------------------------------------------------*/
-void stackIp_ThreadInit(void) {
-    sys_thread_new("tcp_thread", tcp_server_task, NULL,
+void stackIp_ThreadInit(uint16_t port) {
+    sys_thread_new("tcp_thread", tcp_server_task, (void*) (uintptr_t) port,
     // DEFAULT_THREAD_STACKSIZE,
             1024,
             configMAX_PRIORITIES - 2);

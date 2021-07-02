@@ -10,6 +10,7 @@
 #include "json_wp.h"
 #include "settings.h"
 #include "temperature_ds18b20.h"
+#include "misc.h"
 
 #define PROTOCOL_VERSION      "JSON_1.0"
 
@@ -122,19 +123,12 @@ JSON_Value* network_settings_cmd(JSON_Value const *pars) {
 
             struct settings settings;
 
-            unsigned char *gw_bytes = (unsigned char*) &(settings.gw.addr);
-            sscanf(gw, "%hhu.%hhu.%hhu.%hhu", &gw_bytes[0], &gw_bytes[1],
-                    &gw_bytes[2], &gw_bytes[3]);
+            ipv4_from_address(reinterpret_cast<uint8_t *>(&(settings.gw.addr)), gw);
 
-            unsigned char *ipaddr_bytes =
-                    (unsigned char*) &(settings.ipaddr.addr);
-            sscanf(ipaddr, "%hhu.%hhu.%hhu.%hhu", &ipaddr_bytes[0],
-                    &ipaddr_bytes[1], &ipaddr_bytes[2], &ipaddr_bytes[3]);
+            ipv4_from_address(reinterpret_cast<uint8_t *>(&(settings.ipaddr.addr)), ipaddr);
 
-            unsigned char *netmask_bytes =
-                    (unsigned char*) &(settings.netmask.addr);
-            sscanf(netmask, "%hhu.%hhu.%hhu.%hhu", &netmask_bytes[0],
-                    &netmask_bytes[1], &netmask_bytes[2], &netmask_bytes[3]);
+            ipv4_from_address(reinterpret_cast<uint8_t *>(&(settings.netmask.addr)), netmask);
+
             settings.port = port;
 
             settings_save(settings);

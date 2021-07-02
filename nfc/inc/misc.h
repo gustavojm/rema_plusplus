@@ -133,6 +133,8 @@ STB_EXTERN int stb_log2_floor(size_t);
 STB_EXTERN int stb_lowbit8(unsigned int n);
 STB_EXTERN int stb_highbit8(unsigned int n);
 
+STB_EXTERN void ipv4_from_address(uint8_t *bytes, const char *addr);
+
 #ifdef STB_DEFINE
 int stb_bitcount(unsigned int a) {  // http://graphics.stanford.edu/~seander/bithacks.html#CountBitsSetParallel
     a = (a & 0x55555555) + ((a >>  1) & 0x55555555);  // max 2
@@ -159,6 +161,31 @@ unsigned int stb_bitreverse(unsigned int n) {
 
 int stb_is_pow2(size_t n) {
     return (n & (n-1)) == 0;
+}
+
+void ipv4_from_address(uint8_t *bytes, const char *addr)
+{
+    int i = 0;
+
+    for (int count = 0; count < 4; count++) {
+        unsigned d;
+        // Not using %hh, since it might be missing in newlib-based toolchains.
+        // See also: https://git.io/vxiw5
+        int scanned = sscanf(&addr[i], "%u", &d);
+        if (scanned < 1) {
+            return;
+        }
+
+        bytes[count] = static_cast<uint8_t>(d);
+
+        for (; addr[i] != '.'; i++) {
+            if (!addr[i]) {
+                return;
+            }
+        }
+
+        i++;
+    }
 }
 
 #endif

@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-void stackIp_ThreadInit(void);
+void stackIp_ThreadInit(uint16_t port);
 
 #ifdef __cplusplus
 }

@@ -56,7 +56,7 @@ static void prvSetupHardware(void) {
 
     printf("TAMAÑO: %d", sizeof(uint32_t));
     settings_init();
-    // settings_erase();
+    //settings_erase();
     // dout_init();
     // relay_init();
     poncho_rdc_init();
