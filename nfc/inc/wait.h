@@ -5,8 +5,6 @@
 #include <stdbool.h>
 #include "board.h"
 
-#include "lift.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

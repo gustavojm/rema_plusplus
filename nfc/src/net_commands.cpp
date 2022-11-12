@@ -4,8 +4,7 @@
 #include "debug.h"
 
 #include "net_commands.h"
-#include "pole.h"
-#include "arm.h"
+#include "x_axis.h"
 #include "parson.h"
 #include "json_wp.h"
 #include "settings.h"
@@ -23,8 +22,7 @@ typedef struct {
 
 JSON_Value* telemetria_cmd(JSON_Value const *pars) {
     JSON_Value *ans = json_value_init_object();
-    json_object_set_value(json_value_get_object(ans), "ARM", arm_json());
-    // json_object_set_value(json_value_get_object(ans), "POLE", pole_json());
+    //json_object_set_value(json_value_get_object(ans), "X_axis", mot_pap_json());
     return ans;
 }
 

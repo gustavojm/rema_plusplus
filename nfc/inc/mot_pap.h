@@ -4,11 +4,11 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "gpio.h"
 #include "FreeRTOS.h"
 #include "semphr.h"
 #include "tmr.h"
 #include "parson.h"
-#include "ad2s1210.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,103 +39,108 @@ extern bool stall_detection;
  */
 class mot_pap {
 public:
-    enum direction {
-        MOT_PAP_DIRECTION_CW, MOT_PAP_DIRECTION_CCW,
-    };
+	enum direction {
+		MOT_PAP_DIRECTION_CW, MOT_PAP_DIRECTION_CCW,
+	};
 
-    enum type {
-        MOT_PAP_TYPE_FREE_RUNNING, MOT_PAP_TYPE_CLOSED_LOOP, MOT_PAP_TYPE_STOP
-    };
+	enum type {
+		MOT_PAP_TYPE_FREE_RUNNING, MOT_PAP_TYPE_CLOSED_LOOP, MOT_PAP_TYPE_STEPS, MOT_PAP_TYPE_STOP
+	};
 
-    /**
-     * @struct 	mot_pap_msg
-     * @brief	messages to POLE or ARM tasks.
-     */
-    struct msg {
-        enum type type;
-        enum direction free_run_direction;
-        uint32_t free_run_speed;
-        uint16_t closed_loop_setpoint;
-    };
+	/**
+	 * @struct 	mot_pap_msg
+	 * @brief	messages to POLE or ARM tasks.
+	 */
+	struct msg {
+		enum type type;
+		enum direction free_run_direction;
+		uint32_t free_run_speed;
+		uint16_t closed_loop_setpoint;
+		uint32_t steps;
+		struct mot_pap *axis;
+	};
 
-    /**
-     * @struct 	mot_pap_gpios
-     * @brief	pointers to functions to handle GPIO lines of this stepper motor.
-     */
-    struct gpios {
-        void (*direction)(enum direction dir);  ///< pointer to direction line function handler
-        void (*pulse)(void);         ///< pointer to pulse line function handler
-    };
+	/**
+	 * @struct 	mot_pap_gpios
+	 * @brief	pointers to functions to handle GPIO lines of this stepper motor.
+	 */
+	struct gpios {
+		struct gpio_entry direction;
+		struct gpio_entry step;
+	};
 
 public:
-    explicit mot_pap(const char *name);
+	explicit mot_pap(const char *name);
 
-    void set_offset(uint16_t offset) {
-        this->offset = offset;
-    }
+	static void task(void *par);
 
-    void set_rdc(ad2s1210 *rdc) {
-        this->rdc = rdc;
-    }
+	void set_offset(uint16_t offset) {
+		this->offset = offset;
+	}
 
-    void set_timer(class tmr *tmr) {
-        this->tmr = tmr;
-    }
+	void set_timer(class tmr *tmr) {
+		this->tmr = tmr;
+	}
 
-    void set_gpios(struct gpios gpios) {
-        this->gpios = gpios;
-    }
+	void set_gpios(struct gpios gpios) {
+		this->gpios = gpios;
+	}
 
-    void set_supervisor_semaphore(SemaphoreHandle_t supervisor_semaphore) {
-        this->supervisor_semaphore = supervisor_semaphore;
-    }
+	uint16_t offset_correction(uint16_t pos, uint16_t offset);
 
-    uint16_t offset_correction(uint16_t pos, uint16_t offset);
+	void read_corrected_pos();
 
-    void read_corrected_pos();
+	void supervise();
 
-    void supervise();
+	void new_cmd_received();
 
-    void new_cmd_received();
+	void move_free_run(enum direction direction, uint32_t speed);
 
-    void move_free_run(enum direction direction, uint32_t speed);
+	void move_steps(enum direction direction,
+			uint32_t speed, uint32_t steps);
 
-    void move_closed_loop(uint16_t setpoint);
+	void move_closed_loop(uint16_t setpoint);
 
-    void stop();
+	void stop();
 
-    void isr();
+	void isr();
 
-    void update_position();
+	void update_position();
 
-    enum mot_pap::direction direction_calculate(int32_t error) const;
+	enum mot_pap::direction direction_calculate(int32_t error) const;
 
-    bool free_run_speed_ok(uint32_t speed) const;
+	bool free_run_speed_ok(uint32_t speed) const;
 
-    uint32_t read_on_condition(void);
+	uint32_t read_on_condition(void);
 
-    JSON_Value* json() const;
+	JSON_Value* json() const;
 
-protected:
-    static const uint32_t free_run_freqs[];
-
-    const char *name;
-    enum type type;
-    enum direction dir;
-    uint16_t posCmd;
-    uint16_t posAct;
-    uint32_t freq;
-    bool stalled;
-    bool already_there;
-    uint16_t stalled_counter;
-    ad2s1210 *rdc;
-    SemaphoreHandle_t supervisor_semaphore;
-    struct gpios gpios;
-    class tmr *tmr;
-    enum direction last_dir;
-    uint16_t last_pos;
-    uint32_t half_pulses;  // counts steps from the last call to supervisor task
-    uint16_t offset;
+public:
+	static const uint32_t free_run_freqs[];
+	const char *name;
+	enum type type;
+	enum direction dir;
+	int32_t posAct;
+	int32_t posCmd;
+	int32_t posCmdMiddle;
+	int32_t requested_freq;
+	int32_t freq_increment;
+	int32_t current_freq;
+	int32_t last_pos;
+	uint32_t stalled_counter;
+	struct gpios gpios;
+	struct tmr *tmr;
+	enum direction last_dir;
+	int32_t half_pulses;// counts steps from the last call to supervisor task
+	int32_t offset;
+	int32_t half_steps_requested;
+	int32_t half_steps_curr;
+	int32_t half_steps_to_middle;
+	int32_t max_speed_reached_distance;
+	int32_t ticks_last_time;
+	bool max_speed_reached;
+	bool already_there;
+	bool stalled;
 };
 
 #endif /* MOT_PAP_H_ */

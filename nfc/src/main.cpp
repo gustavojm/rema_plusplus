@@ -18,19 +18,17 @@
 #include "board.h"
 
 #include "debug.h"
-#include "dout.h"
-#include "lift.h"
-#include "pole.h"
-#include "arm.h"
+#include "gpio.h"
+#include "x_axis.h"
 #include "temperature.h"
 #include "temperature_ds18b20.h"
-#include "poncho_rdc.h"
 #include "relay.h"
 #include "lwip_init.h"
 #include "settings.h"
 #include "lwip/ip_addr.h"
 #include "tcp_server.h"
 #include "mem_check.h"
+#include "encoders.h"
 #include <iostream>
 
 /* GPa 201117 1850 Iss2: agregado de Heap_4.c*/
@@ -54,18 +52,14 @@ static void prvSetupHardware(void) {
 
     Board_Init();
 
-    printf("TAMAÑO: %d", sizeof(uint32_t));
     settings_init();
     //settings_erase();
-    // dout_init();
-    // relay_init();
-    poncho_rdc_init();
+    relay_init();
+    encoders_init();
 
-    arm_init();
-    // pole_init();
-    // lift_init();
+    x_axis_init();
     // temperature_init();
-    temperature_ds18b20_init();
+    //temperature_ds18b20_init();
     mem_check_init();
 
     /* Utilizo el led spare para detectar conexión fisica del cable ethernet */

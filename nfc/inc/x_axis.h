@@ -1,5 +1,5 @@
-#ifndef ARM_H_
-#define ARM_H_
+#ifndef X_AXIS_H_
+#define X_AXIS_H_
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -13,18 +13,10 @@ extern "C" {
 // Declaration needed because TEST_GUI calls this IRQ handler as a standard function
 void TIMER1_IRQHandler(void);
 
-void arm_init();
-
-struct mot_pap *arm_get_status(void);
-
-uint16_t arm_get_RDC_position();
-
-void arm_set_offset(uint16_t offset);
-
-JSON_Value *arm_json(void);
+void x_axis_init();
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* ARM_H_ */
+#endif /* X_AXIS_H_ */
