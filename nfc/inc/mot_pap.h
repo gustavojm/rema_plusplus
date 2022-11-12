@@ -35,7 +35,7 @@ extern bool stall_detection;
 
 /**
  * @struct 	mot_pap
- * @brief	POLE or ARM structure.
+ * @brief	axis structure.
  */
 class mot_pap {
 public:
@@ -45,19 +45,6 @@ public:
 
 	enum type {
 		MOT_PAP_TYPE_FREE_RUNNING, MOT_PAP_TYPE_CLOSED_LOOP, MOT_PAP_TYPE_STEPS, MOT_PAP_TYPE_STOP
-	};
-
-	/**
-	 * @struct 	mot_pap_msg
-	 * @brief	messages to POLE or ARM tasks.
-	 */
-	struct msg {
-		enum type type;
-		enum direction free_run_direction;
-		uint32_t free_run_speed;
-		uint16_t closed_loop_setpoint;
-		uint32_t steps;
-		struct mot_pap *axis;
 	};
 
 	/**

@@ -12,8 +12,6 @@
 #include "relay.h"
 #include "tmr.h"
 
-QueueHandle_t mot_pap_queue = NULL;
-
 // Frequencies expressed in Khz
 const uint32_t mot_pap::free_run_freqs[] =
 		{ 0, 25, 25, 25, 50, 75, 75, 100, 125 };
@@ -45,55 +43,9 @@ void isr_helper_task(void *par) {
 	}
 }
 
-/**
- * @brief 	handles the X axis movement.
- * @param 	par		: unused
- * @returns	never
- * @note	Receives commands from x_axis_queue
- */
-void mot_pap::task(void *par) {
-	struct mot_pap::msg *msg_rcv;
-
-	while (true) {
-		if (xQueueReceive(mot_pap_queue, &msg_rcv, portMAX_DELAY) == pdPASS) {
-			lDebug(Info, "%s command received", msg_rcv->axis->name);
-
-			msg_rcv->axis->stalled = false; // If a new command was received, assume we are not stalled
-			msg_rcv->axis->stalled_counter = 0;
-			msg_rcv->axis->already_there = false;
-
-			//mot_pap_read_corrected_pos(&x_axis);
-
-			switch (msg_rcv->type) {
-			case MOT_PAP_TYPE_FREE_RUNNING:
-				msg_rcv->axis->move_free_run(msg_rcv->free_run_direction,
-						msg_rcv->free_run_speed);
-				break;
-
-			case MOT_PAP_TYPE_CLOSED_LOOP:
-				msg_rcv->axis->move_closed_loop(msg_rcv->closed_loop_setpoint);
-				break;
-
-			case MOT_PAP_TYPE_STEPS:
-				msg_rcv->axis->move_steps(msg_rcv->free_run_direction,
-						msg_rcv->free_run_speed, msg_rcv->steps);
-				break;
-
-			default:
-				msg_rcv->axis->stop();
-				break;
-			}
-
-			vPortFree(msg_rcv);
-			msg_rcv = NULL;
-		}
-	}
-}
-
 mot_pap::mot_pap(const char *name) :
 		name(name), type(MOT_PAP_TYPE_STOP), last_dir(MOT_PAP_DIRECTION_CW), half_pulses(
 				0), offset(0) {
-	mot_pap_queue = xQueueCreate(5, sizeof(struct mot_pap_msg*));
 
 	isr_helper_task_queue = xQueueCreate(1, sizeof(struct mot_pap*));
 	if (isr_helper_task_queue != NULL) {
@@ -102,11 +54,6 @@ mot_pap::mot_pap(const char *name) :
 		NULL, MOT_PAP_HELPER_TASK_PRIORITY, NULL);
 		lDebug(Info, "mot_pap: helper task created");
 	}
-
-	xTaskCreate(task, "mot_pap", 512, NULL, MOT_PAP_TASK_PRIORITY,
-	NULL);
-
-	lDebug(Info, "mot_pap: task created");
 }
 
 /**
@@ -137,6 +84,10 @@ bool mot_pap::free_run_speed_ok(uint32_t speed) const {
  */
 void mot_pap::move_free_run(enum direction direction, uint32_t speed) {
 	if (free_run_speed_ok(speed)) {
+		stalled = false; // If a new command was received, assume we are not stalled
+		stalled_counter = 0;
+		already_there = false;
+
 		if ((dir != direction) && (type != MOT_PAP_TYPE_STOP)) {
 			tmr->stop();
 			vTaskDelay(pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
@@ -159,6 +110,10 @@ void mot_pap::move_free_run(enum direction direction, uint32_t speed) {
 void mot_pap::move_steps(enum direction direction, uint32_t speed,
 		uint32_t steps) {
 	if (mot_pap::free_run_speed_ok(speed)) {
+		stalled = false; // If a new command was received, assume we are not stalled
+		stalled_counter = 0;
+		already_there = false;
+
 		if ((dir != direction) && (type != MOT_PAP_TYPE_STOP)) {
 			tmr->stop();
 			vTaskDelay(pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
@@ -195,6 +150,8 @@ void mot_pap::move_closed_loop(uint16_t setpoint) {
 	int32_t error;
 	bool already_there;
 	enum direction new_dir;
+	stalled = false; // If a new command was received, assume we are not stalled
+	stalled_counter = 0;
 
 	posCmd = setpoint;
 	lDebug(Info, "%s: CLOSED_LOOP posCmd: %li posAct: %li", name, posCmd, posAct);
