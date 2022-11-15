@@ -30,6 +30,7 @@
 #include "mem_check.h"
 #include "encoders.h"
 #include <iostream>
+#include "mot_pap.h"
 
 /* GPa 201117 1850 Iss2: agregado de Heap_4.c*/
 uint8_t __attribute__((section("." "data" ".$" "RamLoc40"))) ucHeap[configTOTAL_HEAP_SIZE];
@@ -54,6 +55,7 @@ static void prvSetupHardware(void) {
 
     settings_init();
     //settings_erase();
+    mot_pap::init();
     relay_init();
     encoders_init();
 

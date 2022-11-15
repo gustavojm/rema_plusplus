@@ -56,10 +56,7 @@ public:
 		struct gpio_entry step;
 	};
 
-public:
 	explicit mot_pap(const char *name);
-
-	static void task(void *par);
 
 	void set_offset(uint16_t offset) {
 		this->offset = offset;
@@ -87,6 +84,8 @@ public:
 			uint32_t speed, uint32_t steps);
 
 	void move_closed_loop(uint16_t setpoint);
+
+	static void init();
 
 	void stop();
 

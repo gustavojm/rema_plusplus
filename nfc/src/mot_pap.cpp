@@ -28,7 +28,8 @@ extern int count_a;
  * @returns nothing
  * @note	to be called by the deferred interrupt task handler
  */
-void isr_helper_task(void *par) {
+void isr_helper_task(void *par)
+{
 	mot_pap *me;
 	while (true) {
 		if (xQueueReceive(isr_helper_task_queue, &me,
@@ -45,8 +46,12 @@ void isr_helper_task(void *par) {
 
 mot_pap::mot_pap(const char *name) :
 		name(name), type(MOT_PAP_TYPE_STOP), last_dir(MOT_PAP_DIRECTION_CW), half_pulses(
-				0), offset(0) {
+				0), offset(0)
+{
+}
 
+void mot_pap::init()
+{
 	isr_helper_task_queue = xQueueCreate(1, sizeof(struct mot_pap*));
 	if (isr_helper_task_queue != NULL) {
 		// Create the 'handler' task, which is the task to which interrupt processing is deferred
@@ -62,7 +67,8 @@ mot_pap::mot_pap(const char *name) :
  * @returns	MOT_PAP_DIRECTION_CW if error is positive
  * @returns	MOT_PAP_DIRECTION_CCW if error is negative
  */
-enum mot_pap::direction mot_pap::direction_calculate(int32_t error) const {
+enum mot_pap::direction mot_pap::direction_calculate(int32_t error) const
+{
 	return error < 0 ? MOT_PAP_DIRECTION_CW : MOT_PAP_DIRECTION_CCW;
 }
 
@@ -71,7 +77,8 @@ enum mot_pap::direction mot_pap::direction_calculate(int32_t error) const {
  * @param 	speed : the requested speed
  * @returns	true if speed is in the allowed range
  */
-bool mot_pap::free_run_speed_ok(uint32_t speed) const {
+bool mot_pap::free_run_speed_ok(uint32_t speed) const
+{
 	return ((speed > 0) && (speed <= MOT_PAP_MAX_SPEED_FREE_RUN));
 }
 
@@ -82,7 +89,8 @@ bool mot_pap::free_run_speed_ok(uint32_t speed) const {
  * @param 	speed		: integer from 0 to 8
  * @returns	nothing
  */
-void mot_pap::move_free_run(enum direction direction, uint32_t speed) {
+void mot_pap::move_free_run(enum direction direction, uint32_t speed)
+{
 	if (free_run_speed_ok(speed)) {
 		stalled = false; // If a new command was received, assume we are not stalled
 		stalled_counter = 0;
@@ -108,16 +116,17 @@ void mot_pap::move_free_run(enum direction direction, uint32_t speed) {
 }
 
 void mot_pap::move_steps(enum direction direction, uint32_t speed,
-		uint32_t steps) {
+		uint32_t steps)
+{
 	if (mot_pap::free_run_speed_ok(speed)) {
 		stalled = false; // If a new command was received, assume we are not stalled
 		stalled_counter = 0;
 		already_there = false;
 
-		if ((dir != direction) && (type != MOT_PAP_TYPE_STOP)) {
-			tmr->stop();
-			vTaskDelay(pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
-		}
+//		if ((dir != direction) && (type != MOT_PAP_TYPE_STOP)) {
+//			tmr->stop();
+//			vTaskDelay(pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
+//		}
 		type = MOT_PAP_TYPE_STEPS;
 		dir = direction;
 		half_steps_curr = 0;
@@ -146,7 +155,8 @@ void mot_pap::move_steps(enum direction direction, uint32_t speed,
  * @param 	setpoint	: the resolver value to reach
  * @returns	nothing
  */
-void mot_pap::move_closed_loop(uint16_t setpoint) {
+void mot_pap::move_closed_loop(uint16_t setpoint)
+{
 	int32_t error;
 	bool already_there;
 	enum direction new_dir;
@@ -154,7 +164,8 @@ void mot_pap::move_closed_loop(uint16_t setpoint) {
 	stalled_counter = 0;
 
 	posCmd = setpoint;
-	lDebug(Info, "%s: CLOSED_LOOP posCmd: %li posAct: %li", name, posCmd, posAct);
+	lDebug(Info, "%s: CLOSED_LOOP posCmd: %li posAct: %li", name, posCmd,
+			posAct);
 
 	//calculate position error
 	error = posCmd - posAct;
@@ -185,7 +196,8 @@ void mot_pap::move_closed_loop(uint16_t setpoint) {
  * @param 	me	: struct mot_pap pointer
  * @returns	nothing
  */
-void mot_pap::stop() {
+void mot_pap::stop()
+{
 	type = MOT_PAP_TYPE_STOP;
 	tmr->stop();
 	lDebug(Info, "%s: STOP", name);
@@ -194,7 +206,8 @@ void mot_pap::stop() {
 /**
  * @brief 	function called by the timer ISR to generate the output pulses
  */
-void mot_pap::isr() {
+void mot_pap::isr()
+{
 	BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 	TickType_t ticks_now = xTaskGetTickCountFromISR();
 
@@ -294,11 +307,13 @@ void mot_pap::isr() {
 /**
  * @brief 	updates the current position from RDC
  */
-void mot_pap::update_position() {
+void mot_pap::update_position()
+{
 	//	posAct = count_a;
 }
 
-JSON_Value* mot_pap::json() const {
+JSON_Value* mot_pap::json() const
+{
 	JSON_Value *ans = json_value_init_object();
 	json_object_set_number(json_value_get_object(ans), "posCmd", posCmd);
 	json_object_set_number(json_value_get_object(ans), "posAct", posAct);
