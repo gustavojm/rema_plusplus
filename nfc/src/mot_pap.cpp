@@ -44,15 +44,15 @@ void isr_helper_task(void *par)
 	}
 }
 
-mot_pap::mot_pap(const char *name) :
+mot_pap::mot_pap(const char *name, class tmr t) :
 		name(name), type(MOT_PAP_TYPE_STOP), last_dir(MOT_PAP_DIRECTION_CW), half_pulses(
-				0), offset(0)
+				0), offset(0), tmr(t)
 {
 }
 
 void mot_pap::init()
 {
-	isr_helper_task_queue = xQueueCreate(1, sizeof(struct mot_pap*));
+	isr_helper_task_queue = xQueueCreate(1, sizeof(mot_pap *));
 	if (isr_helper_task_queue != NULL) {
 		// Create the 'handler' task, which is the task to which interrupt processing is deferred
 		xTaskCreate(isr_helper_task, "MotPaPHelper", 2048,
@@ -97,7 +97,7 @@ void mot_pap::move_free_run(enum direction direction, uint32_t speed)
 		already_there = false;
 
 		if ((dir != direction) && (type != MOT_PAP_TYPE_STOP)) {
-			tmr->stop();
+			tmr.stop();
 			vTaskDelay(pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
 		}
 		type = MOT_PAP_TYPE_FREE_RUNNING;
@@ -105,9 +105,9 @@ void mot_pap::move_free_run(enum direction direction, uint32_t speed)
 		gpio_set_pin_state(gpios.direction, dir);
 		requested_freq = free_run_freqs[speed] * 1000;
 
-		tmr->stop();
-		tmr->set_freq(requested_freq);
-		tmr->start();
+		tmr.stop();
+		tmr.set_freq(requested_freq);
+		tmr.start();
 		lDebug(Info, "%s: FREE RUN, speed: %li, direction: %s", name,
 				requested_freq, dir == MOT_PAP_DIRECTION_CW ? "CW" : "CCW");
 	} else {
@@ -123,10 +123,10 @@ void mot_pap::move_steps(enum direction direction, uint32_t speed,
 		stalled_counter = 0;
 		already_there = false;
 
-//		if ((dir != direction) && (type != MOT_PAP_TYPE_STOP)) {
-//			tmr->stop();
-//			vTaskDelay(pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
-//		}
+		if ((dir != direction) && (type != MOT_PAP_TYPE_STOP)) {
+			tmr.stop();
+			vTaskDelay(pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
+		}
 		type = MOT_PAP_TYPE_STEPS;
 		dir = direction;
 		half_steps_curr = 0;
@@ -139,9 +139,9 @@ void mot_pap::move_steps(enum direction direction, uint32_t speed,
 		max_speed_reached = false;
 		ticks_last_time = xTaskGetTickCount();
 
-		tmr->stop();
-		tmr->set_freq(current_freq);
-		tmr->start();
+		tmr.stop();
+		tmr.set_freq(current_freq);
+		tmr.start();
 		lDebug(Info, "%s: STEPS RUN, speed: %li, direction: %s", name,
 				requested_freq, dir == MOT_PAP_DIRECTION_CW ? "CW" : "CCW");
 	} else {
@@ -173,21 +173,21 @@ void mot_pap::move_closed_loop(uint16_t setpoint)
 
 	if (already_there) {
 		already_there = true;
-		tmr->stop();
+		tmr.stop();
 		lDebug(Info, "%s: already there", name);
 	} else {
 		new_dir = direction_calculate(error);
 		if ((dir != new_dir) && (type != MOT_PAP_TYPE_STOP)) {
-			tmr->stop();
+			tmr.stop();
 			vTaskDelay(pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
 		}
 		type = MOT_PAP_TYPE_CLOSED_LOOP;
 		dir = new_dir;
 		gpio_set_pin_state(gpios.direction, dir);
 		requested_freq = MOT_PAP_MAX_FREQ;
-		tmr->stop();
-		tmr->set_freq(requested_freq);
-		tmr->start();
+		tmr.stop();
+		tmr.set_freq(requested_freq);
+		tmr.start();
 	}
 }
 
@@ -199,7 +199,7 @@ void mot_pap::move_closed_loop(uint16_t setpoint)
 void mot_pap::stop()
 {
 	type = MOT_PAP_TYPE_STOP;
-	tmr->stop();
+	tmr.stop();
 	lDebug(Info, "%s: STOP", name);
 }
 
@@ -219,10 +219,11 @@ void mot_pap::isr()
 			stalled_counter++;
 			if (stalled_counter >= MOT_PAP_STALL_MAX_COUNT) {
 				stalled = true;
-				tmr->stop();
+				tmr.stop();
 				relay_main_pwr(0);
 
-				xQueueSendFromISR(isr_helper_task_queue, this,
+				mot_pap *p = this;		// algo sucio pero que funciona, no entiendo porqué ya que no me deja hacer &this pero de esto si...
+				xQueueSendFromISR(isr_helper_task_queue, &p,
 						&xHigherPriorityTaskWoken);
 				portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 				goto cont;
@@ -244,8 +245,10 @@ void mot_pap::isr()
 
 	if (already_there) {
 		type = MOT_PAP_TYPE_STOP;
-		tmr->stop();
-		xQueueSendFromISR(isr_helper_task_queue, this,
+		tmr.stop();
+
+		mot_pap *p = this;		// algo sucio pero que funciona, no entiendo porqué ya que no me deja hacer &this pero de esto si...
+		xQueueSendFromISR(isr_helper_task_queue, &p,
 				&xHigherPriorityTaskWoken);
 		portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 		return;
@@ -291,9 +294,9 @@ void mot_pap::isr()
 			}
 		}
 
-		tmr->stop();
-		tmr->set_freq(current_freq);
-		tmr->start();
+		tmr.stop();
+		tmr.set_freq(current_freq);
+		tmr.start();
 		ticks_last_time = ticks_now;
 	}
 
