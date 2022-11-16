@@ -33,8 +33,9 @@ void x_axis_init() {
 	x_axis.offset = 41230;
 
 	x_axis.gpios.direction =
-			(struct gpio_entry ) { 4, 8, SCU_MODE_FUNC4, 5, 12 };//DOUT4 P4_8 	PIN15  	GPIO5[12]   X_AXIS_DIR
-	x_axis.gpios.step = (struct gpio_entry ) { 4, 9, SCU_MODE_FUNC4, 5, 13 };//DOUT5 P4_9  	PIN33	GPIO5[13] 	X_AXIS_STEP
+			(struct gpio_entry ) { 4, 8, SCU_MODE_FUNC4, 5, 12 };	//DOUT4 P4_8  PIN15  GPIO5[12]  X_AXIS_DIR
+	x_axis.gpios.step =
+			(struct gpio_entry ) { 4, 9, SCU_MODE_FUNC4, 5, 13 };	//DOUT5 P4_9  PIN33	 GPIO5[13] 	X_AXIS_STEP
 
 	gpio_init_output(x_axis.gpios.direction);
 	gpio_init_output(x_axis.gpios.step);

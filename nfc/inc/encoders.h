@@ -1,15 +1,20 @@
-/*
- * encoders.h
- *
- *  Created on: 7 nov. 2022
- *      Author: gspc
- */
+#ifndef ENCODERS_H_
+#define ENCODERS_H_
 
-#ifndef NFC_INC_ENCODERS_H_
-#define NFC_INC_ENCODERS_H_
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void encoders_init();
 
+void GPIO0_IRQHandler(void);
+void GPIO1_IRQHandler(void);
+void GPIO2_IRQHandler(void);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* ENCODERS_H_ */
 
 
-#endif /* NFC_INC_ENCODERS_H_ */

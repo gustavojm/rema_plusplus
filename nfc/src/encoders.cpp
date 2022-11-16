@@ -1,9 +1,3 @@
-/*
- * encoders.c
- *
- *  Created on: 7 nov. 2022
- *      Author: gspc
- */
 
 #include <stdint.h>
 #include "board.h"
