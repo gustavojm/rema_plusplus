@@ -56,6 +56,8 @@ public:
 		struct gpio_entry step;
 	};
 
+	mot_pap() = delete;
+
 	explicit mot_pap(const char *name, tmr t);
 
 	void set_offset(uint16_t offset) {
@@ -115,10 +117,10 @@ public:
 	int32_t last_pos;
 	uint32_t stalled_counter;
 	struct gpios gpios;
-	class tmr tmr;
 	enum direction last_dir;
 	int32_t half_pulses;// counts steps from the last call to supervisor task
 	int32_t offset;
+	class tmr tmr;
 	int32_t half_steps_requested;
 	int32_t half_steps_curr;
 	int32_t half_steps_to_middle;
