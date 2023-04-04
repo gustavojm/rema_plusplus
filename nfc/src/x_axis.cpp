@@ -3,6 +3,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <chrono>
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -39,7 +40,9 @@ static void x_axis_task(void *par)
             x_axis.stalled = false;         // If a new command was received, assume we are not stalled
             x_axis.stalled_counter = 0;
             x_axis.already_there = false;
-            x_axis.step_time = 100;
+
+            using namespace std::chrono_literals;
+            x_axis.step_time = 100ms;
 
             //mot_pap_read_corrected_pos(&x_axis);
 
@@ -100,13 +103,13 @@ void x_axis_init() {
       x_axis.gpios.direction.init_output();
       x_axis.gpios.step.init_output();
 
-      x_axis.kp.init(100,                             //!< Kp
-              kp::KP_DIRECT,                              //!< Control type
+      x_axis.kp = {100,                                  //!< Kp
+              kp::DIRECT,                             //!< Control type
               x_axis.step_time,                       //!< Update rate (ms)
               -100000,                                //!< Min output
               100000,                                 //!< Max output
               10000                                   //!< Absolute Min output
-              );
+      };
 
       x_axis.supervisor_semaphore = xSemaphoreCreateBinary();
 

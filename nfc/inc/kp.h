@@ -1,14 +1,16 @@
 #ifndef KP_H_
 #define KP_H_
 
+#include <chrono>
+
 //! @brief 		Error proportional -kp- control for frequency output.
 class kp {
 public:
 
     //! @brief      Enumerates the controller direction modes
     enum controller_direction {
-        KP_DIRECT,          //!< Direct drive (+error gives +output)
-        KP_REVERSE          //!< Reverse driver (+error gives -output)
+        DIRECT,          //!< Direct drive (+error gives +output)
+        REVERSE          //!< Reverse driver (+error gives -output)
     };
 
 	//! @brief 		The set-point the error proportional -kp- control is trying to make the output converge to.
@@ -22,24 +24,24 @@ public:
 	float zp;
 
 	//! @brief		Actual (non-scaled) proportional constant
-	int kp;
+	int kp_;
 
-	//! @brief		Actual (non-scaled) proportional constant
-	int prev_input;
+	//! @brief		Actual (non-scaled) previous input
+	int prev_input = 0;
 
 	//! @brief		The change in input between the current and previous value
 	int input_change;
 
 	//! @brief 		The output value calculated the previous time Pid_Run() was called.
 	//! @details	Used in ACCUMULATE_OUTPUT mode.
-	int prev_output;
-	int prev_error;
+	int prev_output = 0;
+	int prev_error = 0;
 
 	//! @brief		The sample period (in milliseconds) between successive Pid_Run() calls.
 	//! @details	The constants with the z prefix are scaled according to this value.
-	int sample_period_ms;
+	std::chrono::milliseconds sample_period_ms;
 
-	float p_term;		//!< The proportional term that is summed as part of the output (calculated in Pid_Run())
+	float p_term = 0;		//!< The proportional term that is summed as part of the output (calculated in Pid_Run())
 	int out_min;	//!< The minimum output value. Anything lower will be limited to this floor.
 	int out_max;	//!< The maximum output value. Anything higher will be limited to this ceiling.
 	int out_abs_min;	//!< The absolute minimum output value. Anything lower will be limited to this floor.
@@ -47,17 +49,21 @@ public:
 	//! @brief		Counts the number of times that Run() has be called. Used to stop
 	//!				derivative control from influencing the output on the first call.
 	//! @details	Safely stops counting once it reaches 2^32-1 (rather than overflowing).
-	int num_times_ran;
+	int num_times_ran = 0;
 
 	//! @brief		The controller direction (FORWARD or REVERSE).
 	enum controller_direction controller_dir;
 
-    //! @brief 		Init function
+    //! @brief      Constructor
+    kp() = default;
+
+
+    //! @brief 		Constructor
     //! @details   	The parameters specified here are those for for which we can't set up
     //!    			reliable defaults, so we need to have the user set them.
-    void init(int ki,
+    kp(int ki,
             enum controller_direction controller_dir,
-            double sample_period_ms, int min_output, int max_output, int min_abs_output);
+            std::chrono::milliseconds sample_period_ms, int min_output, int max_output, int min_abs_output);
 
     void restart(int input);
 
@@ -72,7 +78,7 @@ public:
     void set_controller_direction(enum controller_direction controller_dir);
 
     //! @brief		Changes the sample time
-    void set_sample_period(unsigned int new_sample_period_ms);
+    void set_sample_period(std::chrono::milliseconds new_sample_period_ms);
 
     //! @brief		This function allows the controller's dynamic performance to be adjusted.
     //! @details	It's called automatically from the init function, but tunings can also

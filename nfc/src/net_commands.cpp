@@ -206,9 +206,10 @@ JSON_Value* kp_set_tunings_cmd(JSON_Value const *pars) {
             return ans;
             break;
         }
-
-        axis_->kp.init(kp, kp::KP_DIRECT, update, min, max, abs_min);
-        axis_->step_time = update;
+        axis_->step_time = std::chrono::milliseconds(update);
+        axis_->kp.set_output_limits(min, max, abs_min);
+        axis_->kp.set_sample_period(axis_->step_time);
+        axis_->kp.set_tunings(kp);
         lDebug(Debug, "KP Settings set");
     }
     json_object_set_boolean(json_value_get_object(ans), "ACK", true);

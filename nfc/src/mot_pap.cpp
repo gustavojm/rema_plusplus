@@ -241,7 +241,7 @@ void mot_pap::isr() {
 
     gpios.step.toggle();
 
-    if ((ticks_now - ticks_last_time) > pdMS_TO_TICKS(step_time)) {
+    if ((ticks_now - ticks_last_time) > pdMS_TO_TICKS(step_time.count())) {
 
         ticks_last_time = ticks_now;
         xSemaphoreGiveFromISR(supervisor_semaphore,

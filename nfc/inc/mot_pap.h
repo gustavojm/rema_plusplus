@@ -2,6 +2,7 @@
 #define MOT_PAP_H_
 
 #include <stdint.h>
+#include <chrono>
 
 #include "gpio.h"
 #include "FreeRTOS.h"
@@ -119,7 +120,7 @@ public:
 	int32_t requested_freq;
 	int32_t freq_increment;
 	int32_t current_freq;
-    int step_time;
+    std::chrono::milliseconds step_time;
 	float last_pos;
 	float counts_to_inch_factor;
 	uint32_t stalled_counter;
@@ -138,7 +139,7 @@ public:
 	bool stalled;
     QueueHandle_t queue;
     SemaphoreHandle_t supervisor_semaphore;
-    struct kp kp;
+    class kp kp;
 
 };
 

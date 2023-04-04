@@ -1,14 +1,15 @@
 #include <stdint.h>
 #include <stdlib.h>
+#include <chrono>
 
 #include "board.h"
 #include "kp.h"
 #include "limits.h"
 #include "debug.h"
 
-void kp::init(int kp,
+kp::kp(int kp,
 		enum controller_direction controller_dir,
-		double sample_period_ms, int min_output, int max_output, int min_abs_output)
+		std::chrono::milliseconds sample_period_ms, int min_output, int max_output, int min_abs_output)
 {
 	set_output_limits(min_output, max_output, min_abs_output);
 
@@ -18,11 +19,6 @@ void kp::init(int kp,
 
 	// Set tunings with provided constants
 	set_tunings(kp);
-	prev_input = 0;
-	prev_output = 0;
-
-	p_term = 0.0;
-	num_times_ran = 0;
 }
 
 void kp::restart(int input) {
@@ -81,7 +77,7 @@ int kp::run(float setpoint, float input) {
 }
 
 //! @brief		Sets the KP tunings.
-//! @warning	Make sure samplePeriodMs is set before calling this funciton.
+//! @warning	Make sure samplePeriodMs is set before calling this function.
 void kp::set_tunings(int kp) {
 	if (kp < 0)
 		return;
@@ -91,7 +87,7 @@ void kp::set_tunings(int kp) {
 	// Calculate time-step-scaled KP terms
 	zp = kp;
 
-	if (controller_dir == KP_REVERSE) {
+	if (controller_dir == REVERSE) {
 		zp = (0 - zp);
 
 	}
@@ -100,7 +96,7 @@ void kp::set_tunings(int kp) {
 }
 
 int kp::get_kp() {
-	return kp;
+	return kp_;
 }
 
 
@@ -109,8 +105,9 @@ int kp::get_zp() {
 }
 
 
-void kp::set_sample_period(unsigned int new_sample_period_ms) {
-	if (new_sample_period_ms > 0) {
+void kp::set_sample_period(std::chrono::milliseconds new_sample_period_ms) {
+    using namespace std::chrono_literals;
+	if (new_sample_period_ms > 0ms) {
 		sample_period_ms = new_sample_period_ms;
 	}
 }
