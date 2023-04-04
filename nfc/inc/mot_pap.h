@@ -2,13 +2,15 @@
 #define MOT_PAP_H_
 
 #include <stdint.h>
-#include <stdbool.h>
 
 #include "gpio.h"
 #include "FreeRTOS.h"
 #include "semphr.h"
 #include "tmr.h"
 #include "parson.h"
+#include "gpio.h"
+#include "kp.h"
+
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,8 +54,8 @@ public:
 	 * @brief	pointers to functions to handle GPIO lines of this stepper motor.
 	 */
 	struct gpios {
-		struct gpio_entry direction;
-		struct gpio_entry step;
+	    gpio direction;
+		gpio step;
 	};
 
 	mot_pap() = delete;
@@ -62,6 +64,11 @@ public:
 
 	void set_offset(uint16_t offset) {
 		this->offset = offset;
+	}
+
+	void set_position(double pos)
+	{
+	    pos_act = (float) pos;
 	}
 
 	void set_timer(class tmr tmr) {
@@ -87,8 +94,6 @@ public:
 
 	void move_closed_loop(uint16_t setpoint);
 
-	static void init();
-
 	void stop();
 
 	void isr();
@@ -108,13 +113,15 @@ public:
 	const char *name;
 	enum type type;
 	enum direction dir;
-	int32_t posAct;
-	int32_t posCmd;
+    volatile float pos_act;
+    float pos_cmd;
 	int32_t posCmdMiddle;
 	int32_t requested_freq;
 	int32_t freq_increment;
 	int32_t current_freq;
-	int32_t last_pos;
+    int step_time;
+	float last_pos;
+	float counts_to_inch_factor;
 	uint32_t stalled_counter;
 	struct gpios gpios;
 	enum direction last_dir;
@@ -129,6 +136,23 @@ public:
 	bool max_speed_reached;
 	bool already_there;
 	bool stalled;
+    QueueHandle_t queue;
+    SemaphoreHandle_t supervisor_semaphore;
+    struct kp kp;
+
+};
+
+/**
+ * @struct  mot_pap_msg
+ * @brief   messages to axis tasks.
+ */
+struct mot_pap_msg {
+    enum mot_pap::type type;
+    enum mot_pap::direction free_run_direction;
+    int free_run_speed;
+    float closed_loop_setpoint;
+    int steps;
+    struct mot_pap *axis;
 };
 
 #endif /* MOT_PAP_H_ */

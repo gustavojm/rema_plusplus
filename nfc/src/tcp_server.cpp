@@ -7,7 +7,6 @@
  CONDITIONS OF ANY KIND, either express or implied.
  */
 #include <string.h>
-#include <stdbool.h>
 #include <stdint.h>
 #include "FreeRTOS.h"
 #include "task.h"
@@ -48,9 +47,9 @@ static void do_retransmit(const int sock) {
                 // Walk-around for robust implementation.
                 int to_write = ack_len;
 
-                char ack_buff[5];
-                snprintf(ack_buff, sizeof ack_buff, "%04x", ack_len);
-                send(sock, ack_buff, 4, 0);
+//                char ack_buff[5];
+//                snprintf(ack_buff, sizeof ack_buff, "%04x", ack_len);
+//                send(sock, ack_buff, 4, 0);
 
                 while (to_write > 0) {
                     int written = send(sock, tx_buffer + (ack_len - to_write),

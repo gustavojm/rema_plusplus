@@ -11,10 +11,10 @@
 #include "settings.h"
 #include "temperature_ds18b20.h"
 #include "relay.h"
+#include "rema.h"
 
 #define PROTOCOL_VERSION  	"JSON_1.0"
 
-bool stall_detection = true;
 extern int count_z;
 extern int count_b;
 extern int count_a;
@@ -26,15 +26,38 @@ typedef struct {
 	JSON_Value* (*cmd_function)(JSON_Value const *pars);
 } cmd_entry;
 
+QueueHandle_t get_queue(const char *axis) {
+    QueueHandle_t queue = NULL;
+
+    switch (*axis) {
+    case 'x':
+    case 'X':
+        queue = x_axis.queue;
+        break;
+//  case 'y':
+//  case 'Y':
+//      axis_ = y_axis->queue;
+//      break;
+//  case 'z':
+//  case 'Z':
+//      axis_ = z_axis->queue;
+//      break;
+    default:
+        break;
+    }
+    return queue;
+}
+
 JSON_Value* telemetria_cmd(JSON_Value const *pars) {
-	JSON_Value *ans = json_value_init_object();
-	json_object_set_number(json_value_get_object(ans), "cuentas A", count_z);
-	json_object_set_number(json_value_get_object(ans), "cuentas B", count_b);
-	json_object_set_number(json_value_get_object(ans), "cuentas Z", count_a);
+    JSON_Value *ans = json_value_init_object();
+    json_object_set_number(json_value_get_object(ans), "cuentas A",
+            x_axis.pos_act);
+    json_object_set_number(json_value_get_object(ans), "cuentas B", x_axis.pos_act);
+    json_object_set_number(json_value_get_object(ans), "cuentas Z", count_z);
 
-	//json_object_set_value(json_value_get_object(ans), "eje_x", mot_pap_json(&x_axis));
+    //json_object_set_value(json_value_get_object(ans), "eje_x", mot_pap_json(&x_axis));
 
-	return ans;
+    return ans;
 
 }
 
@@ -77,58 +100,158 @@ JSON_Value* protocol_version_cmd(JSON_Value const *pars) {
 }
 
 JSON_Value* control_enable_cmd(JSON_Value const *pars) {
-	bool enabled = json_object_get_boolean(json_value_get_object(pars),
-			"enabled");
+    JSON_Value *ans = json_value_init_object();
 
-	relay_main_pwr(enabled);
-
-	JSON_Value *ans = json_value_init_object();
-	json_object_set_boolean(json_value_get_object(ans), "ACK", enabled);
-	return ans;
+    if (json_object_has_value_of_type(json_value_get_object(pars), "enabled", JSONBoolean)) {
+        bool enabled = json_object_get_boolean(json_value_get_object(pars),
+                "enabled");
+        rema::control_enabled_set(enabled);
+    }
+    json_object_set_boolean(json_value_get_object(ans), "STATUS",
+                rema::control_enabled_get());
+    return ans;
 }
 
 JSON_Value* stall_control_cmd(JSON_Value const *pars) {
 
-	stall_detection = json_object_get_boolean(json_value_get_object(pars),
-			"enabled");
+    JSON_Value *ans = json_value_init_object();
 
-	JSON_Value *ans = json_value_init_object();
-	json_object_set_boolean(json_value_get_object(ans), "ACK", stall_detection);
-	return ans;
+    if (json_object_has_value_of_type(json_value_get_object(pars), "enabled", JSONBoolean)) {
+        bool enabled = json_object_get_boolean(json_value_get_object(pars),
+                "enabled");
+        rema::stall_control_set(enabled);
+    }
+    json_object_set_boolean(json_value_get_object(ans), "STATUS",
+                rema::stall_control_get());
+    return ans;
 }
 
 JSON_Value* axis_closed_loop_cmd(JSON_Value const *pars) {
-	lDebug(Info, "LLAMADA axis_closed_loop_cmd");
+    if (pars && json_value_get_type(pars) == JSONObject) {
 
-	JSON_Value *ans = json_value_init_object();
-	json_object_set_boolean(json_value_get_object(ans), "ACK", true);
-	return ans;
+        char const *axis = json_object_get_string(json_value_get_object(pars),
+                "axis");
+        double setpoint = json_object_get_number(json_value_get_object(pars),
+                "setpoint");
+
+        struct mot_pap_msg *msg = (struct mot_pap_msg*) pvPortMalloc(
+                sizeof(struct mot_pap_msg));
+
+        msg->type = mot_pap::MOT_PAP_TYPE_CLOSED_LOOP;
+        msg->closed_loop_setpoint = (float) setpoint;
+
+        QueueHandle_t queue = get_queue(axis);
+
+        if (queue && xQueueSend(queue, &msg, portMAX_DELAY) == pdPASS) {
+            lDebug(Debug, " Comando enviado!");
+        }
+    }
+    JSON_Value *ans = json_value_init_object();
+    json_object_set_boolean(json_value_get_object(ans), "ACK", true);
+    return ans;
+}
+
+JSON_Value* set_cal_point_cmd(JSON_Value const *pars) {
+    if (pars && json_value_get_type(pars) == JSONObject) {
+
+        double pos_x = json_object_get_number(json_value_get_object(pars),
+                "position_x");
+//        double pos_y = json_object_get_number(json_value_get_object(pars),
+//                "position_y");
+
+        x_axis.set_position(pos_x);
+        //y_axis.set_position(pos_y);
+    }
+    JSON_Value *ans = json_value_init_object();
+    json_object_set_boolean(json_value_get_object(ans), "ACK", true);
+    return ans;
+}
+
+JSON_Value* kp_set_tunings_cmd(JSON_Value const *pars) {
+    JSON_Value *ans = json_value_init_object();
+
+    if (pars && json_value_get_type(pars) == JSONObject) {
+
+        char const *axis = json_object_get_string(json_value_get_object(pars),
+                "axis");
+        int kp = (int) json_object_get_number(json_value_get_object(pars),
+                "kp");
+        int update = (int) json_object_get_number(json_value_get_object(pars),
+                "update");
+        int min = (int) json_object_get_number(json_value_get_object(pars),
+                "min");
+        int max = (int) json_object_get_number(json_value_get_object(pars),
+                "max");
+        int abs_min = (int) json_object_get_number(json_value_get_object(pars),
+                "abs_min");
+
+        struct mot_pap *axis_ = NULL;
+
+        switch (*axis) {
+        case 'x':
+        case 'X':
+            axis_ = &x_axis;
+            break;
+//              case 'y':
+//              case 'Y':
+//                      axis_ = &y_axis_;
+//                      break;
+//              case 'z':
+//              case 'Z':
+//                      msg->axis = &z_axis;
+//                  break;
+        default:
+            json_object_set_boolean(json_value_get_object(ans), "ACK", false);
+            json_object_set_string(json_value_get_object(ans), "ERROR", "No axis specified");
+            return ans;
+            break;
+        }
+
+        axis_->kp.init(kp, kp::KP_DIRECT, update, min, max, abs_min);
+        axis_->step_time = update;
+        lDebug(Debug, "KP Settings set");
+    }
+    json_object_set_boolean(json_value_get_object(ans), "ACK", true);
+    return ans;
 }
 
 JSON_Value* axis_free_run_cmd(JSON_Value const *pars) {
-	if (pars && json_value_get_type(pars) == JSONObject) {
-		char const *dir = json_object_get_string(json_value_get_object(pars),
-				"dir");
-		double speed = json_object_get_number(json_value_get_object(pars),
-				"speed");
+    if (pars && json_value_get_type(pars) == JSONObject) {
 
-		if (dir && speed != 0) {
+        char const *axis = json_object_get_string(json_value_get_object(pars),
+                "axis");
+        char const *dir = json_object_get_string(json_value_get_object(pars),
+                "dir");
+        double speed = json_object_get_number(json_value_get_object(pars),
+                "speed");
 
-			mot_pap::direction direction =
-					strcmp(dir, "CW") == 0 ?
-							mot_pap::direction::MOT_PAP_DIRECTION_CW :
-							mot_pap::direction::MOT_PAP_DIRECTION_CCW;
+        if (dir && speed != 0) {
 
-			x_axis.move_free_run(direction, static_cast<int>(speed));
+            struct mot_pap_msg *msg = (struct mot_pap_msg*) pvPortMalloc(
+                    sizeof(struct mot_pap_msg));
 
-			lDebug(Info, "AXIS_FREE_RUN DIR: %s, SPEED: %d", dir, (int ) speed);
-		}
-		JSON_Value *ans = json_value_init_object();
-		json_object_set_boolean(json_value_get_object(ans), "ACK", true);
-		return ans;
-	}
-	return NULL;
+            msg->type = mot_pap::MOT_PAP_TYPE_FREE_RUNNING;
+            msg->free_run_direction = (
+                    strcmp(dir, "CW") == 0 ?
+                            mot_pap::MOT_PAP_DIRECTION_CW : mot_pap::MOT_PAP_DIRECTION_CCW);
+
+            msg->free_run_speed = (int) speed;
+
+            QueueHandle_t queue = get_queue(axis);
+
+            if (queue && xQueueSend(queue, &msg, portMAX_DELAY) == pdPASS) {
+                lDebug(Debug, " Comando enviado!");
+            }
+
+            lDebug(Info, "AXIS_FREE_RUN DIR: %s, SPEED: %d", dir, (int ) speed);
+        }
+        JSON_Value *ans = json_value_init_object();
+        json_object_set_boolean(json_value_get_object(ans), "ACK", true);
+        return ans;
+    }
+    return NULL;
 }
+
 
 JSON_Value* axis_free_run_steps_cmd(JSON_Value const *pars) {
 	if (pars && json_value_get_type(pars) == JSONObject) {
@@ -162,6 +285,15 @@ JSON_Value* axis_stop_cmd(JSON_Value const *pars) {
 	JSON_Value *ans = json_value_init_object();
 	json_object_set_boolean(json_value_get_object(ans), "ACK", true);
 	return ans;
+}
+
+JSON_Value* axis_stop_all_cmd(JSON_Value const *pars) {
+    x_axis.stop();
+//  mot_pap_stop(&y_axis);
+//  mot_pap_stop(&z_axis);
+    JSON_Value *ans = json_value_init_object();
+    json_object_set_boolean(json_value_get_object(ans), "ACK", true);
+    return ans;
 }
 
 JSON_Value* network_settings_cmd(JSON_Value const *pars) {
@@ -241,54 +373,66 @@ JSON_Value* temperature_info_cmd(JSON_Value const *pars) {
 
 // @formatter:off
 const cmd_entry cmds_table[] = {
-		{
-				"PROTOCOL_VERSION",		/* Command name */
-				protocol_version_cmd,	/* Associated function */
-		},
-		{
-				"CONTROL_ENABLE",
-				control_enable_cmd,
-		},
-		{
-				"STALL_CONTROL",
-				stall_control_cmd,
-		},
-		{
-				"AXIS_STOP",
-				axis_stop_cmd,
-		},
-		{
-				"AXIS_FREE_RUN",
-				axis_free_run_cmd,
-		},
-		{
-				"AXIS_FREE_RUN_STEPS",
-				axis_free_run_steps_cmd,
-		},
-		{
-				"AXIS_CLOSED_LOOP",
-				axis_closed_loop_cmd,
-		},
-		{
-				"TELEMETRIA",
-				telemetria_cmd,
-		},
-		{
-				"LOGS",
-				logs_cmd,
-		},
-		{
-				"NETWORK_SETTINGS",
-				network_settings_cmd,
-		},
-		{
-				"MEM_INFO",
-				mem_info_cmd,
-		},
-		{
-				"TEMPERATURE_INFO",
-				temperature_info_cmd,
-		},
+        {
+                "PROTOCOL_VERSION",     /* Command name */
+                protocol_version_cmd,   /* Associated function */
+        },
+        {
+                "CONTROL_ENABLE",
+                control_enable_cmd,
+        },
+        {
+                "STALL_CONTROL",
+                stall_control_cmd,
+        },
+        {
+                "AXIS_STOP",
+                axis_stop_cmd,
+        },
+        {
+                "AXIS_STOP_ALL",
+                axis_stop_all_cmd,
+        },
+        {
+                "AXIS_FREE_RUN",
+                axis_free_run_cmd,
+        },
+        {
+                "AXIS_FREE_RUN_STEPS",
+                axis_free_run_steps_cmd,
+        },
+        {
+                "AXIS_CLOSED_LOOP",
+                axis_closed_loop_cmd,
+        },
+        {
+                "TELEMETRIA",
+                telemetria_cmd,
+        },
+        {
+                "LOGS",
+                logs_cmd,
+        },
+        {
+                "KP_SET_TUNINGS",
+                kp_set_tunings_cmd,
+        },
+        {
+                "NETWORK_SETTINGS",
+                network_settings_cmd,
+        },
+        {
+                "MEM_INFO",
+                mem_info_cmd,
+        },
+        {
+                "TEMPERATURE_INFO",
+                temperature_info_cmd,
+        },
+        {
+                "SET_CAL_POINT",
+                set_cal_point_cmd,
+        },
 };
 // @formatter:on
 

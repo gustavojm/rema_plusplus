@@ -2,7 +2,6 @@
 #define NET_COMMANDS_H_
 
 #include <stdint.h>
-#include <stdbool.h>
 
 #include "parson.h"
 

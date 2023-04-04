@@ -2,7 +2,6 @@
 #define X_AXIS_H_
 
 #include <stdint.h>
-#include <stdbool.h>
 
 #include "mot_pap.h"
 

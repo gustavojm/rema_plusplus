@@ -1,7 +1,4 @@
 #include "settings.h"
-
-#include <stdbool.h>
-
 #include "board.h"
 #include "eeprom.h"
 #include "lwip/ip_addr.h"

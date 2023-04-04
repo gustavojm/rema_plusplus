@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <stdbool.h>
 
 #include "FreeRTOS.h"
 #include "semphr.h"

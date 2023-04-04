@@ -1,7 +1,6 @@
 #include "debug.h"
 
 #include <stdio.h>
-#include <stdbool.h>
 
 #include "FreeRTOS.h"
 #include "task.h"

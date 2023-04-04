@@ -1,7 +1,6 @@
 #ifndef SETTINGS_H_
 #define SETTINGS_H_
 
-#include <stdbool.h>
 #include "eeprom.h"
 #include "lwip/ip_addr.h"
 

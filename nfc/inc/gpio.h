@@ -1,30 +1,27 @@
 #ifndef GPIO_H_
 #define GPIO_H_
 
-#include <stdbool.h>
+class gpio {
+public:
+    gpio() = default;
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+    gpio(int scu_port, int scu_pin, int scu_mode, int gpio_port, int gpio_bit)
+        : scu_port(scu_port), scu_pin(scu_pin), scu_mode(scu_mode), gpio_port(gpio_port), gpio_bit(gpio_bit)
+    {}
 
-struct gpio_entry {
-	int pin_port;
-	int pin_bit;
+    void init_output();
+
+    void init_input();
+
+    void toggle();
+
+    void set_pin_state(bool state);
+
+	int scu_port;
+	int scu_pin;
 	int scu_mode;
 	int gpio_port;
 	int gpio_bit;
 };
-
-void gpio_init_output(struct gpio_entry gpio);
-
-void gpio_init_input(struct gpio_entry gpio);
-
-void gpio_toggle(struct gpio_entry gpio);
-
-void gpio_set_pin_state(struct gpio_entry gpio, bool state);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* GPIO_H_ */

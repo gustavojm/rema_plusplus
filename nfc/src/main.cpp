@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
-#include <stdbool.h>
 #include <stdint.h>
 
 #include "FreeRTOS.h"
@@ -55,7 +54,6 @@ static void prvSetupHardware(void) {
 
     settings_init();
     //settings_erase();
-    mot_pap::init();
     relay_init();
     encoders_init();
 
