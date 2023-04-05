@@ -52,7 +52,7 @@ static void prvSetupHardware(void) {
 
     Board_Init();
 
-    settings_init();
+    settings::init();
     //settings_erase();
     relay_init();
     encoders_init();

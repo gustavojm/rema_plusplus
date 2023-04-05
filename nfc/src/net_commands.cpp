@@ -313,30 +313,28 @@ JSON_Value* network_settings_cmd(JSON_Value const *pars) {
 					"Received network settings: gw:%s, ipaddr:%s, netmask:%s, port:%d",
 					gw, ipaddr, netmask, port);
 
-			struct settings settings;
-
-			unsigned char *gw_bytes = reinterpret_cast<unsigned char *>(&(settings.gw.addr));
+			unsigned char *gw_bytes = reinterpret_cast<unsigned char *>(&(settings::network.gw.addr));
 			if (sscanf(gw, "%hhu.%hhu.%hhu.%hhu", &gw_bytes[0], &gw_bytes[1],
 					&gw_bytes[2], &gw_bytes[3]) == 4) {
 			}
 
 			unsigned char *ipaddr_bytes =
-					reinterpret_cast<unsigned char *>(&(settings.ipaddr.addr));
+					reinterpret_cast<unsigned char *>(&(settings::network.ipaddr.addr));
 			if (sscanf(ipaddr, "%hhu.%hhu.%hhu.%hhu", &ipaddr_bytes[0],
 					&ipaddr_bytes[1], &ipaddr_bytes[2], &ipaddr_bytes[3])
 					== 4) {
 			}
 
 			unsigned char *netmask_bytes =
-					reinterpret_cast<unsigned char *>(&(settings.netmask.addr));
+					reinterpret_cast<unsigned char *>(&(settings::network.netmask.addr));
 			if (sscanf(netmask, "%hhu.%hhu.%hhu.%hhu", &netmask_bytes[0],
 					&netmask_bytes[1], &netmask_bytes[2], &netmask_bytes[3])
 					== 4) {
 			}
 
-			settings.port = port;
+			settings::network.port = port;
 
-			settings_save(settings);
+			settings::save();
 			lDebug(Info, "Settings saved. Restarting...");
 
 			Chip_UART_SendBlocking(DEBUG_UART, "\n\n", 2);

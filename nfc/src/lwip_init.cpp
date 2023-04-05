@@ -71,11 +71,11 @@ extern "C" void vStackIpSetup(void *pvParameters) {
     IP4_ADDR(&ipaddr, 0, 0, 0, 0);
     IP4_ADDR(&netmask, 0, 0, 0, 0);
 #else
-    struct settings settings = settings_read();
+    settings::read();
 
-    ipaddr = settings.ipaddr;
-    gw = settings.gw;
-    netmask = settings.netmask;
+    ipaddr = settings::network.ipaddr;
+    gw = settings::network.gw;
+    netmask = settings::network.netmask;
 #endif
 
     /* Add netif interface  */
@@ -95,7 +95,7 @@ extern "C" void vStackIpSetup(void *pvParameters) {
 #endif
 
     /* Initialize and start application */
-    stackIp_ThreadInit(settings.port);
+    stackIp_ThreadInit(settings::network.port);
 
     /* This loop monitors the PHY link and will handle cable events
      via the PHY driver. */
