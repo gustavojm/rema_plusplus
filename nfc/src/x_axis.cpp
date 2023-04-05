@@ -47,16 +47,16 @@ static void x_axis_task(void *par)
             //mot_pap_read_corrected_pos(&x_axis);
 
             switch (msg_rcv->type) {
-            case mot_pap::MOT_PAP_TYPE_FREE_RUNNING:
+            case mot_pap::TYPE_FREE_RUNNING:
                 x_axis.move_free_run(msg_rcv->free_run_direction,
                         msg_rcv->free_run_speed);
                 break;
 
-            case mot_pap::MOT_PAP_TYPE_CLOSED_LOOP:
+            case mot_pap::TYPE_CLOSED_LOOP:
                 x_axis.move_closed_loop(msg_rcv->closed_loop_setpoint);
                 break;
 
-            case mot_pap::MOT_PAP_TYPE_STEPS:
+            case mot_pap::TYPE_STEPS:
                 x_axis.move_steps(msg_rcv->free_run_direction,
                         msg_rcv->free_run_speed, msg_rcv->steps);
                 break;
@@ -92,7 +92,7 @@ static void x_axis_supervisor_task(void *par)
 void x_axis_init() {
     x_axis.queue = xQueueCreate(5, sizeof(struct mot_pap_msg*));
 
-      x_axis.type = mot_pap::MOT_PAP_TYPE_STOP;
+      x_axis.type = mot_pap::TYPE_STOP;
       x_axis.counts_to_inch_factor = (double) 1 / 1000000;
       x_axis.half_pulses = 0;
       x_axis.pos_act = 0;
@@ -103,7 +103,7 @@ void x_axis_init() {
       x_axis.gpios.direction.init_output();
       x_axis.gpios.step.init_output();
 
-      x_axis.kp = {100,                                  //!< Kp
+      x_axis.kp = {100,                               //!< Kp
               kp::DIRECT,                             //!< Control type
               x_axis.step_time,                       //!< Update rate (ms)
               -100000,                                //!< Min output

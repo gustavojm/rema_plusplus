@@ -23,7 +23,7 @@ QueueHandle_t isr_helper_task_queue = NULL;
 extern int count_a;
 
 mot_pap::mot_pap(const char *name, class tmr t) :
-        name(name), type(MOT_PAP_TYPE_STOP), last_dir(MOT_PAP_DIRECTION_CW), half_pulses(
+        name(name), type(TYPE_STOP), last_dir(DIRECTION_CW), half_pulses(
                 0), offset(0), tmr(t) {
 }
 
@@ -34,7 +34,7 @@ mot_pap::mot_pap(const char *name, class tmr t) :
  * @returns	MOT_PAP_DIRECTION_CCW if error is negative
  */
 enum mot_pap::direction mot_pap::direction_calculate(int32_t error) const {
-    return error < 0 ? MOT_PAP_DIRECTION_CW : MOT_PAP_DIRECTION_CCW;
+    return error < 0 ? direction::DIRECTION_CW : DIRECTION_CCW;
 }
 
 /**
@@ -59,11 +59,11 @@ void mot_pap::move_free_run(enum direction direction, uint32_t speed) {
         stalled_counter = 0;
         already_there = false;
 
-        if ((dir != direction) && (type != MOT_PAP_TYPE_STOP)) {
+        if ((dir != direction) && (type != TYPE_STOP)) {
             tmr.stop();
             vTaskDelay(pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
         }
-        type = MOT_PAP_TYPE_FREE_RUNNING;
+        type = TYPE_FREE_RUNNING;
         dir = direction;
         gpios.direction.set_pin_state(dir);
         requested_freq = free_run_freqs[speed] * 1000;
@@ -72,7 +72,7 @@ void mot_pap::move_free_run(enum direction direction, uint32_t speed) {
         tmr.set_freq(requested_freq);
         tmr.start();
         lDebug(Info, "%s: FREE RUN, speed: %li, direction: %s", name,
-                requested_freq, dir == MOT_PAP_DIRECTION_CW ? "CW" : "CCW");
+                requested_freq, dir == DIRECTION_CW ? "CW" : "CCW");
     } else {
         lDebug(Warn, "%s: chosen speed out of bounds %li", name, speed);
     }
@@ -85,11 +85,11 @@ void mot_pap::move_steps(enum direction direction, uint32_t speed,
         stalled_counter = 0;
         already_there = false;
 
-        if ((dir != direction) && (type != MOT_PAP_TYPE_STOP)) {
+        if ((dir != direction) && (type != TYPE_STOP)) {
             tmr.stop();
             vTaskDelay(pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
         }
-        type = MOT_PAP_TYPE_STEPS;
+        type = type::TYPE_STEPS;
         dir = direction;
         half_steps_curr = 0;
         half_steps_requested = steps << 1;
@@ -105,7 +105,7 @@ void mot_pap::move_steps(enum direction direction, uint32_t speed,
         tmr.set_freq(current_freq);
         tmr.start();
         lDebug(Info, "%s: STEPS RUN, speed: %li, direction: %s", name,
-                requested_freq, dir == MOT_PAP_DIRECTION_CW ? "CW" : "CCW");
+                requested_freq, dir == DIRECTION_CW ? "CW" : "CCW");
     } else {
         lDebug(Warn, "%s: chosen speed out of bounds %li", name, speed);
     }
@@ -134,11 +134,11 @@ void mot_pap::move_closed_loop(uint16_t setpoint) {
 
         int out = kp.run(pos_cmd, pos_act);
         new_dir = direction_calculate(out);
-        if ((dir != new_dir) && (type != MOT_PAP_TYPE_STOP)) {
+        if ((dir != new_dir) && (type != TYPE_STOP)) {
             tmr.stop();
             vTaskDelay(pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
         }
-        type = MOT_PAP_TYPE_CLOSED_LOOP;
+        type = TYPE_CLOSED_LOOP;
         dir = new_dir;
 
         gpios.direction.set_pin_state(dir);
@@ -155,7 +155,7 @@ void mot_pap::move_closed_loop(uint16_t setpoint) {
  * @returns	nothing
  */
 void mot_pap::stop() {
-    type = MOT_PAP_TYPE_STOP;
+    type = TYPE_STOP;
     tmr.stop();
     lDebug(Info, "%s: STOP", name);
 }
@@ -192,12 +192,12 @@ void mot_pap::supervise() {
                 goto end;
             }
 
-            if (type == MOT_PAP_TYPE_CLOSED_LOOP) {
+            if (type == TYPE_CLOSED_LOOP) {
                 int out = kp.run(pos_cmd, pos_act);
                 lDebug(Info, "Control output = %i: ", out);
 
                 enum direction dir = direction_calculate(out);
-                if ((this->dir != dir) && (type != MOT_PAP_TYPE_STOP)) {
+                if ((this->dir != dir) && (type != TYPE_STOP)) {
                     tmr.stop();
                     vTaskDelay(
                             pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
@@ -223,13 +223,13 @@ void mot_pap::isr() {
     TickType_t ticks_now = xTaskGetTickCount();
 
     int error;
-    if (type == MOT_PAP_TYPE_CLOSED_LOOP) {
+    if (type == TYPE_CLOSED_LOOP) {
         error = pos_cmd - pos_act;
         already_there = (abs((int) error) < 2);
     }
 
     if (already_there) {
-        type = MOT_PAP_TYPE_STOP;
+        type = TYPE_STOP;
         tmr.stop();
         xSemaphoreGiveFromISR(supervisor_semaphore,
                 &xHigherPriorityTaskWoken);
@@ -257,7 +257,7 @@ void mot_pap::isr() {
  */
 void mot_pap::update_position() {
     {
-        if (dir == MOT_PAP_DIRECTION_CW) {
+        if (dir == DIRECTION_CW) {
             pos_act += counts_to_inch_factor;
         } else {
             pos_act -= counts_to_inch_factor;

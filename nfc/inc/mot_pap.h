@@ -43,11 +43,11 @@ extern bool stall_detection;
 class mot_pap {
 public:
 	enum direction {
-		MOT_PAP_DIRECTION_CW, MOT_PAP_DIRECTION_CCW,
+		DIRECTION_CW, DIRECTION_CCW,
 	};
 
 	enum type {
-		MOT_PAP_TYPE_FREE_RUNNING, MOT_PAP_TYPE_CLOSED_LOOP, MOT_PAP_TYPE_STEPS, MOT_PAP_TYPE_STOP
+		TYPE_FREE_RUNNING, TYPE_CLOSED_LOOP, TYPE_STEPS, TYPE_STOP
 	};
 
 	/**

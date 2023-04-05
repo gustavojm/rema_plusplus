@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdint.h>
+#include <chrono>
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -18,7 +19,6 @@
 
 #include "debug.h"
 #include "gpio.h"
-#include "x_axis.h"
 #include "temperature.h"
 #include "temperature_ds18b20.h"
 #include "relay.h"
@@ -28,8 +28,10 @@
 #include "tcp_server.h"
 #include "mem_check.h"
 #include "encoders.h"
-#include <iostream>
 #include "mot_pap.h"
+#include "x_axis.h"
+#include "y_axis.h"
+#include "z_axis.h"
 
 /* GPa 201117 1850 Iss2: agregado de Heap_4.c*/
 uint8_t __attribute__((section("." "data" ".$" "RamLoc40"))) ucHeap[configTOTAL_HEAP_SIZE];

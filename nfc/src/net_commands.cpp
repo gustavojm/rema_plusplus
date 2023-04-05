@@ -137,7 +137,7 @@ JSON_Value* axis_closed_loop_cmd(JSON_Value const *pars) {
         struct mot_pap_msg *msg = (struct mot_pap_msg*) pvPortMalloc(
                 sizeof(struct mot_pap_msg));
 
-        msg->type = mot_pap::MOT_PAP_TYPE_CLOSED_LOOP;
+        msg->type = mot_pap::TYPE_CLOSED_LOOP;
         msg->closed_loop_setpoint = (float) setpoint;
 
         QueueHandle_t queue = get_queue(axis);
@@ -231,10 +231,10 @@ JSON_Value* axis_free_run_cmd(JSON_Value const *pars) {
             struct mot_pap_msg *msg = (struct mot_pap_msg*) pvPortMalloc(
                     sizeof(struct mot_pap_msg));
 
-            msg->type = mot_pap::MOT_PAP_TYPE_FREE_RUNNING;
+            msg->type = mot_pap::TYPE_FREE_RUNNING;
             msg->free_run_direction = (
                     strcmp(dir, "CW") == 0 ?
-                            mot_pap::MOT_PAP_DIRECTION_CW : mot_pap::MOT_PAP_DIRECTION_CCW);
+                            mot_pap::DIRECTION_CW : mot_pap::DIRECTION_CCW);
 
             msg->free_run_speed = (int) speed;
 
@@ -266,8 +266,8 @@ JSON_Value* axis_free_run_steps_cmd(JSON_Value const *pars) {
 		if (dir && speed != 0) {
 			mot_pap::direction direction =
 					strcmp(dir, "CW") == 0 ?
-							mot_pap::direction::MOT_PAP_DIRECTION_CW :
-							mot_pap::direction::MOT_PAP_DIRECTION_CCW;
+							mot_pap::direction::DIRECTION_CW :
+							mot_pap::direction::DIRECTION_CCW;
 
 			x_axis.move_steps(direction, static_cast<int>(speed),
 					static_cast<int>(steps));
