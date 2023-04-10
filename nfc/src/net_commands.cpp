@@ -254,32 +254,6 @@ JSON_Value* axis_free_run_cmd(JSON_Value const *pars) {
 }
 
 
-JSON_Value* axis_free_run_steps_cmd(JSON_Value const *pars) {
-	if (pars && json_value_get_type(pars) == JSONObject) {
-		char const *dir = json_object_get_string(json_value_get_object(pars),
-				"dir");
-		double speed = json_object_get_number(json_value_get_object(pars),
-				"speed");
-		double steps = json_object_get_number(json_value_get_object(pars),
-				"steps");
-
-		if (dir && speed != 0) {
-			mot_pap::direction direction =
-					strcmp(dir, "CW") == 0 ?
-							mot_pap::direction::DIRECTION_CW :
-							mot_pap::direction::DIRECTION_CCW;
-
-			x_axis.move_steps(direction, static_cast<int>(speed),
-					static_cast<int>(steps));
-
-			lDebug(Info, "AXIS_FREE_RUN DIR: %s, SPEED: %d", dir, (int ) speed);
-		}
-		JSON_Value *ans = json_value_init_object();
-		json_object_set_boolean(json_value_get_object(ans), "ACK", true);
-		return ans;
-	}
-	return NULL;
-}
 
 JSON_Value* axis_stop_cmd(JSON_Value const *pars) {
 	x_axis.stop();
@@ -395,10 +369,6 @@ const cmd_entry cmds_table[] = {
         {
                 "AXIS_FREE_RUN",
                 axis_free_run_cmd,
-        },
-        {
-                "AXIS_FREE_RUN_STEPS",
-                axis_free_run_steps_cmd,
         },
         {
                 "AXIS_CLOSED_LOOP",

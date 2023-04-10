@@ -31,44 +31,8 @@ mot_pap z_axis("z_axis", z_axis_tmr);
  */
 static void z_axis_task(void *par)
 {
-    struct mot_pap_msg *msg_rcv;
-
     while (true) {
-        if (xQueueReceive(z_axis.queue, &msg_rcv, portMAX_DELAY) == pdPASS) {
-            lDebug(Info, "z_axis: command received");
-
-            z_axis.stalled = false;         // If a new command was received, assume we are not stalled
-            z_axis.stalled_counter = 0;
-            z_axis.already_there = false;
-
-            using namespace std::chrono_literals;
-            z_axis.step_time = 100ms;
-
-            //mot_pap_read_corrected_pos(&z_axis);
-
-            switch (msg_rcv->type) {
-            case mot_pap::TYPE_FREE_RUNNING:
-                z_axis.move_free_run(msg_rcv->free_run_direction,
-                        msg_rcv->free_run_speed);
-                break;
-
-            case mot_pap::TYPE_CLOSED_LOOP:
-                z_axis.move_closed_loop(msg_rcv->closed_loop_setpoint);
-                break;
-
-            case mot_pap::TYPE_STEPS:
-                z_axis.move_steps(msg_rcv->free_run_direction,
-                        msg_rcv->free_run_speed, msg_rcv->steps);
-                break;
-
-            default:
-                z_axis.stop();
-                break;
-            }
-
-            vPortFree(msg_rcv);
-            msg_rcv = NULL;
-        }
+            z_axis.task();
     }
 }
 
@@ -115,13 +79,13 @@ void z_axis_init() {
 
       if (z_axis.supervisor_semaphore != NULL) {
           // Create the 'handler' task, which is the task to which interrupt processing is deferred
-          xTaskCreate(z_axis_supervisor_task, "XAxisSupervisor",
+          xTaskCreate(z_axis_supervisor_task, "Z_AXIS supervisor",
           2048,
           NULL, Z_AXIS_SUPERVISOR_TASK_PRIORITY, NULL);
           lDebug(Info, "z_axis: supervisor task created");
       }
 
-      xTaskCreate(z_axis_task, "z_AXIS", 512, NULL,
+      xTaskCreate(z_axis_task, "Z_AXIS", 512, NULL,
       Z_AXIS_TASK_PRIORITY, NULL);
 
       lDebug(Info, "z_axis: task created");

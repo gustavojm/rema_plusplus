@@ -31,44 +31,8 @@ mot_pap x_axis("x_axis", x_axis_tmr);
  */
 static void x_axis_task(void *par)
 {
-    struct mot_pap_msg *msg_rcv;
-
-    while (true) {
-        if (xQueueReceive(x_axis.queue, &msg_rcv, portMAX_DELAY) == pdPASS) {
-            lDebug(Info, "x_axis: command received");
-
-            x_axis.stalled = false;         // If a new command was received, assume we are not stalled
-            x_axis.stalled_counter = 0;
-            x_axis.already_there = false;
-
-            using namespace std::chrono_literals;
-            x_axis.step_time = 100ms;
-
-            //mot_pap_read_corrected_pos(&x_axis);
-
-            switch (msg_rcv->type) {
-            case mot_pap::TYPE_FREE_RUNNING:
-                x_axis.move_free_run(msg_rcv->free_run_direction,
-                        msg_rcv->free_run_speed);
-                break;
-
-            case mot_pap::TYPE_CLOSED_LOOP:
-                x_axis.move_closed_loop(msg_rcv->closed_loop_setpoint);
-                break;
-
-            case mot_pap::TYPE_STEPS:
-                x_axis.move_steps(msg_rcv->free_run_direction,
-                        msg_rcv->free_run_speed, msg_rcv->steps);
-                break;
-
-            default:
-                x_axis.stop();
-                break;
-            }
-
-            vPortFree(msg_rcv);
-            msg_rcv = NULL;
-        }
+      while (true) {
+        x_axis.task();
     }
 }
 
@@ -115,7 +79,7 @@ void x_axis_init() {
 
       if (x_axis.supervisor_semaphore != NULL) {
           // Create the 'handler' task, which is the task to which interrupt processing is deferred
-          xTaskCreate(x_axis_supervisor_task, "XAxisSupervisor",
+          xTaskCreate(x_axis_supervisor_task, "X_AXIS supervisor",
           2048,
           NULL, X_AXIS_SUPERVISOR_TASK_PRIORITY, NULL);
           lDebug(Info, "x_axis: supervisor task created");

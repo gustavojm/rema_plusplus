@@ -12,10 +12,6 @@
 #include "tmr.h"
 #include "rema.h"
 
-// Frequencies expressed in Khz
-const uint32_t mot_pap::free_run_freqs[] =
-        { 0, 25, 25, 25, 50, 75, 75, 100, 125 };
-
 #define MOT_PAP_TASK_PRIORITY ( configMAX_PRIORITIES - 1 )
 #define MOT_PAP_HELPER_TASK_PRIORITY ( configMAX_PRIORITIES - 3)
 QueueHandle_t isr_helper_task_queue = NULL;
@@ -23,8 +19,41 @@ QueueHandle_t isr_helper_task_queue = NULL;
 extern int count_a;
 
 mot_pap::mot_pap(const char *name, class tmr t) :
-        name(name), type(TYPE_STOP), last_dir(DIRECTION_CW), half_pulses(
-                0), offset(0), tmr(t) {
+        name(name), type(TYPE_STOP), last_dir(DIRECTION_CW), half_pulses(0), offset(
+                0), tmr(t) {
+}
+
+void mot_pap::task() {
+    struct mot_pap_msg *msg_rcv;
+
+    if (xQueueReceive(queue, &msg_rcv, portMAX_DELAY) == pdPASS) {
+        lDebug(Info, "%s: command received", name);
+
+        stalled = false; // If a new command was received, assume we are not stalled
+        stalled_counter = 0;
+        already_there = false;
+
+        using namespace std::chrono_literals;
+        step_time = 100ms;
+
+        switch (msg_rcv->type) {
+        case mot_pap::TYPE_FREE_RUNNING:
+            move_free_run(msg_rcv->free_run_direction,
+                    msg_rcv->free_run_speed);
+            break;
+
+        case mot_pap::TYPE_CLOSED_LOOP:
+            move_closed_loop(msg_rcv->closed_loop_setpoint);
+            break;
+
+        default:
+            stop();
+            break;
+        }
+
+        vPortFree (msg_rcv);
+        msg_rcv = NULL;
+    }
 }
 
 /**
@@ -38,15 +67,6 @@ enum mot_pap::direction mot_pap::direction_calculate(int32_t error) const {
 }
 
 /**
- * @brief 	checks if the required FREE RUN speed is in the allowed range
- * @param 	speed : the requested speed
- * @returns	true if speed is in the allowed range
- */
-bool mot_pap::free_run_speed_ok(uint32_t speed) const {
-    return ((speed > 0) && (speed <= MOT_PAP_MAX_SPEED_FREE_RUN));
-}
-
-/**
  * @brief	if allowed, starts a free run movement
  * @param 	me			: struct mot_pap pointer
  * @param 	direction	: either MOT_PAP_DIRECTION_CW or MOT_PAP_DIRECTION_CCW
@@ -54,7 +74,7 @@ bool mot_pap::free_run_speed_ok(uint32_t speed) const {
  * @returns	nothing
  */
 void mot_pap::move_free_run(enum direction direction, uint32_t speed) {
-    if (free_run_speed_ok(speed)) {
+    if (speed < MOT_PAP_MAX_FREQ) {
         stalled = false; // If a new command was received, assume we are not stalled
         stalled_counter = 0;
         already_there = false;
@@ -66,45 +86,12 @@ void mot_pap::move_free_run(enum direction direction, uint32_t speed) {
         type = TYPE_FREE_RUNNING;
         dir = direction;
         gpios.direction.set_pin_state(dir);
-        requested_freq = free_run_freqs[speed] * 1000;
+        requested_freq = speed;
 
         tmr.stop();
         tmr.set_freq(requested_freq);
         tmr.start();
         lDebug(Info, "%s: FREE RUN, speed: %li, direction: %s", name,
-                requested_freq, dir == DIRECTION_CW ? "CW" : "CCW");
-    } else {
-        lDebug(Warn, "%s: chosen speed out of bounds %li", name, speed);
-    }
-}
-
-void mot_pap::move_steps(enum direction direction, uint32_t speed,
-        uint32_t steps) {
-    if (mot_pap::free_run_speed_ok(speed)) {
-        stalled = false; // If a new command was received, assume we are not stalled
-        stalled_counter = 0;
-        already_there = false;
-
-        if ((dir != direction) && (type != TYPE_STOP)) {
-            tmr.stop();
-            vTaskDelay(pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
-        }
-        type = type::TYPE_STEPS;
-        dir = direction;
-        half_steps_curr = 0;
-        half_steps_requested = steps << 1;
-        gpios.direction.set_pin_state(dir);
-        requested_freq = free_run_freqs[speed] * 1000;
-        freq_increment = requested_freq / 100;
-        current_freq = freq_increment;
-        half_steps_to_middle = half_steps_requested >> 1;
-        max_speed_reached = false;
-        ticks_last_time = xTaskGetTickCount();
-
-        tmr.stop();
-        tmr.set_freq(current_freq);
-        tmr.start();
-        lDebug(Info, "%s: STEPS RUN, speed: %li, direction: %s", name,
                 requested_freq, dir == DIRECTION_CW ? "CW" : "CCW");
     } else {
         lDebug(Warn, "%s: chosen speed out of bounds %li", name, speed);
@@ -231,8 +218,7 @@ void mot_pap::isr() {
     if (already_there) {
         type = TYPE_STOP;
         tmr.stop();
-        xSemaphoreGiveFromISR(supervisor_semaphore,
-                &xHigherPriorityTaskWoken);
+        xSemaphoreGiveFromISR(supervisor_semaphore, &xHigherPriorityTaskWoken);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         goto cont;
     }
@@ -244,8 +230,7 @@ void mot_pap::isr() {
     if ((ticks_now - ticks_last_time) > pdMS_TO_TICKS(step_time.count())) {
 
         ticks_last_time = ticks_now;
-        xSemaphoreGiveFromISR(supervisor_semaphore,
-                &xHigherPriorityTaskWoken);
+        xSemaphoreGiveFromISR(supervisor_semaphore, &xHigherPriorityTaskWoken);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
 
@@ -263,7 +248,7 @@ void mot_pap::update_position() {
             pos_act -= counts_to_inch_factor;
         }
 
-    //  me->dir == MOT_PAP_DIRECTION_CW ? ++me->encoder_count:--me->pos_act;
+        //  me->dir == MOT_PAP_DIRECTION_CW ? ++me->encoder_count:--me->pos_act;
 
     }
 }

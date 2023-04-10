@@ -18,9 +18,6 @@ extern "C" {
 #endif
 
 #define MOT_PAP_MAX_FREQ                        125000
-#define MOT_PAP_MIN_FREQ                        100
-#define MOT_PAP_CLOSED_LOOP_FREQ_MULTIPLIER     (MOT_PAP_MAX_FREQ / 100)
-#define MOT_PAP_MAX_SPEED_FREE_RUN              8
 #define MOT_PAP_COMPUMOTOR_MAX_FREQ             300000
 #define MOT_PAP_DIRECTION_CHANGE_DELAY_MS       500
 
@@ -47,7 +44,7 @@ public:
 	};
 
 	enum type {
-		TYPE_FREE_RUNNING, TYPE_CLOSED_LOOP, TYPE_STEPS, TYPE_STOP
+		TYPE_FREE_RUNNING, TYPE_CLOSED_LOOP, TYPE_STOP
 	};
 
 	/**
@@ -60,6 +57,8 @@ public:
 	};
 
 	mot_pap() = delete;
+
+	void task();
 
 	explicit mot_pap(const char *name, tmr t);
 
