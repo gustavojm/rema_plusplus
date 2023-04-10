@@ -223,7 +223,7 @@ void mot_pap::isr() {
         goto cont;
     }
 
-    ++half_steps_curr;
+    ++half_pulses;
 
     gpios.step.toggle();
 
@@ -241,15 +241,10 @@ void mot_pap::isr() {
  * @brief 	updates the current position from RDC
  */
 void mot_pap::update_position() {
-    {
-        if (dir == DIRECTION_CW) {
-            pos_act += counts_to_inch_factor;
-        } else {
-            pos_act -= counts_to_inch_factor;
-        }
-
-        //  me->dir == MOT_PAP_DIRECTION_CW ? ++me->encoder_count:--me->pos_act;
-
+    if (dir == DIRECTION_CW) {
+        pos_act += counts_to_inch_factor;
+    } else {
+        pos_act -= counts_to_inch_factor;
     }
 }
 

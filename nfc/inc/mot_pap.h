@@ -27,8 +27,6 @@ extern "C" {
 #define MOT_PAP_STALL_THRESHOLD                 3
 #define MOT_PAP_STALL_MAX_COUNT                 40
 
-extern bool stall_detection;
-
 #ifdef __cplusplus
 }
 #endif
@@ -109,13 +107,11 @@ public:
 	JSON_Value* json() const;
 
 public:
-	static const uint32_t free_run_freqs[];
 	const char *name;
 	enum type type;
 	enum direction dir;
     volatile float pos_act;
     float pos_cmd;
-	int32_t posCmdMiddle;
 	int32_t requested_freq;
 	int32_t freq_increment;
 	int32_t current_freq;
@@ -128,12 +124,7 @@ public:
 	int32_t half_pulses;// counts steps from the last call to supervisor task
 	int32_t offset;
 	class tmr tmr;
-	int32_t half_steps_requested;
-	int32_t half_steps_curr;
-	int32_t half_steps_to_middle;
-	int32_t max_speed_reached_distance;
 	int32_t ticks_last_time;
-	bool max_speed_reached;
 	bool already_there;
 	bool stalled;
     QueueHandle_t queue;
