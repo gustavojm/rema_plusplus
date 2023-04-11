@@ -57,7 +57,7 @@ void x_axis_init() {
     x_axis.queue = xQueueCreate(5, sizeof(struct mot_pap_msg*));
 
       x_axis.type = mot_pap::TYPE_STOP;
-      x_axis.counts_to_inch_factor = (double) 1 / 1000000;
+      x_axis.inches_to_counts_factor = 1000;
       x_axis.half_pulses = 0;
       x_axis.pos_act = 0;
 
@@ -80,12 +80,12 @@ void x_axis_init() {
       if (x_axis.supervisor_semaphore != NULL) {
           // Create the 'handler' task, which is the task to which interrupt processing is deferred
           xTaskCreate(x_axis_supervisor_task, "X_AXIS supervisor",
-          2048,
+          256,
           NULL, X_AXIS_SUPERVISOR_TASK_PRIORITY, NULL);
           lDebug(Info, "x_axis: supervisor task created");
       }
 
-      xTaskCreate(x_axis_task, "X_AXIS", 512, NULL,
+      xTaskCreate(x_axis_task, "X_AXIS", 256, NULL,
       X_AXIS_TASK_PRIORITY, NULL);
 
       lDebug(Info, "x_axis: task created");

@@ -20,6 +20,8 @@ extern int count_b;
 extern int count_a;
 
 extern struct mot_pap x_axis;
+extern struct mot_pap y_axis;
+extern struct mot_pap z_axis;
 
 typedef struct {
 	const char *cmd_name;
@@ -34,16 +36,16 @@ QueueHandle_t get_queue(const char *axis) {
     case 'X':
         queue = x_axis.queue;
         break;
-//  case 'y':
-//  case 'Y':
-//      axis_ = y_axis->queue;
-//      break;
-//  case 'z':
-//  case 'Z':
-//      axis_ = z_axis->queue;
-//      break;
-    default:
-        break;
+	case 'y':
+	case 'Y':
+	    queue = y_axis.queue;
+		  break;
+	case 'z':
+	case 'Z':
+		queue = z_axis.queue;
+	    break;
+	default:
+		  break;
     }
     return queue;
 }
@@ -51,8 +53,8 @@ QueueHandle_t get_queue(const char *axis) {
 JSON_Value* telemetria_cmd(JSON_Value const *pars) {
     JSON_Value *ans = json_value_init_object();
     json_object_set_number(json_value_get_object(ans), "cuentas A",
-            x_axis.pos_act);
-    json_object_set_number(json_value_get_object(ans), "cuentas B", x_axis.pos_act);
+            x_axis.pos_act / static_cast<float>(x_axis.inches_to_counts_factor));
+    json_object_set_number(json_value_get_object(ans), "cuentas B", 0);
     json_object_set_number(json_value_get_object(ans), "cuentas Z", count_z);
 
     //json_object_set_value(json_value_get_object(ans), "eje_x", mot_pap_json(&x_axis));

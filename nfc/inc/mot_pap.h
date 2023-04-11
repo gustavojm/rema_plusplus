@@ -22,8 +22,7 @@ extern "C" {
 #define MOT_PAP_DIRECTION_CHANGE_DELAY_MS       500
 
 #define MOT_PAP_SUPERVISOR_RATE                 3000  // 2 means one step
-#define MOT_PAP_POS_PROXIMITY_THRESHOLD         100
-#define MOT_PAP_POS_THRESHOLD                   6
+#define MOT_PAP_POS_THRESHOLD                   0.001
 #define MOT_PAP_STALL_THRESHOLD                 3
 #define MOT_PAP_STALL_MAX_COUNT                 40
 
@@ -60,13 +59,13 @@ public:
 
 	explicit mot_pap(const char *name, tmr t);
 
-	void set_offset(uint16_t offset) {
+	void set_offset(int offset) {
 		this->offset = offset;
 	}
 
 	void set_position(double pos)
 	{
-	    pos_act = (float) pos;
+	    pos_act = static_cast<int>(pos) * inches_to_counts_factor;
 	}
 
 	void set_timer(class tmr tmr) {
@@ -77,20 +76,15 @@ public:
 		this->gpios = gpios;
 	}
 
-	uint16_t offset_correction(uint16_t pos, uint16_t offset);
-
 	void read_corrected_pos();
 
 	void supervise();
 
 	void new_cmd_received();
 
-	void move_free_run(enum direction direction, uint32_t speed);
+	void move_free_run(enum direction direction, int speed);
 
-	void move_steps(enum direction direction,
-			uint32_t speed, uint32_t steps);
-
-	void move_closed_loop(uint16_t setpoint);
+	void move_closed_loop(int setpoint);
 
 	void stop();
 
@@ -110,21 +104,21 @@ public:
 	const char *name;
 	enum type type;
 	enum direction dir;
-    volatile float pos_act;
-    float pos_cmd;
+    volatile int pos_act;
+    int pos_cmd;
 	int32_t requested_freq;
 	int32_t freq_increment;
 	int32_t current_freq;
     std::chrono::milliseconds step_time;
-	float last_pos;
-	float counts_to_inch_factor;
+	int last_pos;
+	int inches_to_counts_factor;
 	uint32_t stalled_counter;
 	struct gpios gpios;
 	enum direction last_dir;
-	int32_t half_pulses;// counts steps from the last call to supervisor task
-	int32_t offset;
+	int half_pulses;// counts steps from the last call to supervisor task
+	int offset;
 	class tmr tmr;
-	int32_t ticks_last_time;
+	int ticks_last_time;
 	bool already_there;
 	bool stalled;
     QueueHandle_t queue;

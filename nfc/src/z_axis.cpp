@@ -57,12 +57,12 @@ void z_axis_init() {
     z_axis.queue = xQueueCreate(5, sizeof(struct mot_pap_msg*));
 
       z_axis.type = mot_pap::TYPE_STOP;
-      z_axis.counts_to_inch_factor = (double) 1 / 1000000;
+      z_axis.inches_to_counts_factor = 1000;
       z_axis.half_pulses = 0;
       z_axis.pos_act = 0;
 
-      z_axis.gpios.direction = gpio { 4, 5, SCU_MODE_FUNC0, 2, 6 };     //DOUT1 P4_5    PIN10   GPIO2[5]
-      z_axis.gpios.step = gpio { 4, 8, SCU_MODE_FUNC4, 5, 12 };         //DOUT4 P4_8   PIN15   GPIO5[12]  z_AXIS_STEP
+      z_axis.gpios.direction = { 4, 6, SCU_MODE_FUNC0, 2, 5 };              //DOUT2 P4_6    PIN08   GPIO2[5]   Z_AXIS_DIR
+      z_axis.gpios.step = { 4, 10, SCU_MODE_FUNC4, 5, 14 };      			//DOUT6 P4_10   PIN35   GPIO5[14]  Z_AXIS_STEP
 
       z_axis.gpios.direction.init_output();
       z_axis.gpios.step.init_output();
@@ -80,12 +80,12 @@ void z_axis_init() {
       if (z_axis.supervisor_semaphore != NULL) {
           // Create the 'handler' task, which is the task to which interrupt processing is deferred
           xTaskCreate(z_axis_supervisor_task, "Z_AXIS supervisor",
-          2048,
+          256,
           NULL, Z_AXIS_SUPERVISOR_TASK_PRIORITY, NULL);
           lDebug(Info, "z_axis: supervisor task created");
       }
 
-      xTaskCreate(z_axis_task, "Z_AXIS", 512, NULL,
+      xTaskCreate(z_axis_task, "Z_AXIS", 256, NULL,
       Z_AXIS_TASK_PRIORITY, NULL);
 
       lDebug(Info, "z_axis: task created");

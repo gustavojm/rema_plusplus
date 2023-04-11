@@ -32,6 +32,8 @@
 #include "x_axis.h"
 #include "y_axis.h"
 #include "z_axis.h"
+#include "x_zs.h"
+
 
 /* GPa 201117 1850 Iss2: agregado de Heap_4.c*/
 uint8_t __attribute__((section("." "data" ".$" "RamLoc40"))) ucHeap[configTOTAL_HEAP_SIZE];
@@ -57,11 +59,15 @@ static void prvSetupHardware(void) {
     settings::init();
     //settings_erase();
     relay_init();
-    encoders_init();
 
+    x_zs_init();
     x_axis_init();
+    y_axis_init();
+    z_axis_init();
+
     // temperature_init();
     //temperature_ds18b20_init();
+    encoders_init();
     mem_check_init();
 
     /* Utilizo el led spare para detectar conexión fisica del cable ethernet */

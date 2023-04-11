@@ -7,9 +7,9 @@ extern "C" {
 
 void encoders_init();
 
-void GPIO0_IRQHandler(void);
-void GPIO1_IRQHandler(void);
-void GPIO2_IRQHandler(void);
+void GPIO5_IRQHandler(void);
+void GPIO6_IRQHandler(void);
+void GPIO7_IRQHandler(void);
 
 #ifdef __cplusplus
 }

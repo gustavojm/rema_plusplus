@@ -43,7 +43,7 @@ void mot_pap::task() {
             break;
 
         case mot_pap::TYPE_CLOSED_LOOP:
-            move_closed_loop(msg_rcv->closed_loop_setpoint);
+            move_closed_loop(msg_rcv->closed_loop_setpoint * inches_to_counts_factor);
             break;
 
         default:
@@ -63,7 +63,7 @@ void mot_pap::task() {
  * @returns	MOT_PAP_DIRECTION_CCW if error is negative
  */
 enum mot_pap::direction mot_pap::direction_calculate(int32_t error) const {
-    return error < 0 ? direction::DIRECTION_CW : DIRECTION_CCW;
+    return error < 0 ? direction::DIRECTION_CCW : DIRECTION_CW;
 }
 
 /**
@@ -73,7 +73,7 @@ enum mot_pap::direction mot_pap::direction_calculate(int32_t error) const {
  * @param 	speed		: integer from 0 to 8
  * @returns	nothing
  */
-void mot_pap::move_free_run(enum direction direction, uint32_t speed) {
+void mot_pap::move_free_run(enum direction direction, int speed) {
     if (speed < MOT_PAP_MAX_FREQ) {
         stalled = false; // If a new command was received, assume we are not stalled
         stalled_counter = 0;
@@ -94,11 +94,11 @@ void mot_pap::move_free_run(enum direction direction, uint32_t speed) {
         lDebug(Info, "%s: FREE RUN, speed: %li, direction: %s", name,
                 requested_freq, dir == DIRECTION_CW ? "CW" : "CCW");
     } else {
-        lDebug(Warn, "%s: chosen speed out of bounds %li", name, speed);
+        lDebug(Warn, "%s: chosen speed out of bounds %i", name, speed);
     }
 }
 
-void mot_pap::move_closed_loop(uint16_t setpoint) {
+void mot_pap::move_closed_loop(int setpoint) {
     int32_t error;
     bool already_there;
     enum direction new_dir;
@@ -106,7 +106,7 @@ void mot_pap::move_closed_loop(uint16_t setpoint) {
     stalled_counter = 0;
 
     pos_cmd = setpoint;
-    lDebug(Info, "%s: CLOSED_LOOP posCmd: %f posAct: %f", name, pos_cmd,
+    lDebug(Info, "%s: CLOSED_LOOP posCmd: %i posAct: %i", name, pos_cmd,
             pos_act);
 
     //calculate position error
@@ -242,9 +242,9 @@ void mot_pap::isr() {
  */
 void mot_pap::update_position() {
     if (dir == DIRECTION_CW) {
-        pos_act += counts_to_inch_factor;
+        pos_act ++;
     } else {
-        pos_act -= counts_to_inch_factor;
+        pos_act --;
     }
 }
 
