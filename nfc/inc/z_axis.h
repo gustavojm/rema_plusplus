@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 // Declaration needed because TEST_GUI calls this IRQ handler as a standard function
-void TIMER1_IRQHandler(void);
+void TIMER3_IRQHandler(void);
 
 void z_axis_init();
 
