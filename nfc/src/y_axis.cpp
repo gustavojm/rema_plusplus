@@ -3,6 +3,7 @@
 #include <chrono>
 
 #include "y_axis.h"
+#include "mot_pap.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
@@ -95,7 +96,7 @@ void y_axis_init() {
  * @returns nothing
  * @note    calls the supervisor task every x number of generated steps
  */
-void TIMER2_IRQHandler(void) {
+extern "C" void TIMER2_IRQHandler(void) {
     if (y_axis.tmr.match_pending()) {
         y_axis.isr();
     }
