@@ -90,3 +90,14 @@ void z_axis_init() {
       lDebug(Info, "z_axis: task created");
 
 }
+
+/**
+ * @brief   handle interrupt from 32-bit timer to generate pulses for the stepper motor drivers
+ * @returns nothing
+ * @note    calls the supervisor task every x number of generated steps
+ */
+inline void TIMER3_IRQHandler(void) {
+    if (z_axis.tmr.match_pending()) {
+        z_axis.isr();
+    }
+}

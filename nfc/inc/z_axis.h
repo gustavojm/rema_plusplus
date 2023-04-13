@@ -13,16 +13,7 @@ void z_axis_init();
 extern "C" {
 #endif
 
-/**
- * @brief   handle interrupt from 32-bit timer to generate pulses for the stepper motor drivers
- * @returns nothing
- * @note    calls the supervisor task every x number of generated steps
- */
-static inline void TIMER3_IRQHandler(void) {
-    if (z_axis.tmr.match_pending()) {
-        z_axis.isr();
-    }
-}
+void TIMER3_IRQHandler(void);
 
 #ifdef __cplusplus
 }

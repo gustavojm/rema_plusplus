@@ -13,16 +13,7 @@ void y_axis_init();
 extern "C" {
 #endif
 
-/**
- * @brief   handle interrupt from 32-bit timer to generate pulses for the stepper motor drivers
- * @returns nothing
- * @note    calls the supervisor task every x number of generated steps
- */
-static inline void TIMER2_IRQHandler(void) {
-    if (y_axis.tmr.match_pending()) {
-        y_axis.isr();
-    }
-}
+void TIMER2_IRQHandler(void);
 
 #ifdef __cplusplus
 }
