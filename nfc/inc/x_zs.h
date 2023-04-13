@@ -8,14 +8,4 @@
 
 void x_zs_init();
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-void GPIO2_IRQHandler(void);
-
-#ifdef __cplusplus
-}
-#endif
-
 #endif /* X_ZS_AXIS_H_ */

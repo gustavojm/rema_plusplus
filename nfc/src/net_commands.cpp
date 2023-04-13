@@ -5,6 +5,7 @@
 #include "debug.h"
 #include "FreeRTOS.h"
 
+#include "mot_pap.h"
 #include "net_commands.h"
 #include "json_wp.h"
 #include "settings.h"

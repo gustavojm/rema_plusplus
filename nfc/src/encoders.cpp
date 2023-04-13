@@ -8,19 +8,19 @@ extern class mot_pap x_axis;
 extern class mot_pap y_axis;
 extern class mot_pap z_axis;
 
-void GPIO5_IRQHandler(void)
+extern "C" void GPIO5_IRQHandler(void)
 {
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(5));
     x_axis.update_position();
 }
 
-void GPIO6_IRQHandler(void)
+extern "C" void GPIO6_IRQHandler(void)
 {
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(6));
     y_axis.update_position();
 }
 
-void GPIO7_IRQHandler(void)
+extern "C" void GPIO7_IRQHandler(void)
 {
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(7));
     z_axis.update_position();
