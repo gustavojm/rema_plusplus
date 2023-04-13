@@ -44,10 +44,6 @@
 #include "task.h"
 #include "semphr.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 enum debugLevels {
     Debug, Info, InfoLocal, Warn, Error,
 };
@@ -189,9 +185,5 @@ do { \
             } \
        } \
 } while (0)
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

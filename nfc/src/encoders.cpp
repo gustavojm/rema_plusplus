@@ -5,50 +5,12 @@
 #include "encoders.h"
 #include "gpio.h"
 
-
-int count_z = 0;
-int count_b = 0;
-int count_a = 0;
-
-extern class mot_pap x_axis;
-extern class mot_pap y_axis;
-extern class mot_pap z_axis;
-
-/**
-* @brief	Handle interrupt from GPIO pin or GPIO pin mapped to PININT
-* @return	Nothing
-*/
-/**
-* @brief	Handle interrupt from GPIO pin or GPIO pin mapped to PININT
-* @return	Nothing
-*/
-void GPIO5_IRQHandler(void)
-{
-	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(5));
-	x_axis.update_position();
-}
-
-void GPIO6_IRQHandler(void)
-{
-	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(6));
-	++count_b;
-}
-
-void GPIO7_IRQHandler(void)
-{
-	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(7));
-	++count_z;
-}
-
 /**
  * @brief	Main program body
  * @return	Does not return
  */
 void encoders_init(void) {
 	//Chip_Clock_Enable(CLK_MX_GPIO);
-	count_z = 0;
-	count_b = 0;
-	count_a = 0;
 
 	gpio {7, 4, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | SCU_MODE_FUNC0), 3, 12}.init_input();
 	gpio {7, 5, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | SCU_MODE_FUNC0), 3, 13}.init_input();

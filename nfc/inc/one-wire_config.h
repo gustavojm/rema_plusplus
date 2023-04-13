@@ -10,10 +10,6 @@
 #ifndef ONE_WIRE_CONFIG_H
 #define ONE_WIRE_CONFIG_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* protocol timing in micro seconds */
 /* write */
 #define ONE_WIRE_CONFIG_A_WRITE_1_LOW_TIME                6        /* A: standard 6 us, low time to write one bit */
@@ -30,9 +26,5 @@ extern "C" {
 #define ONE_WIRE_CONFIG_J_RESET_WAIT_TIME                 410      /* J: standard 410 us, wait time after reading presence (I)  */
 
 #define ONE_WIRE_CONFIG_SLOT_TIME                         100
-
-#ifdef __cplusplus
-}  /* extern "C" */
-#endif
 
 #endif /* ONE_WIRE_CONFIG_H_ */

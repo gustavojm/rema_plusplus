@@ -13,10 +13,6 @@
 #include "kp.h"
 
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define MOT_PAP_MAX_FREQ                        125000
 #define MOT_PAP_COMPUMOTOR_MAX_FREQ             300000
 #define MOT_PAP_DIRECTION_CHANGE_DELAY_MS       500
@@ -25,10 +21,6 @@ extern "C" {
 #define MOT_PAP_POS_THRESHOLD                   2
 #define MOT_PAP_STALL_THRESHOLD                 3
 #define MOT_PAP_STALL_MAX_COUNT                 40
-
-#ifdef __cplusplus
-}
-#endif
 
 /**
  * @struct 	mot_pap
@@ -91,8 +83,6 @@ public:
 	void isr();
 
 	void update_position();
-
-	enum mot_pap::direction direction_calculate(int32_t error) const;
 
 	bool free_run_speed_ok(uint32_t speed) const;
 

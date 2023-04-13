@@ -1,7 +1,5 @@
 #include "settings.h"
 #include "board.h"
-#include "eeprom.h"
-#include "lwip/ip_addr.h"
 #include "debug.h"
 
 /* Page used for storage */

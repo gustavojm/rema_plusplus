@@ -3,14 +3,6 @@
 
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 void stackIp_ThreadInit(uint16_t port);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* TCP_SERVER_H_ */

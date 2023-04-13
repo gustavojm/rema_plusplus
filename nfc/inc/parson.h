@@ -29,10 +29,6 @@
 #include <string.h>
 #include <stddef.h>   /* size_t */
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 
 /* Types and enums */
 typedef struct json_object_t JSON_Object;
@@ -243,9 +239,5 @@ const char  *   json_string(const JSON_Value *value);
 size_t          json_string_len(const JSON_Value *value); /* doesn't account for last null character */
 double          json_number(const JSON_Value *value);
 int             json_boolean(const JSON_Value *value);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

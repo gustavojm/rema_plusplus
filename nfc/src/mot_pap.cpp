@@ -4,19 +4,15 @@
 #include <stdlib.h>
 
 #include "board.h"
-#include "FreeRTOS.h"
 #include "task.h"
 
 #include "debug.h"
 #include "relay.h"
-#include "tmr.h"
 #include "rema.h"
 
 #define MOT_PAP_TASK_PRIORITY ( configMAX_PRIORITIES - 1 )
 #define MOT_PAP_HELPER_TASK_PRIORITY ( configMAX_PRIORITIES - 3)
 QueueHandle_t isr_helper_task_queue = NULL;
-
-extern int count_a;
 
 mot_pap::mot_pap(const char *name, class tmr t) :
         name(name), type(TYPE_STOP), last_dir(DIRECTION_CW), half_pulses(0), offset(
@@ -59,11 +55,11 @@ void mot_pap::task() {
 /**
  * @brief	returns the direction of movement depending if the error is positive or negative
  * @param 	error : the current position error in closed loop positioning
- * @returns	MOT_PAP_DIRECTION_CW if error is positive
- * @returns	MOT_PAP_DIRECTION_CCW if error is negative
+ * @returns	DIRECTION_CW if error is positive
+ * @returns	DIRECTION_CCW if error is negative
  */
-enum mot_pap::direction mot_pap::direction_calculate(int32_t error) const {
-    return error < 0 ? direction::DIRECTION_CCW : DIRECTION_CW;
+static enum mot_pap::direction direction_calculate(int32_t error) {
+    return error < 0 ? mot_pap::direction::DIRECTION_CCW : mot_pap::direction::DIRECTION_CW;
 }
 
 /**

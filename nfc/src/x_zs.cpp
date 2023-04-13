@@ -4,19 +4,6 @@
 #include "gpio.h"
 #include "mot_pap.h"
 
-extern struct mot_pap x_axis;
-
-/**
-* @brief	Handle interrupt from GPIO pin or GPIO pin mapped to PININT
-* @return	Nothing
-*/
-void GPIO2_IRQHandler(void)
-{
-	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
-	x_axis.stop();
-}
-
-
 /**
  * @brief	Main program body
  * @return	Does not return

@@ -1,10 +1,8 @@
-#include "y_axis.h"
-#include "mot_pap.h"
-
 #include <stdlib.h>
 #include <stdint.h>
 #include <chrono>
 
+#include "y_axis.h"
 #include "FreeRTOS.h"
 #include "task.h"
 #include "queue.h"
@@ -90,17 +88,5 @@ void y_axis_init() {
 
       lDebug(Info, "y_axis: task created");
 
-}
-
-
-/**
- * @brief	handle interrupt from 32-bit timer to generate pulses for the stepper motor drivers
- * @returns	nothing
- * @note 	calls the supervisor task every x number of generated steps
- */
-void TIMER2_IRQHandler(void) {
-	if (y_axis.tmr.match_pending()) {
-		y_axis.isr();
-	}
 }
 

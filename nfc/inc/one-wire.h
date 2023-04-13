@@ -5,10 +5,6 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* error codes */
 #define ERR_OK                          0x00U /*!< OK */
 #define ERR_BUSOFF                      0x0CU /*!< Bus not available. */
@@ -49,9 +45,5 @@ void one_wire_target_search(uint8_t familyCode);
 bool one_wire_search(uint8_t *newAddr, bool search_mode);
 
 void one_wire_strong_pull_up(uint32_t ms);
-
-#ifdef __cplusplus
-}  /* extern "C" */
-#endif
 
 #endif /* ONE_WIRE_H_ */

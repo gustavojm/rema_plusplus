@@ -4,10 +4,6 @@
 #include <stdint.h>
 #include "board.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define INSTR_CLOCK_HZ    SystemCoreClock  /* core clock frequency in Hz */
 
 #define number_of_cycles_ms(ms, hz)  ((ms)*((hz)/1000)) /* calculates the needed cycles based on bus clock frequency */
@@ -42,9 +38,5 @@ __attribute__((naked, no_instrument_function)) void wait_10cycles(void);
 void wait_cycles(uint32_t cycles);
 
 void wait_ms(uint32_t ms);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* WAIT_H_ */

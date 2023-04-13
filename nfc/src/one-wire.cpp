@@ -73,7 +73,7 @@ static uint8_t LastDeviceFlag;
 #define DQ_StrongPullUp          DQ1_StrongPullUp()
 #define DQ_Read               (Chip_GPIO_GetPinState(LPC_GPIO_PORT, 3, 0) != 0)
 
-void DQ1_Init(void) {
+static void DQ1_Init(void) {
     Chip_SCU_PinMuxSet(6, 1,
             SCU_MODE_FUNC0 | SCU_MODE_INACT | SCU_MODE_INBUFF_EN
                     | SCU_PINIO_FAST);    // GPIO0    P6_1    PIN74    GPIO3[0]  RESET (SHARED)
@@ -81,7 +81,7 @@ void DQ1_Init(void) {
     Chip_GPIO_SetPinOutLow(LPC_GPIO_PORT, 3, 0);
 }
 
-void DQ1_StrongPullUp() {
+static void DQ1_StrongPullUp() {
     Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, 3, 0);
     Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, 3, 0);
 }
@@ -309,69 +309,6 @@ uint8_t one_wire_read_rom_code(uint8_t *romCodeBuffer) {
         return ERR_CRC; /* wrong CRC? */
     }
     return ERR_OK; /* ok */
-}
-
-/**
- * @brief     adds a single character to a zero byte terminated string
- *             buffer. It cares about buffer overflow.
- * @param   *dst    : pointer to destination string
- * @param     dstSize : size of the destination buffer (in bytes).
- * @param    ch      : character to append
- * @returns nothing
- */
-void chcat(uint8_t *dst, size_t dstSize, uint8_t ch) {
-    dstSize--; /* for zero byte */
-    /* point to the end of the source */
-    while (dstSize > 0 && *dst != '\0') {
-        dst++;
-        dstSize--;
-    }
-    /* copy the ch in the destination */
-    if (dstSize > 0) {
-        *dst++ = ch;
-    }
-    /* terminate the string */
-    *dst = '\0';
-}
-
-/**
- * @brief     appends a 8bit unsigned value to a string buffer as hex
- *            number (without a 0x prefix).
- * @param     *dst    : pointer to destination string
- * @param    dstSize : size of the destination buffer (in bytes).
- * @param   num     : value to convert.
- * @returns nothing
- */
-void strcat_num_8_hex(uint8_t *dst, size_t dstSize, uint8_t num) {
-    unsigned char buf[sizeof("FF")]; /* maximum buffer size we need */
-    unsigned char hex;
-
-    buf[2] = '\0';
-    hex = static_cast<char>((num & 0x0F));
-    buf[1] = static_cast<char>((hex + ((hex <= 9) ? '0' : ('A' - 10))));
-    hex = static_cast<char>(((num >> 4) & 0x0F));
-    buf[0] = static_cast<char>((hex + ((hex <= 9) ? '0' : ('A' - 10))));
-    strncat(reinterpret_cast<char*>(dst), reinterpret_cast<char*>(buf),
-            dstSize);
-}
-
-/**
- * @brief   appends the ROM code to a string.
- * @param    *buf     : pointer to zero terminated buffer
- * @param     bufSize  : size of buffer
- * @param     *romCode : pointer to 8 bytes of ROM Code
- * @returns error code
- */
-uint8_t one_wire_strcat_rom_code(uint8_t *buf, size_t bufSize, uint8_t *romCode) {
-    int j;
-
-    for (j = 0; j < ONE_WIRE_ROM_CODE_SIZE; j++) {
-        strcat_num_8_hex(buf, bufSize, romCode[j]);
-        if (j < ONE_WIRE_ROM_CODE_SIZE - 1) {
-            chcat(buf, bufSize, '-');
-        }
-    }
-    return ERR_OK;
 }
 
 /**

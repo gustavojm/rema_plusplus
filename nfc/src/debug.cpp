@@ -2,11 +2,6 @@
 
 #include <stdio.h>
 
-#include "FreeRTOS.h"
-#include "task.h"
-#include "queue.h"
-#include "semphr.h"
-
 enum debugLevels debugLocalLevel = Info;
 enum debugLevels debugNetLevel = Info;
 

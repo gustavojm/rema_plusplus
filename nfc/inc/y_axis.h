@@ -5,14 +5,24 @@
 
 #include "mot_pap.h"
 
+extern mot_pap y_axis;
+
+void y_axis_init();
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-// Declaration needed because TEST_GUI calls this IRQ handler as a standard function
-void TIMER2_IRQHandler(void);
-
-void y_axis_init();
+/**
+ * @brief   handle interrupt from 32-bit timer to generate pulses for the stepper motor drivers
+ * @returns nothing
+ * @note    calls the supervisor task every x number of generated steps
+ */
+static inline void TIMER2_IRQHandler(void) {
+    if (y_axis.tmr.match_pending()) {
+        y_axis.isr();
+    }
+}
 
 #ifdef __cplusplus
 }

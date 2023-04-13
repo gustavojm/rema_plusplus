@@ -2,8 +2,6 @@
 
 #include <stdint.h>
 
-#include "board.h"
-
 /**
  * @brief    Wait for 10 cpu cycles.
  * @returns  nothing

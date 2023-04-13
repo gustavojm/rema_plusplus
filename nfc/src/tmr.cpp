@@ -2,7 +2,6 @@
 
 #include "FreeRTOS.h"
 #include "semphr.h"
-#include "board.h"
 
 #include "tmr.h"
 #include "debug.h"

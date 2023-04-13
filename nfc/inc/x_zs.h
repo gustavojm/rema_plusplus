@@ -8,11 +8,21 @@
 
 void x_zs_init();
 
+extern mot_pap x_axis;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void GPIO2_IRQHandler(void);
+/**
+* @brief    Handle interrupt from GPIO pin or GPIO pin mapped to PININT
+* @return   Nothing
+*/
+static inline void GPIO2_IRQHandler(void)
+{
+    Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
+    x_axis.stop();
+}
 
 #ifdef __cplusplus
 }

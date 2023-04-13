@@ -6,7 +6,6 @@
 #include "FreeRTOS.h"
 
 #include "net_commands.h"
-#include "parson.h"
 #include "json_wp.h"
 #include "settings.h"
 #include "temperature_ds18b20.h"
@@ -15,20 +14,16 @@
 
 #define PROTOCOL_VERSION  	"JSON_1.0"
 
-extern int count_z;
-extern int count_b;
-extern int count_a;
-
-extern struct mot_pap x_axis;
-extern struct mot_pap y_axis;
-extern struct mot_pap z_axis;
+extern mot_pap x_axis;
+extern mot_pap y_axis;
+extern mot_pap z_axis;
 
 typedef struct {
 	const char *cmd_name;
 	JSON_Value* (*cmd_function)(JSON_Value const *pars);
 } cmd_entry;
 
-QueueHandle_t get_queue(const char *axis) {
+static QueueHandle_t get_queue(const char *axis) {
     QueueHandle_t queue = NULL;
 
     switch (*axis) {
@@ -50,20 +45,19 @@ QueueHandle_t get_queue(const char *axis) {
     return queue;
 }
 
-JSON_Value* telemetria_cmd(JSON_Value const *pars) {
+static JSON_Value* telemetria_cmd(JSON_Value const *pars) {
     JSON_Value *ans = json_value_init_object();
     json_object_set_number(json_value_get_object(ans), "cuentas A",
             x_axis.pos_act / static_cast<float>(x_axis.inches_to_counts_factor));
     json_object_set_number(json_value_get_object(ans), "cuentas B", 0);
-    json_object_set_number(json_value_get_object(ans), "cuentas Z", count_z);
+    json_object_set_number(json_value_get_object(ans), "cuentas Z", 0);
 
     //json_object_set_value(json_value_get_object(ans), "eje_x", mot_pap_json(&x_axis));
 
     return ans;
-
 }
 
-JSON_Value* logs_cmd(JSON_Value const *pars) {
+static JSON_Value* logs_cmd(JSON_Value const *pars) {
 	if (pars && json_value_get_type(pars) == JSONObject) {
 		double quantity = json_object_get_number(json_value_get_object(pars),
 				"quantity");
@@ -94,14 +88,14 @@ JSON_Value* logs_cmd(JSON_Value const *pars) {
 	return NULL;
 }
 
-JSON_Value* protocol_version_cmd(JSON_Value const *pars) {
+static JSON_Value* protocol_version_cmd(JSON_Value const *pars) {
 	JSON_Value *ans = json_value_init_object();
 	json_object_set_string(json_value_get_object(ans), "Version",
 	PROTOCOL_VERSION);
 	return ans;
 }
 
-JSON_Value* control_enable_cmd(JSON_Value const *pars) {
+static JSON_Value* control_enable_cmd(JSON_Value const *pars) {
     JSON_Value *ans = json_value_init_object();
 
     if (json_object_has_value_of_type(json_value_get_object(pars), "enabled", JSONBoolean)) {
@@ -114,7 +108,7 @@ JSON_Value* control_enable_cmd(JSON_Value const *pars) {
     return ans;
 }
 
-JSON_Value* stall_control_cmd(JSON_Value const *pars) {
+static JSON_Value* stall_control_cmd(JSON_Value const *pars) {
 
     JSON_Value *ans = json_value_init_object();
 
@@ -128,7 +122,7 @@ JSON_Value* stall_control_cmd(JSON_Value const *pars) {
     return ans;
 }
 
-JSON_Value* axis_closed_loop_cmd(JSON_Value const *pars) {
+static JSON_Value* axis_closed_loop_cmd(JSON_Value const *pars) {
     if (pars && json_value_get_type(pars) == JSONObject) {
 
         char const *axis = json_object_get_string(json_value_get_object(pars),
@@ -153,23 +147,20 @@ JSON_Value* axis_closed_loop_cmd(JSON_Value const *pars) {
     return ans;
 }
 
-JSON_Value* set_cal_point_cmd(JSON_Value const *pars) {
+static JSON_Value* set_cal_point_cmd(JSON_Value const *pars) {
     if (pars && json_value_get_type(pars) == JSONObject) {
 
         double pos_x = json_object_get_number(json_value_get_object(pars),
                 "position_x");
-//        double pos_y = json_object_get_number(json_value_get_object(pars),
-//                "position_y");
 
         x_axis.set_position(pos_x);
-        //y_axis.set_position(pos_y);
     }
     JSON_Value *ans = json_value_init_object();
     json_object_set_boolean(json_value_get_object(ans), "ACK", true);
     return ans;
 }
 
-JSON_Value* kp_set_tunings_cmd(JSON_Value const *pars) {
+static JSON_Value* kp_set_tunings_cmd(JSON_Value const *pars) {
     JSON_Value *ans = json_value_init_object();
 
     if (pars && json_value_get_type(pars) == JSONObject) {
@@ -218,7 +209,7 @@ JSON_Value* kp_set_tunings_cmd(JSON_Value const *pars) {
     return ans;
 }
 
-JSON_Value* axis_free_run_cmd(JSON_Value const *pars) {
+static JSON_Value* axis_free_run_cmd(JSON_Value const *pars) {
     if (pars && json_value_get_type(pars) == JSONObject) {
 
         char const *axis = json_object_get_string(json_value_get_object(pars),
@@ -255,16 +246,14 @@ JSON_Value* axis_free_run_cmd(JSON_Value const *pars) {
     return NULL;
 }
 
-
-
-JSON_Value* axis_stop_cmd(JSON_Value const *pars) {
+static JSON_Value* axis_stop_cmd(JSON_Value const *pars) {
 	x_axis.stop();
 	JSON_Value *ans = json_value_init_object();
 	json_object_set_boolean(json_value_get_object(ans), "ACK", true);
 	return ans;
 }
 
-JSON_Value* axis_stop_all_cmd(JSON_Value const *pars) {
+static JSON_Value* axis_stop_all_cmd(JSON_Value const *pars) {
     x_axis.stop();
 //  mot_pap_stop(&y_axis);
 //  mot_pap_stop(&z_axis);
@@ -273,7 +262,7 @@ JSON_Value* axis_stop_all_cmd(JSON_Value const *pars) {
     return ans;
 }
 
-JSON_Value* network_settings_cmd(JSON_Value const *pars) {
+static JSON_Value* network_settings_cmd(JSON_Value const *pars) {
 	if (pars && json_value_get_type(pars) == JSONObject) {
 		char const *gw = json_object_get_string(json_value_get_object(pars),
 				"gw");
@@ -325,7 +314,7 @@ JSON_Value* network_settings_cmd(JSON_Value const *pars) {
 	return NULL;
 }
 
-JSON_Value* mem_info_cmd(JSON_Value const *pars) {
+static JSON_Value* mem_info_cmd(JSON_Value const *pars) {
 	JSON_Value *ans = json_value_init_object();
 	json_object_set_number(json_value_get_object(ans), "MEM_TOTAL",
 	configTOTAL_HEAP_SIZE);
@@ -336,7 +325,7 @@ JSON_Value* mem_info_cmd(JSON_Value const *pars) {
 	return ans;
 }
 
-JSON_Value* temperature_info_cmd(JSON_Value const *pars) {
+static JSON_Value* temperature_info_cmd(JSON_Value const *pars) {
 	JSON_Value *ans = json_value_init_object();
 	float temp1, temp2;
 	temperature_ds18b20_get(0, &temp1);

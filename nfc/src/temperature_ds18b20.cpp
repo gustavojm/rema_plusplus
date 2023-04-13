@@ -26,7 +26,7 @@ uint32_t temperature_ds18b20_get(uint8_t sensor, float *var) {
  * @brief    returns status temperature of the NFC.
  * @return     the temperature value in °C
  */
-int temperature_ds18b20_read(uint8_t sensor, float *var) {
+static int temperature_ds18b20_read(uint8_t sensor, float *var) {
     int err;
     if (sensor >= (sizeof temperatures / sizeof temperatures[0])) {
         return ERR_RANGE; /* error */

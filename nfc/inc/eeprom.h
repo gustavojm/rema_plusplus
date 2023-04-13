@@ -3,10 +3,6 @@
 
 #include <stdint.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /* Init EEPROM */
 void EEPROM_init(void);
 
@@ -23,9 +19,5 @@ void EEPROM_Erase(uint32_t pageAddr);
 void EEPROM_Write(uint32_t pageOffset, uint32_t pageAddr, void *ptr,
         uint32_t size);
 
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif /* EEPROM_H_ */
