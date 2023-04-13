@@ -22,6 +22,7 @@
 #define MOT_PAP_STALL_THRESHOLD                 3
 #define MOT_PAP_STALL_MAX_COUNT                 40
 
+using namespace std::chrono_literals;
 /**
  * @struct 	mot_pap
  * @brief	axis structure.
@@ -50,10 +51,6 @@ public:
 	void task();
 
 	explicit mot_pap(const char *name, tmr t);
-
-	void set_offset(int offset) {
-		this->offset = offset;
-	}
 
 	void set_position(double pos)
 	{
@@ -92,29 +89,26 @@ public:
 
 public:
 	const char *name;
-	enum type type;
-	enum direction dir;
-    volatile int pos_act;
-    int pos_cmd;
-	int32_t requested_freq;
-	int32_t freq_increment;
-	int32_t current_freq;
-    std::chrono::milliseconds step_time;
-	int last_pos;
-	int inches_to_counts_factor;
-	uint32_t stalled_counter;
+	enum type type = TYPE_STOP;
+	enum direction dir = DIRECTION_CW;
+    volatile int pos_act = 0;
+    int pos_cmd = 0;
+	int requested_freq = 0;
+	std::chrono::milliseconds step_time = 100ms;
+	int last_pos = 0;
+	int inches_to_counts_factor = 0;
+	int stalled_counter = 0;
 	struct gpios gpios;
-	enum direction last_dir;
-	int half_pulses;// counts steps from the last call to supervisor task
-	int offset;
+	enum direction last_dir = DIRECTION_CW;
+	int half_pulses = 0;                // counts steps from the last call to supervisor task
 	class tmr tmr;
-	int ticks_last_time;
-	bool already_there;
-	bool stalled;
+	int ticks_last_time = 0;
+	bool already_there = false;
+	bool stalled = false;
     QueueHandle_t queue;
     SemaphoreHandle_t supervisor_semaphore;
     class kp kp;
-
+    bool reversed = false;
 };
 
 /**

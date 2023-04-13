@@ -14,9 +14,9 @@
 #define MOT_PAP_HELPER_TASK_PRIORITY ( configMAX_PRIORITIES - 3)
 QueueHandle_t isr_helper_task_queue = NULL;
 
+using namespace std::chrono_literals;
 mot_pap::mot_pap(const char *name, class tmr t) :
-        name(name), type(TYPE_STOP), last_dir(DIRECTION_CW), half_pulses(0), offset(
-                0), tmr(t) {
+        name(name), tmr(t){
 }
 
 void mot_pap::task() {
@@ -28,9 +28,6 @@ void mot_pap::task() {
         stalled = false; // If a new command was received, assume we are not stalled
         stalled_counter = 0;
         already_there = false;
-
-        using namespace std::chrono_literals;
-        step_time = 100ms;
 
         switch (msg_rcv->type) {
         case mot_pap::TYPE_FREE_RUNNING:
@@ -58,14 +55,18 @@ void mot_pap::task() {
  * @returns	DIRECTION_CW if error is positive
  * @returns	DIRECTION_CCW if error is negative
  */
-static enum mot_pap::direction direction_calculate(int32_t error) {
-    return error < 0 ? mot_pap::direction::DIRECTION_CCW : mot_pap::direction::DIRECTION_CW;
+static enum mot_pap::direction direction_calculate(int32_t error, bool reversed = false) {
+    if (reversed) {
+        return error < 0 ? mot_pap::direction::DIRECTION_CW : mot_pap::direction::DIRECTION_CCW;
+    } else {
+        return error < 0 ? mot_pap::direction::DIRECTION_CCW : mot_pap::direction::DIRECTION_CW;
+    }
 }
 
 /**
  * @brief	if allowed, starts a free run movement
  * @param 	me			: struct mot_pap pointer
- * @param 	direction	: either MOT_PAP_DIRECTION_CW or MOT_PAP_DIRECTION_CCW
+ * @param 	direction	: either DIRECTION_CW or DIRECTION_CCW
  * @param 	speed		: integer from 0 to 8
  * @returns	nothing
  */
@@ -87,7 +88,7 @@ void mot_pap::move_free_run(enum direction direction, int speed) {
         tmr.stop();
         tmr.set_freq(requested_freq);
         tmr.start();
-        lDebug(Info, "%s: FREE RUN, speed: %li, direction: %s", name,
+        lDebug(Info, "%s: FREE RUN, speed: %i, direction: %s", name,
                 requested_freq, dir == DIRECTION_CW ? "CW" : "CCW");
     } else {
         lDebug(Warn, "%s: chosen speed out of bounds %i", name, speed);
@@ -116,7 +117,7 @@ void mot_pap::move_closed_loop(int setpoint) {
         kp.restart(pos_act);
 
         int out = kp.run(pos_cmd, pos_act);
-        new_dir = direction_calculate(out);
+        new_dir = direction_calculate(out, reversed);
         if ((dir != new_dir) && (type != TYPE_STOP)) {
             tmr.stop();
             vTaskDelay(pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
@@ -179,7 +180,7 @@ void mot_pap::supervise() {
                 int out = kp.run(pos_cmd, pos_act);
                 lDebug(Info, "Control output = %i: ", out);
 
-                enum direction dir = direction_calculate(out);
+                enum direction dir = direction_calculate(out, reversed);
                 if ((this->dir != dir) && (type != TYPE_STOP)) {
                     tmr.stop();
                     vTaskDelay(
@@ -237,10 +238,10 @@ void mot_pap::isr() {
  * @brief 	updates the current position from RDC
  */
 void mot_pap::update_position() {
-    if (dir == DIRECTION_CW) {
-        pos_act ++;
+    if (reversed) {
+        (dir == DIRECTION_CW) ? pos_act -- : pos_act ++;
     } else {
-        pos_act --;
+        (dir == DIRECTION_CW) ? pos_act ++ : pos_act --;
     }
 }
 
@@ -249,6 +250,5 @@ JSON_Value* mot_pap::json() const {
     json_object_set_number(json_value_get_object(ans), "posCmd", pos_cmd);
     json_object_set_number(json_value_get_object(ans), "posAct", pos_act);
     json_object_set_boolean(json_value_get_object(ans), "stalled", stalled);
-    json_object_set_number(json_value_get_object(ans), "offset", offset);
     return ans;
 }

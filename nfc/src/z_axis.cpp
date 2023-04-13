@@ -56,6 +56,7 @@ void z_axis_init() {
     z_axis.queue = xQueueCreate(5, sizeof(struct mot_pap_msg*));
 
       z_axis.type = mot_pap::TYPE_STOP;
+      z_axis.reversed = false;
       z_axis.inches_to_counts_factor = 1000;
       z_axis.half_pulses = 0;
       z_axis.pos_act = 0;
