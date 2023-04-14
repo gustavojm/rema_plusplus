@@ -61,11 +61,8 @@ void x_axis_init() {
       x_axis.half_pulses = 0;
       x_axis.pos_act = 0;
 
-      x_axis.gpios.direction = gpio { 4, 5, SCU_MODE_FUNC0, 2, 6 };     //DOUT1 P4_5    PIN10   GPIO2[5]
-      x_axis.gpios.step = gpio { 4, 8, SCU_MODE_FUNC4, 5, 12 };         //DOUT4 P4_8   PIN15   GPIO5[12]  X_AXIS_STEP
-
-      x_axis.gpios.direction.init_output();
-      x_axis.gpios.step.init_output();
+      x_axis.gpios.step = gpio{4, 5, SCU_MODE_FUNC0, 2, 6}.init_output();            //DOUT1 P4_5    PIN10   GPIO2[5]
+      x_axis.gpios.direction = gpio{4, 6, SCU_MODE_FUNC0, 2, 5}.init_output();       //DOUT2 P4_6    PIN11   GPIO2[6]
 
       x_axis.kp = {100,                               //!< Kp
               kp::DIRECT,                             //!< Control type

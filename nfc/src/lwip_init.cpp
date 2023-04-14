@@ -14,7 +14,6 @@
 #endif
 
 #include "board.h"
-#include "relay.h"
 #include "arch/lpc18xx_43xx_emac.h"
 #include "arch/lpc_arch.h"
 #include "arch/sys_arch.h"
@@ -107,7 +106,6 @@ extern "C" void vStackIpSetup(void *pvParameters) {
         /* Only check for connection state when the PHY status has changed */
         if (physts & PHY_LINK_CHANGED) {
             if (physts & PHY_LINK_CONNECTED) {
-                relay_spare_led(1); /* HIGH */
                 prt_ip = 0;
 
                 /* Set interface speed and duplex */
@@ -127,7 +125,6 @@ extern "C" void vStackIpSetup(void *pvParameters) {
                 tcpip_callback_with_block((tcpip_callback_fn) netif_set_link_up,
                         reinterpret_cast<void*>(&lpc_netif), 1);
             } else {
-                relay_spare_led(0); /* LOW */
                 tcpip_callback_with_block(
                         (tcpip_callback_fn) netif_set_link_down,
                         reinterpret_cast<void*>(&lpc_netif), 1);

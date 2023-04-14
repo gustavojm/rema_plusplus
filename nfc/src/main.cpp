@@ -1,3 +1,4 @@
+#include <hard_limits.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -20,7 +21,6 @@
 #include "gpio.h"
 #include "temperature.h"
 #include "temperature_ds18b20.h"
-#include "relay.h"
 #include "lwip_init.h"
 #include "settings.h"
 #include "lwip/ip_addr.h"
@@ -31,7 +31,6 @@
 #include "x_axis.h"
 #include "y_axis.h"
 #include "z_axis.h"
-#include "x_zs.h"
 
 
 /* GPa 201117 1850 Iss2: agregado de Heap_4.c*/
@@ -57,9 +56,8 @@ static void prvSetupHardware(void) {
 
     settings::init();
     //settings_erase();
-    relay_init();
 
-    x_zs_init();
+    hard_limits_init();
     x_axis_init();
     y_axis_init();
     z_axis_init();
@@ -68,9 +66,6 @@ static void prvSetupHardware(void) {
     //temperature_ds18b20_init();
     encoders_init();
     mem_check_init();
-
-    /* Utilizo el led spare para detectar conexión fisica del cable ethernet */
-    relay_spare_led(0); /* LOW */
 }
 
 /*****************************************************************************

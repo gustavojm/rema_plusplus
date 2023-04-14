@@ -34,14 +34,14 @@ extern "C" void GPIO7_IRQHandler(void)
 void encoders_init(void) {
 	//Chip_Clock_Enable(CLK_MX_GPIO);
 
-	gpio {7, 4, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | SCU_MODE_FUNC0), 3, 12}.init_input();
-	gpio {7, 5, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | SCU_MODE_FUNC0), 3, 13}.init_input();
-	gpio {7, 6, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | SCU_MODE_FUNC0), 3, 14}.init_input();
+    gpio {4, 0, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | SCU_MODE_FUNC0), 2, 0}.init_input();    //DIN0 P4_0     PIN01   GPIO2[0]   EncAx
+    gpio {4, 1, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | SCU_MODE_FUNC0), 2, 1}.init_input();    //DIN1 P4_1     PIN03   GPIO2[1]   EncAy
+	gpio {4, 2, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | SCU_MODE_FUNC0), 2, 2}.init_input();    //DIN2 P4_2     PIN08   GPIO2[2]   EncAz
 
 	/* Configure interrupt channel for the GPIO pin in SysCon block */
-	Chip_SCU_GPIOIntPinSel(5, 3, 12);
-	Chip_SCU_GPIOIntPinSel(6, 3, 13);
-	Chip_SCU_GPIOIntPinSel(7, 3, 14);
+	Chip_SCU_GPIOIntPinSel(5, 2, 0);
+	Chip_SCU_GPIOIntPinSel(6, 2, 1);
+	Chip_SCU_GPIOIntPinSel(7, 2, 2);
 
 	/* Configure channel interrupt as edge sensitive and falling edge interrupt */
 	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(5));

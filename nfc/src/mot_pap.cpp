@@ -7,7 +7,6 @@
 #include "task.h"
 
 #include "debug.h"
-#include "relay.h"
 #include "rema.h"
 
 #define MOT_PAP_TASK_PRIORITY ( configMAX_PRIORITIES - 1 )

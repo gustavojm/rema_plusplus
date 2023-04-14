@@ -6,6 +6,6 @@
 
 #include "mot_pap.h"
 
-void x_zs_init();
+void hard_limits_init();
 
 #endif /* X_ZS_AXIS_H_ */

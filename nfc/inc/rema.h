@@ -11,6 +11,8 @@ public:
 
     static bool stall_control_get();
 
+    void lamp_pwr_set(bool status);
+
     static bool control_enabled;
     static bool stall_detection;
 

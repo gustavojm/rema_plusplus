@@ -10,7 +10,6 @@
 #include "json_wp.h"
 #include "settings.h"
 #include "temperature_ds18b20.h"
-#include "relay.h"
 #include "rema.h"
 
 #define PROTOCOL_VERSION  	"JSON_1.0"
