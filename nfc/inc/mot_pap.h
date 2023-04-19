@@ -30,7 +30,7 @@ using namespace std::chrono_literals;
 class mot_pap {
 public:
 	enum direction {
-		DIRECTION_CW, DIRECTION_CCW,
+		DIRECTION_CW, DIRECTION_CCW, DIRECTION_NONE,
 	};
 
 	enum type {
@@ -75,6 +75,8 @@ public:
 
 	void move_closed_loop(int setpoint);
 
+	void save_probe_pos_and_stop();
+
 	void stop();
 
 	void isr();
@@ -90,16 +92,19 @@ public:
 public:
 	const char *name;
 	enum type type = TYPE_STOP;
-	enum direction dir = DIRECTION_CW;
+	enum direction dir = DIRECTION_NONE;
     volatile int pos_act = 0;
     int pos_cmd = 0;
+    bool probe_triggered = false;
+    int probe_pos = 0;
+    enum direction probe_last_dir = DIRECTION_NONE;
 	int requested_freq = 0;
 	std::chrono::milliseconds step_time = 100ms;
 	int last_pos = 0;
 	int inches_to_counts_factor = 0;
 	int stalled_counter = 0;
 	struct gpios gpios;
-	enum direction last_dir = DIRECTION_CW;
+	enum direction last_dir = DIRECTION_NONE;
 	int half_pulses = 0;                // counts steps from the last call to supervisor task
 	class tmr tmr;
 	int ticks_last_time = 0;

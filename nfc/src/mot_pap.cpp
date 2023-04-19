@@ -132,6 +132,15 @@ void mot_pap::move_closed_loop(int setpoint) {
     }
 }
 
+void mot_pap::save_probe_pos_and_stop() {
+    probe_pos = pos_act;
+    probe_last_dir = last_dir;
+    if (type != TYPE_STOP) {
+        probe_triggered = true;
+        stop();
+    }
+}
+
 /**
  * @brief	if there is a movement in process, stops it
  * @param 	me	: struct mot_pap pointer
@@ -160,7 +169,7 @@ void mot_pap::supervise() {
                     stalled_counter++;
                     if (stalled_counter >= MOT_PAP_STALL_MAX_COUNT) {
                         stalled = true;
-                        tmr.stop();
+                        stop();
                         lDebug(Warn, "%s: stalled", name);
                         rema::control_enabled_set(false);
                         goto end;
@@ -212,8 +221,7 @@ void mot_pap::isr() {
     }
 
     if (already_there) {
-        type = TYPE_STOP;
-        tmr.stop();
+        stop();
         xSemaphoreGiveFromISR(supervisor_semaphore, &xHigherPriorityTaskWoken);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
         goto cont;

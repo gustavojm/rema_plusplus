@@ -7,6 +7,10 @@ public:
 
     static bool control_enabled_get();
 
+    static void probe_enabled_set(bool status);
+
+    static bool probe_enabled_get();
+
     static void stall_control_set(bool status);
 
     static bool stall_control_get();
@@ -14,6 +18,7 @@ public:
     void lamp_pwr_set(bool status);
 
     static bool control_enabled;
+    static bool probe_enabled;
     static bool stall_detection;
 
 };

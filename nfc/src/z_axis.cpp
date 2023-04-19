@@ -54,41 +54,36 @@ static void z_axis_supervisor_task(void *par)
  */
 void z_axis_init() {
     z_axis.queue = xQueueCreate(5, sizeof(struct mot_pap_msg*));
+    z_axis.inches_to_counts_factor = 1000;
 
-      z_axis.type = mot_pap::TYPE_STOP;
-      z_axis.reversed = false;
-      z_axis.inches_to_counts_factor = 1000;
-      z_axis.half_pulses = 0;
-      z_axis.pos_act = 0;
+    z_axis.gpios.step = gpio {4, 9, SCU_MODE_FUNC4, 5, 13}.init_output();            //DOUT5 P4_9    PIN33   GPIO5[13]
+    z_axis.gpios.direction = gpio {4, 10, SCU_MODE_FUNC4, 5, 14}.init_output();      //DOUT6 P4_10   PIN35   GPIO5[14]
 
-      z_axis.gpios.step = gpio {4, 9, SCU_MODE_FUNC4, 5, 13}.init_output();            //DOUT5 P4_9    PIN33   GPIO5[13]
-      z_axis.gpios.direction = gpio {4, 10, SCU_MODE_FUNC4, 5, 14}.init_output();      //DOUT6 P4_10   PIN35   GPIO5[14]
+    z_axis.gpios.direction.init_output();
+    z_axis.gpios.step.init_output();
 
-      z_axis.gpios.direction.init_output();
-      z_axis.gpios.step.init_output();
+    z_axis.kp = {100,                               //!< Kp
+            kp::DIRECT,                             //!< Control type
+            z_axis.step_time,                       //!< Update rate (ms)
+            -100000,                                //!< Min output
+            100000,                                 //!< Max output
+            10000                                   //!< Absolute Min output
+    };
 
-      z_axis.kp = {100,                               //!< Kp
-              kp::DIRECT,                             //!< Control type
-              z_axis.step_time,                       //!< Update rate (ms)
-              -100000,                                //!< Min output
-              100000,                                 //!< Max output
-              10000                                   //!< Absolute Min output
-      };
+    z_axis.supervisor_semaphore = xSemaphoreCreateBinary();
 
-      z_axis.supervisor_semaphore = xSemaphoreCreateBinary();
+    if (z_axis.supervisor_semaphore != NULL) {
+        // Create the 'handler' task, which is the task to which interrupt processing is deferred
+        xTaskCreate(z_axis_supervisor_task, "Z_AXIS supervisor",
+        256,
+        NULL, Z_AXIS_SUPERVISOR_TASK_PRIORITY, NULL);
+        lDebug(Info, "z_axis: supervisor task created");
+    }
 
-      if (z_axis.supervisor_semaphore != NULL) {
-          // Create the 'handler' task, which is the task to which interrupt processing is deferred
-          xTaskCreate(z_axis_supervisor_task, "Z_AXIS supervisor",
-          256,
-          NULL, Z_AXIS_SUPERVISOR_TASK_PRIORITY, NULL);
-          lDebug(Info, "z_axis: supervisor task created");
-      }
+    xTaskCreate(z_axis_task, "Z_AXIS", 256, NULL,
+    Z_AXIS_TASK_PRIORITY, NULL);
 
-      xTaskCreate(z_axis_task, "Z_AXIS", 256, NULL,
-      Z_AXIS_TASK_PRIORITY, NULL);
-
-      lDebug(Info, "z_axis: task created");
+    lDebug(Info, "z_axis: task created");
 
 }
 

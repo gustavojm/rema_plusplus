@@ -2,7 +2,6 @@
 #include "board.h"
 #include "gpio.h"
 
-
 gpio relay_4 = { 4, 4, SCU_MODE_FUNC0, 2, 4 };  //DOUT3 P4_4    PIN9    GPIO2[4]
 
 void rema::control_enabled_set(bool status) {
@@ -11,6 +10,14 @@ void rema::control_enabled_set(bool status) {
 
 bool rema::control_enabled_get() {
     return control_enabled;
+}
+
+void rema::probe_enabled_set(bool status)  {
+    rema::probe_enabled = status;
+}
+
+bool rema::probe_enabled_get()  {
+    return rema::probe_enabled;
 }
 
 void rema::stall_control_set(bool status) {
@@ -27,5 +34,6 @@ void rema::lamp_pwr_set(bool status) {
 }
 
 bool rema::control_enabled = false;
+bool rema::probe_enabled = false;
 bool rema::stall_detection = true;
 

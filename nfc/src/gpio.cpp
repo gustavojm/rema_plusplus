@@ -32,6 +32,14 @@ gpio& gpio::set_pin_state(bool state) {
 }
 
 /**
+ * @brief    GPIO sets pin passed as parameter to the state specified
+ * @returns nothing
+ */
+bool gpio::get_pin_state() {
+    return Chip_GPIO_GetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit);
+}
+
+/**
  * @brief	toggles GPIO corresponding pin passed as parameter
  * @returns nothing
  */

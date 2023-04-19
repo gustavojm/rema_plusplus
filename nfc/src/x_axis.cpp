@@ -54,22 +54,17 @@ static void x_axis_supervisor_task(void *par)
  */
 void x_axis_init() {
     x_axis.queue = xQueueCreate(5, sizeof(struct mot_pap_msg*));
-
-      x_axis.type = mot_pap::TYPE_STOP;
-      x_axis.reversed = false;
       x_axis.inches_to_counts_factor = 1000;
-      x_axis.half_pulses = 0;
-      x_axis.pos_act = 0;
 
       x_axis.gpios.step = gpio{4, 5, SCU_MODE_FUNC0, 2, 6}.init_output();            //DOUT1 P4_5    PIN10   GPIO2[5]
       x_axis.gpios.direction = gpio{4, 6, SCU_MODE_FUNC0, 2, 5}.init_output();       //DOUT2 P4_6    PIN11   GPIO2[6]
 
       x_axis.kp = {100,                               //!< Kp
-              kp::DIRECT,                             //!< Control type
-              x_axis.step_time,                       //!< Update rate (ms)
-              -100000,                                //!< Min output
-              100000,                                 //!< Max output
-              10000                                   //!< Absolute Min output
+            kp::DIRECT,                             //!< Control type
+            x_axis.step_time,                       //!< Update rate (ms)
+            -100000,                                //!< Min output
+            100000,                                 //!< Max output
+            10000                                   //!< Absolute Min output
       };
 
       x_axis.supervisor_semaphore = xSemaphoreCreateBinary();
