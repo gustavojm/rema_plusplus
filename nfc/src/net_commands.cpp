@@ -255,8 +255,8 @@ static JSON_Value* axis_stop_cmd(JSON_Value const *pars) {
 
 static JSON_Value* axis_stop_all_cmd(JSON_Value const *pars) {
     x_axis.stop();
-//  mot_pap_stop(&y_axis);
-//  mot_pap_stop(&z_axis);
+    y_axis.stop();
+    z_axis.stop();
     JSON_Value *ans = json_value_init_object();
     json_object_set_boolean(json_value_get_object(ans), "ACK", true);
     return ans;

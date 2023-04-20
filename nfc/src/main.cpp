@@ -71,10 +71,10 @@ static void prvSetupHardware(void) {
     settings::init();
     //settings_erase();
 
-    hard_limits_init();
     x_axis_init();
     y_axis_init();
     z_axis_init();
+    //hard_limits_init();
 
     // temperature_init();
     //temperature_ds18b20_init();

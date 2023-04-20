@@ -42,7 +42,7 @@ void hard_limits_init(void)
     Chip_GPIOGP_SelectEdgeMode(LPC_GPIOGROUP, 0);
 
     /* Enable Group GPIO interrupt 0 */
-    NVIC_EnableIRQ(GINT0_IRQn);
+    //NVIC_EnableIRQ(GINT0_IRQn);
 
     /* Group GPIO interrupt 1 */
     gpio ZSz_out   = gpio {7, 3, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | SCU_MODE_FUNC0), 3, 11}.init_input();    //DIN4 P7_3     PIN117   GPIO3[11]   ZSz-
@@ -61,5 +61,5 @@ void hard_limits_init(void)
     Chip_GPIOGP_SelectEdgeMode(LPC_GPIOGROUP, 1);
 
     /* Enable Group GPIO interrupt 1 */
-    NVIC_EnableIRQ(GINT1_IRQn);
+    //NVIC_EnableIRQ(GINT1_IRQn);
 }
