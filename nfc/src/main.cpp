@@ -31,6 +31,8 @@
 #include "x_axis.h"
 #include "y_axis.h"
 #include "z_axis.h"
+
+#include "xy_axes.h"
 #include "probe.h"
 
 extern mot_pap x_axis;
@@ -74,6 +76,8 @@ static void prvSetupHardware(void) {
     x_axis_init();
     y_axis_init();
     z_axis_init();
+
+    xy_axes_init();
     //hard_limits_init();
 
     // temperature_init();

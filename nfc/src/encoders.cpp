@@ -26,11 +26,6 @@ extern "C" void GPIO2_IRQHandler(void)
     z_axis.update_position();
 }
 
-
-/**
- * @brief	Main program body
- * @return	Does not return
- */
 void encoders_init(void) {
 	//Chip_Clock_Enable(CLK_MX_GPIO);
 

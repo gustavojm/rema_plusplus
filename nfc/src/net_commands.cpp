@@ -11,12 +11,14 @@
 #include "settings.h"
 #include "temperature_ds18b20.h"
 #include "rema.h"
+#include "bresenham.h"
 
 #define PROTOCOL_VERSION  	"JSON_1.0"
 
 extern mot_pap x_axis;
 extern mot_pap y_axis;
 extern mot_pap z_axis;
+extern bresenham xy_axes;
 
 typedef struct {
 	const char *cmd_name;
@@ -335,6 +337,34 @@ static JSON_Value* temperature_info_cmd(JSON_Value const *pars) {
 	return ans;
 }
 
+static JSON_Value* bresehman_move_cmd(JSON_Value const *pars) {
+    if (pars && json_value_get_type(pars) == JSONObject) {
+
+        double x_setpoint = json_object_get_number(json_value_get_object(pars),
+                "x_setpoint");
+
+        double y_setpoint = json_object_get_number(json_value_get_object(pars),
+                "y_setpoint");
+
+        struct bresenham_msg *msg = (struct bresenham_msg*) pvPortMalloc(
+                sizeof(struct bresenham_msg));
+        msg->type = mot_pap::TYPE_BRESENHAM;
+        msg->x_setpoint = static_cast<int>(x_setpoint);
+        msg->y_setpoint = static_cast<int>(y_setpoint);
+
+        if (xQueueSend(xy_axes.queue, &msg, portMAX_DELAY) == pdPASS) {
+            lDebug(Debug, " Comando enviado!");
+        }
+
+        lDebug(Info, "AXIS_BRESENHAM SETPOINT X= %i, SETPOINT Y=%i",
+                static_cast<int>(x_setpoint), static_cast<int>(y_setpoint));
+    }
+    JSON_Value *ans = json_value_init_object();
+    json_object_set_boolean(json_value_get_object(ans), "ACK", true);
+    return ans;
+}
+
+
 // @formatter:off
 const cmd_entry cmds_table[] = {
         {
@@ -392,6 +422,10 @@ const cmd_entry cmds_table[] = {
         {
                 "SET_CAL_POINT",
                 set_cal_point_cmd,
+        },
+        {
+                "BRESEHMAN_MOVE",
+                bresehman_move_cmd,
         },
 };
 // @formatter:on

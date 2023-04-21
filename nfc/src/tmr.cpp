@@ -59,6 +59,13 @@ int32_t tmr::set_freq(uint32_t tick_rate_hz) {
     return 0;
 }
 
+void tmr::change_freq(uint32_t tick_rate_hz) {
+    stop();
+    set_freq(tick_rate_hz);
+    start();
+}
+
+
 /**
  * @brief 	enables timer interrupt and starts it
  * @returns	nothing

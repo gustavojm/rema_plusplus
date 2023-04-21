@@ -34,7 +34,7 @@ public:
 	};
 
 	enum type {
-		TYPE_FREE_RUNNING, TYPE_CLOSED_LOOP, TYPE_STOP
+		TYPE_FREE_RUNNING, TYPE_CLOSED_LOOP, TYPE_STOP, TYPE_BRESENHAM
 	};
 
 	/**
@@ -46,11 +46,16 @@ public:
 		gpio step;
 	};
 
-	mot_pap() = delete;
 
 	void task();
 
-	explicit mot_pap(const char *name, tmr t);
+	enum direction direction_calculate(int32_t error);
+
+	mot_pap() = delete;
+
+	explicit mot_pap(const char *name, class tmr t) :
+	        name(name), tmr(t){
+	}
 
 	void set_position(double pos)
 	{
@@ -67,6 +72,8 @@ public:
 
 	void read_corrected_pos();
 
+	void set_direction(enum direction direction);
+
 	void supervise();
 
 	void new_cmd_received();
@@ -79,9 +86,15 @@ public:
 
 	void stop();
 
+	void step();
+
 	void isr();
 
 	void update_position();
+
+	bool check_for_stall();
+
+	bool check_already_there();
 
 	bool free_run_speed_ok(uint32_t speed) const;
 
@@ -101,6 +114,7 @@ public:
 	int requested_freq = 0;
 	std::chrono::milliseconds step_time = 100ms;
 	int last_pos = 0;
+	int delta;
 	int inches_to_counts_factor = 0;
 	int stalled_counter = 0;
 	struct gpios gpios;

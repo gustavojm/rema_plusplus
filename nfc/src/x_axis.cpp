@@ -17,8 +17,6 @@
 #define X_AXIS_TASK_PRIORITY ( configMAX_PRIORITIES - 1 )
 #define X_AXIS_SUPERVISOR_TASK_PRIORITY ( configMAX_PRIORITIES - 3)
 
-QueueHandle_t x_axis_queue = NULL;
-
 tmr x_axis_tmr = tmr(LPC_TIMER1, RGU_TIMER1_RST, CLK_MX_TIMER1, TIMER1_IRQn);
 mot_pap x_axis("x_axis", x_axis_tmr);
 

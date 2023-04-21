@@ -19,6 +19,8 @@ public:
 
     uint32_t is_started();
 
+    void change_freq(uint32_t tick_rate_hz);
+
     bool match_pending();
 
 private:

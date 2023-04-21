@@ -10,13 +10,8 @@
 #include "rema.h"
 
 #define MOT_PAP_TASK_PRIORITY ( configMAX_PRIORITIES - 1 )
-#define MOT_PAP_HELPER_TASK_PRIORITY ( configMAX_PRIORITIES - 3)
-QueueHandle_t isr_helper_task_queue = NULL;
 
 using namespace std::chrono_literals;
-mot_pap::mot_pap(const char *name, class tmr t) :
-        name(name), tmr(t){
-}
 
 void mot_pap::task() {
     struct mot_pap_msg *msg_rcv;
@@ -54,12 +49,17 @@ void mot_pap::task() {
  * @returns	DIRECTION_CW if error is positive
  * @returns	DIRECTION_CCW if error is negative
  */
-static enum mot_pap::direction direction_calculate(int32_t error, bool reversed = false) {
+enum mot_pap::direction mot_pap::direction_calculate(int32_t error) {
     if (reversed) {
         return error < 0 ? mot_pap::direction::DIRECTION_CW : mot_pap::direction::DIRECTION_CCW;
     } else {
         return error < 0 ? mot_pap::direction::DIRECTION_CCW : mot_pap::direction::DIRECTION_CW;
     }
+}
+
+void mot_pap::set_direction(enum direction direction) {
+    dir = direction;
+    gpios.direction.set_pin_state(dir == DIRECTION_CW ? 0 : 1);
 }
 
 /**
@@ -80,8 +80,7 @@ void mot_pap::move_free_run(enum direction direction, int speed) {
             vTaskDelay(pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
         }
         type = TYPE_FREE_RUNNING;
-        dir = direction;
-        gpios.direction.set_pin_state(dir);
+        set_direction(direction);
         requested_freq = speed;
 
         tmr.stop();
@@ -116,14 +115,13 @@ void mot_pap::move_closed_loop(int setpoint) {
         kp.restart(pos_act);
 
         int out = kp.run(pos_cmd, pos_act);
-        new_dir = direction_calculate(out, reversed);
+        new_dir = direction_calculate(out);
         if ((dir != new_dir) && (type != TYPE_STOP)) {
             tmr.stop();
             vTaskDelay(pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
         }
         type = TYPE_CLOSED_LOOP;
-        dir = new_dir;
-
+        set_direction(new_dir);
         gpios.direction.set_pin_state(dir);
         requested_freq = abs(out);
         tmr.stop();
@@ -152,6 +150,28 @@ void mot_pap::stop() {
     lDebug(Info, "%s: STOP", name);
 }
 
+
+bool mot_pap::check_for_stall() {
+    if (abs((int) (pos_act - last_pos)) < MOT_PAP_STALL_THRESHOLD) {
+        stalled_counter++;
+        if (stalled_counter >= MOT_PAP_STALL_MAX_COUNT) {
+            stalled = true;
+            lDebug(Warn, "%s: stalled", name);
+            return true;
+        }
+    } else {
+        stalled_counter = 0;
+        return false;
+    }
+    return false;
+}
+
+bool mot_pap::check_already_there() {
+    int error = pos_cmd - pos_act;
+    already_there = (abs((int) error) < MOT_PAP_POS_THRESHOLD);
+    return already_there;
+}
+
 /**
  * @brief   supervise motor movement for stall or position reached in closed loop
  * @returns nothing
@@ -164,18 +184,10 @@ void mot_pap::supervise() {
         if (xSemaphoreTake(supervisor_semaphore,
                 portMAX_DELAY) == pdPASS) {
             if (rema::stall_control_get()) {
-                if (abs((int) (pos_act - last_pos)) < MOT_PAP_STALL_THRESHOLD) {
-
-                    stalled_counter++;
-                    if (stalled_counter >= MOT_PAP_STALL_MAX_COUNT) {
-                        stalled = true;
-                        stop();
-                        lDebug(Warn, "%s: stalled", name);
-                        rema::control_enabled_set(false);
-                        goto end;
-                    }
-                } else {
-                    stalled_counter = 0;
+                if (check_for_stall()) {
+                    stop();
+                    rema::control_enabled_set(false);
+                    goto end;
                 }
             }
 
@@ -188,14 +200,13 @@ void mot_pap::supervise() {
                 int out = kp.run(pos_cmd, pos_act);
                 lDebug(Info, "Control output = %i: ", out);
 
-                enum direction dir = direction_calculate(out, reversed);
+                enum direction dir = direction_calculate(out);
                 if ((this->dir != dir) && (type != TYPE_STOP)) {
                     tmr.stop();
                     vTaskDelay(
                             pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
                 }
-                this->dir = dir;
-                gpios.direction.set_pin_state(dir);
+                set_direction(dir);
                 requested_freq = abs(out);
                 tmr.stop();
                 tmr.set_freq(requested_freq);
@@ -217,7 +228,7 @@ void mot_pap::isr() {
     int error;
     if (type == TYPE_CLOSED_LOOP) {
         error = pos_cmd - pos_act;
-        already_there = (abs((int) error) < 2);
+        already_there = (abs((int) error) < MOT_PAP_POS_THRESHOLD);
     }
 
     if (already_there) {
@@ -239,6 +250,10 @@ void mot_pap::isr() {
     }
 
     cont: last_pos = pos_act;
+}
+
+void mot_pap::step() {
+    gpios.step.toggle();
 }
 
 /**
