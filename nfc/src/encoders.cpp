@@ -35,9 +35,9 @@ void encoders_init(void) {
 	//Chip_Clock_Enable(CLK_MX_GPIO);
 
     gpio_pinint encoders[] = {
-            gpio_pinint {4, 0, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | SCU_MODE_FUNC0), 2, 0, PIN_INT0_IRQn},    //DIN0 P4_0     PIN01   GPIO2[0]   EncAx
-            gpio_pinint {4, 1, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | SCU_MODE_FUNC0), 2, 1, PIN_INT1_IRQn},    //DIN1 P4_1     PIN03   GPIO2[1]   EncAy
-            gpio_pinint {4, 2, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | SCU_MODE_FUNC0), 2, 2, PIN_INT2_IRQn}     //DIN2 P4_2     PIN08   GPIO2[2]   EncAz
+            gpio_pinint {2, 5, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | SCU_MODE_FUNC4), 5, 5, PIN_INT0_IRQn},    //GPIO1 P2_5     PIN91   GPIO5[5]    EncAx
+            gpio_pinint {7, 0, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | SCU_MODE_FUNC0), 3, 8, PIN_INT1_IRQn},    //GPIO2 P7_0     PIN110  GPIO3[8]    EncAy
+            gpio_pinint {6, 7, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | SCU_MODE_FUNC4), 5, 15, PIN_INT2_IRQn}    //GPIO3 P6_7     PIN85   GPIO5[15]   EncAz
     };
 
 
