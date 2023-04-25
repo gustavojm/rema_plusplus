@@ -14,8 +14,8 @@
 #include "tmr.h"
 #include "gpio.h"
 
-#define Z_AXIS_TASK_PRIORITY ( configMAX_PRIORITIES - 1 )
-#define Z_AXIS_SUPERVISOR_TASK_PRIORITY ( configMAX_PRIORITIES - 3)
+#define Z_AXIS_TASK_PRIORITY ( configMAX_PRIORITIES - 3 )
+#define Z_AXIS_SUPERVISOR_TASK_PRIORITY ( configMAX_PRIORITIES - 1)
 
 tmr z_axis_tmr = tmr(LPC_TIMER3, RGU_TIMER3_RST, CLK_MX_TIMER3, TIMER3_IRQn);
 mot_pap z_axis("z_axis", z_axis_tmr);
@@ -41,7 +41,6 @@ static void z_axis_task(void *par)
 static void z_axis_supervisor_task(void *par)
 {
     while (true) {
-        xSemaphoreTake(z_axis.supervisor_semaphore, portMAX_DELAY);
         z_axis.supervise();
     }
 }
@@ -52,10 +51,13 @@ static void z_axis_supervisor_task(void *par)
  */
 void z_axis_init() {
     z_axis.queue = xQueueCreate(5, sizeof(struct mot_pap_msg*));
+    z_axis.motor_resolution = 25000;
+    z_axis.encoder_resolution = 500;
     z_axis.inches_to_counts_factor = 1000;
 
-    z_axis.gpios.step = gpio {4, 9, SCU_MODE_FUNC4, 5, 13}.init_output();            //DOUT5 P4_9    PIN33   GPIO5[13]
-    z_axis.gpios.direction = gpio {4, 10, SCU_MODE_FUNC4, 5, 14}.init_output();      //DOUT6 P4_10   PIN35   GPIO5[14]
+
+    z_axis.gpios.step = gpio {4, 9, SCU_MODE_FUNC4, 5, 13}.init_output();        //DOUT5 P4_9    PIN33   GPIO5[13]
+    z_axis.gpios.direction = gpio {4, 10, SCU_MODE_FUNC4, 5, 14}.init_output();  //DOUT6 P4_10   PIN35   GPIO5[14]
 
     z_axis.gpios.direction.init_output();
     z_axis.gpios.step.init_output();

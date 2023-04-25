@@ -38,12 +38,13 @@ void bresenham::task() {
     }
 }
 
-void bresenham::move(int pos_cmd_x, int pos_cmd_y) {
-    x_axis.pos_cmd = pos_cmd_x;
-    y_axis.pos_cmd = pos_cmd_y;
+void bresenham::move(int setpoint_x, int setpoint_y) {
+    type = TYPE_BRESENHAM;
+    x_axis.pos_cmd = setpoint_x;
+    y_axis.pos_cmd = setpoint_y;
 
-    int dx = x_axis.pos_cmd - x_axis.pos_act;
-    int dy = y_axis.pos_cmd - y_axis.pos_act;
+    int dx = abs(x_axis.pos_cmd - x_axis.pos_act);
+    int dy = abs(y_axis.pos_cmd - y_axis.pos_act);
 
     x_axis.delta = dx;
     y_axis.delta = dy;
@@ -56,11 +57,11 @@ void bresenham::move(int pos_cmd_x, int pos_cmd_y) {
         follower_axis = &y_axis;
     } else {
         leader_axis = &y_axis;
-        follower_axis = &y_axis;
+        follower_axis = &x_axis;
     }
 
-    if (x_axis.check_already_there() && y_axis.check_already_there()) {
-        tmr.stop();
+    if (leader_axis->check_already_there() && follower_axis->check_already_there()) {
+        stop();
         lDebug(Info, "%s: already there", name);
     } else {
         kp.restart(leader_axis->pos_act);
@@ -69,7 +70,7 @@ void bresenham::move(int pos_cmd_x, int pos_cmd_y) {
         requested_freq = abs(out);
         tmr.change_freq(requested_freq);
     }
-    lDebug(Info, "%s: MOVE, X: %i, Y: %i", name, pos_cmd_x, pos_cmd_y);
+    lDebug(Info, "%s: MOVE, X: %i, Y: %i", name, setpoint_x, setpoint_y);
 }
 
 void bresenham::step() {
@@ -88,26 +89,32 @@ void bresenham::step() {
  * @note    to be called by the deferred interrupt task handler
  */
 void bresenham::supervise() {
+    if (xSemaphoreTake(supervisor_semaphore,
+            portMAX_DELAY) == pdPASS) {
+        if (rema::stall_control_get()) {
+            bool leader_stalled = leader_axis->check_for_stall();       // make sure both stall checks are executed;
+            bool follower_stalled = follower_axis->check_for_stall();   // make sure both stall checks are executed;
 
-    while (true) {
-
-        if (xSemaphoreTake(supervisor_semaphore,
-                portMAX_DELAY) == pdPASS) {
-            if (rema::stall_control_get()) {
-                if (x_axis.check_for_stall() || y_axis.check_for_stall()) {
-                    stop();
-                    rema::control_enabled_set(false);
-                    goto end;
-                }
-            }
-
-            if (x_axis.check_already_there() && y_axis.check_already_there()) {
-                lDebug(Info, "%s: position reached", name);
+            if (leader_stalled || follower_stalled) {
+                stop();
+                rema::control_enabled_set(false);
                 goto end;
             }
-
-            //Agregar cambio de velocidad con el KP
         }
+
+        if (leader_axis->check_already_there()
+                || follower_axis->check_already_there()) {
+            lDebug(Info, "%s: position reached", name);
+            goto end;
+        }
+
+        if (type == TYPE_BRESENHAM) {
+            int out = kp.run(leader_axis->pos_cmd, leader_axis->pos_act);
+            lDebug(Info, "Control output = %i: ", out);
+            requested_freq = abs(out);
+            tmr.change_freq(requested_freq);
+        }
+
     }
     end: ;
 }
@@ -119,25 +126,25 @@ void bresenham::isr() {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     TickType_t ticks_now = xTaskGetTickCount();
 
-    if (x_axis.check_already_there() && y_axis.check_already_there()) {
-        tmr.stop();
-        xSemaphoreGiveFromISR(supervisor_semaphore, &xHigherPriorityTaskWoken);
-        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-        goto cont;
+
+    if (type == TYPE_BRESENHAM) {
+        if (leader_axis->check_already_there() || follower_axis->check_already_there()) {
+            tmr.stop();
+            xSemaphoreGiveFromISR(supervisor_semaphore, &xHigherPriorityTaskWoken);
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+            goto cont;
+        }
     }
 
     step();
 
     if ((ticks_now - ticks_last_time) > pdMS_TO_TICKS(step_time.count())) {
-
         ticks_last_time = ticks_now;
         xSemaphoreGiveFromISR(supervisor_semaphore, &xHigherPriorityTaskWoken);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
 
-    cont:
-        x_axis.last_pos = x_axis.pos_act;
-        y_axis.last_pos = y_axis.pos_act;
+    cont: ;
 }
 
 /**

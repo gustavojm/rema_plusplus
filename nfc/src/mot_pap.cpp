@@ -22,6 +22,7 @@ void mot_pap::task() {
         stalled = false; // If a new command was received, assume we are not stalled
         stalled_counter = 0;
         already_there = false;
+        half_pulses = 0;
 
         switch (msg_rcv->type) {
         case mot_pap::TYPE_FREE_RUNNING:
@@ -30,7 +31,9 @@ void mot_pap::task() {
             break;
 
         case mot_pap::TYPE_CLOSED_LOOP:
-            move_closed_loop(msg_rcv->closed_loop_setpoint * inches_to_counts_factor);
+            move_closed_loop(
+                    msg_rcv->closed_loop_setpoint
+                            * inches_to_counts_factor);
             break;
 
         default:
@@ -38,7 +41,7 @@ void mot_pap::task() {
             break;
         }
 
-        vPortFree (msg_rcv);
+        vPortFree(msg_rcv);
         msg_rcv = NULL;
     }
 }
@@ -51,9 +54,13 @@ void mot_pap::task() {
  */
 enum mot_pap::direction mot_pap::direction_calculate(int32_t error) {
     if (reversed) {
-        return error < 0 ? mot_pap::direction::DIRECTION_CW : mot_pap::direction::DIRECTION_CCW;
+        return error < 0 ?
+                mot_pap::direction::DIRECTION_CW :
+                mot_pap::direction::DIRECTION_CCW;
     } else {
-        return error < 0 ? mot_pap::direction::DIRECTION_CCW : mot_pap::direction::DIRECTION_CW;
+        return error < 0 ?
+                mot_pap::direction::DIRECTION_CCW :
+                mot_pap::direction::DIRECTION_CW;
     }
 }
 
@@ -82,10 +89,7 @@ void mot_pap::move_free_run(enum direction direction, int speed) {
         type = TYPE_FREE_RUNNING;
         set_direction(direction);
         requested_freq = speed;
-
-        tmr.stop();
-        tmr.set_freq(requested_freq);
-        tmr.start();
+        tmr.change_freq(requested_freq);
         lDebug(Info, "%s: FREE RUN, speed: %i, direction: %s", name,
                 requested_freq, dir == DIRECTION_CW ? "CW" : "CCW");
     } else {
@@ -124,9 +128,7 @@ void mot_pap::move_closed_loop(int setpoint) {
         set_direction(new_dir);
         gpios.direction.set_pin_state(dir);
         requested_freq = abs(out);
-        tmr.stop();
-        tmr.set_freq(requested_freq);
-        tmr.start();
+        tmr.change_freq(requested_freq);
     }
 }
 
@@ -147,22 +149,26 @@ void mot_pap::save_probe_pos_and_stop() {
 void mot_pap::stop() {
     type = TYPE_STOP;
     tmr.stop();
-    lDebug(Info, "%s: STOP", name);
 }
 
-
 bool mot_pap::check_for_stall() {
-    if (abs((int) (pos_act - last_pos)) < MOT_PAP_STALL_THRESHOLD) {
+    const int expected_counts = ((half_pulses << 1) * encoder_resolution / motor_resolution) - MOT_PAP_STALL_THRESHOLD;
+    const int pos_diff = abs((int) (pos_act - last_pos));
+
+    if (pos_diff < expected_counts) {
         stalled_counter++;
         if (stalled_counter >= MOT_PAP_STALL_MAX_COUNT) {
+            stalled_counter = 0;
             stalled = true;
             lDebug(Warn, "%s: stalled", name);
             return true;
         }
     } else {
         stalled_counter = 0;
-        return false;
     }
+
+    half_pulses = 0;
+    last_pos = pos_act;
     return false;
 }
 
@@ -178,44 +184,38 @@ bool mot_pap::check_already_there() {
  * @note    to be called by the deferred interrupt task handler
  */
 void mot_pap::supervise() {
-
-    while (true) {
-
-        if (xSemaphoreTake(supervisor_semaphore,
-                portMAX_DELAY) == pdPASS) {
-            if (rema::stall_control_get()) {
-                if (check_for_stall()) {
-                    stop();
-                    rema::control_enabled_set(false);
-                    goto end;
-                }
-            }
-
-            if (already_there) {
-                lDebug(Info, "%s: position reached", name);
+    if (xSemaphoreTake(supervisor_semaphore,
+            portMAX_DELAY) == pdPASS) {
+        if (rema::stall_control_get()) {
+            if (check_for_stall()) {
+                stop();
+                rema::control_enabled_set(false);
                 goto end;
             }
-
-            if (type == TYPE_CLOSED_LOOP) {
-                int out = kp.run(pos_cmd, pos_act);
-                lDebug(Info, "Control output = %i: ", out);
-
-                enum direction dir = direction_calculate(out);
-                if ((this->dir != dir) && (type != TYPE_STOP)) {
-                    tmr.stop();
-                    vTaskDelay(
-                            pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
-                }
-                set_direction(dir);
-                requested_freq = abs(out);
-                tmr.stop();
-                tmr.set_freq(requested_freq);
-                tmr.start();
-            }
-
         }
+
+        if (already_there) {
+            lDebug(Info, "%s: position reached", name);
+            goto end;
+        }
+
+        if (type == TYPE_CLOSED_LOOP) {
+            int out = kp.run(pos_cmd, pos_act);
+            lDebug(Info, "Control output = %i: ", out);
+
+            enum direction dir = direction_calculate(out);
+            if ((this->dir != dir) && (type != TYPE_STOP)) {
+                tmr.stop();
+                vTaskDelay(
+                        pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
+            }
+            set_direction(dir);
+            requested_freq = abs(out);
+            tmr.change_freq(requested_freq);
+        }
+
     }
-    end: ;
+end: ;
 }
 
 /**
@@ -238,33 +238,46 @@ void mot_pap::isr() {
         goto cont;
     }
 
-    ++half_pulses;
-
-    gpios.step.toggle();
+    step();
 
     if ((ticks_now - ticks_last_time) > pdMS_TO_TICKS(step_time.count())) {
-
         ticks_last_time = ticks_now;
         xSemaphoreGiveFromISR(supervisor_semaphore, &xHigherPriorityTaskWoken);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
-
-    cont: last_pos = pos_act;
-}
-
-void mot_pap::step() {
-    gpios.step.toggle();
+    cont: ;
 }
 
 /**
- * @brief 	updates the current position from RDC
+ * @brief   updates the current position from RDC
  */
 void mot_pap::update_position() {
     if (reversed) {
-        (dir == DIRECTION_CW) ? pos_act -- : pos_act ++;
+        (dir == DIRECTION_CW) ? pos_act-- : pos_act++;
     } else {
-        (dir == DIRECTION_CW) ? pos_act ++ : pos_act --;
+        (dir == DIRECTION_CW) ? pos_act++ : pos_act--;
     }
+}
+
+#ifdef SIMULATE_ENCODER
+/**
+ * @brief   updates the current position from the step counter
+ */
+void mot_pap::update_position_simulated() {
+    int ratio = motor_resolution / encoder_resolution;
+    if (!((half_pulses << 1) % ratio)) {
+        update_position();
+    }
+}
+#endif
+
+void mot_pap::step() {
+    gpios.step.toggle();
+    ++half_pulses;
+
+#ifdef SIMULATE_ENCODER
+    update_position_simulated();
+#endif
 }
 
 JSON_Value* mot_pap::json() const {

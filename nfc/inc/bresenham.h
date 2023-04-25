@@ -68,8 +68,8 @@ public:
  */
 struct bresenham_msg {
     enum mot_pap::type type;
-    int x_setpoint;
-    int y_setpoint;
+    float x_setpoint;
+    float y_setpoint;
 };
 
 #endif /* BRESENHAM_H_ */

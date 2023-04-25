@@ -14,8 +14,8 @@
 #include "tmr.h"
 #include "gpio.h"
 
-#define X_AXIS_TASK_PRIORITY ( configMAX_PRIORITIES - 1 )
-#define X_AXIS_SUPERVISOR_TASK_PRIORITY ( configMAX_PRIORITIES - 3)
+#define X_AXIS_TASK_PRIORITY ( configMAX_PRIORITIES - 3 )
+#define X_AXIS_SUPERVISOR_TASK_PRIORITY ( configMAX_PRIORITIES - 1)
 
 tmr x_axis_tmr = tmr(LPC_TIMER1, RGU_TIMER1_RST, CLK_MX_TIMER1, TIMER1_IRQn);
 mot_pap x_axis("x_axis", x_axis_tmr);
@@ -26,9 +26,8 @@ mot_pap x_axis("x_axis", x_axis_tmr);
  * @returns never
  * @note    Receives commands from x_axis_queue
  */
-static void x_axis_task(void *par)
-{
-      while (true) {
+static void x_axis_task(void *par) {
+    while (true) {
         x_axis.task();
     }
 }
@@ -38,10 +37,8 @@ static void x_axis_task(void *par)
  * @param   par : unused
  * @returns never
  */
-static void x_axis_supervisor_task(void *par)
-{
+static void x_axis_supervisor_task(void *par) {
     while (true) {
-        xSemaphoreTake(x_axis.supervisor_semaphore, portMAX_DELAY);
         x_axis.supervise();
     }
 }
@@ -52,33 +49,34 @@ static void x_axis_supervisor_task(void *par)
  */
 void x_axis_init() {
     x_axis.queue = xQueueCreate(5, sizeof(struct mot_pap_msg*));
-      x_axis.inches_to_counts_factor = 1000;
+    x_axis.motor_resolution = 25000;
+    x_axis.encoder_resolution = 500;
+    x_axis.inches_to_counts_factor = 1000;
 
-      x_axis.gpios.step = gpio{2, 1, SCU_MODE_FUNC4, 5, 1}.init_output();            //DOUT0 P2_1    PIN81   GPIO5[1]
-      x_axis.gpios.direction = gpio{4, 5, SCU_MODE_FUNC0, 2, 6}.init_output();       //DOUT1 P4_5    PIN10   GPIO2[6]
+    x_axis.gpios.step = gpio { 2, 1, SCU_MODE_FUNC4, 5, 1 }.init_output();      //DOUT0 P2_1    PIN81   GPIO5[1]
+    x_axis.gpios.direction = gpio { 4, 5, SCU_MODE_FUNC0, 2, 6 }.init_output(); //DOUT1 P4_5    PIN10   GPIO2[6]
 
-      x_axis.kp = {100,                               //!< Kp
+    x_axis.kp = { 100,                              //!< Kp
             kp::DIRECT,                             //!< Control type
             x_axis.step_time,                       //!< Update rate (ms)
             -100000,                                //!< Min output
             100000,                                 //!< Max output
             10000                                   //!< Absolute Min output
-      };
+            };
 
-      x_axis.supervisor_semaphore = xSemaphoreCreateBinary();
+    x_axis.supervisor_semaphore = xSemaphoreCreateBinary();
 
-      if (x_axis.supervisor_semaphore != NULL) {
-          // Create the 'handler' task, which is the task to which interrupt processing is deferred
-          xTaskCreate(x_axis_supervisor_task, "X_AXIS supervisor",
-          256,
-          NULL, X_AXIS_SUPERVISOR_TASK_PRIORITY, NULL);
-          lDebug(Info, "x_axis: supervisor task created");
-      }
+    if (x_axis.supervisor_semaphore != NULL) {
+        // Create the 'handler' task, which is the task to which interrupt processing is deferred
+        xTaskCreate(x_axis_supervisor_task, "X_AXIS supervisor", 256,
+        NULL, X_AXIS_SUPERVISOR_TASK_PRIORITY, NULL);
+        lDebug(Info, "x_axis: supervisor task created");
+    }
 
-      xTaskCreate(x_axis_task, "X_AXIS", 256, NULL,
-      X_AXIS_TASK_PRIORITY, NULL);
+    xTaskCreate(x_axis_task, "X_AXIS", 256, NULL,
+    X_AXIS_TASK_PRIORITY, NULL);
 
-      lDebug(Info, "x_axis: task created");
+    lDebug(Info, "x_axis: task created");
 
 }
 

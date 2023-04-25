@@ -10,7 +10,7 @@
 #define TMR_INTERRUPT_PRIORITY  (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 2)
 
 /**
- * @brief	enables timer 0(Pole)/1(Arm) clock and resets it
+ * @brief	enables timer clock and resets it
  * @returns	nothing
  */
 tmr::tmr(LPC_TIMER_T *lpc_timer, CHIP_RGU_RST_T rgu_timer_rst,
@@ -34,11 +34,10 @@ tmr::tmr(LPC_TIMER_T *lpc_timer, CHIP_RGU_RST_T rgu_timer_rst,
 }
 
 /**
- * @brief	sets TIMER 0(Pole)/1(Arm) frequency
+ * @brief	sets timer frequency
  * @param 	tick_rate_hz 	: desired frequency
  * @returns	0 on success
- * @returns	-1 if tick_rate_hz > 300000
- *
+ * @returns	-1 if tick_rate_hz > MOT_PAP_COMPUMOTOR_MAX_FREQ
  */
 int32_t tmr::set_freq(uint32_t tick_rate_hz) {
     uint32_t timerFreq;
@@ -46,7 +45,6 @@ int32_t tmr::set_freq(uint32_t tick_rate_hz) {
     Chip_TIMER_Reset(lpc_timer);
 
     if ((tick_rate_hz < 0) || (tick_rate_hz > MOT_PAP_COMPUMOTOR_MAX_FREQ)) {
-        //lDebug(Error, "Timer: invalid freq");
         return -1;
     }
 
@@ -59,12 +57,15 @@ int32_t tmr::set_freq(uint32_t tick_rate_hz) {
     return 0;
 }
 
+/**
+ * @brief   changes timer frequency
+ * @param   tick_rate_hz    : desired frequency
+ */
 void tmr::change_freq(uint32_t tick_rate_hz) {
     stop();
     set_freq(tick_rate_hz);
     start();
 }
-
 
 /**
  * @brief 	enables timer interrupt and starts it
@@ -92,8 +93,8 @@ void tmr::stop() {
 
 /**
  * @brief	returns if timer is started by querying if the interrupt is enabled
- * @returns 0 timer is not started.
- * @returns 1 timer is started.
+ * @returns false if timer is not started.
+ * @returns true if timer is started.
  */
 uint32_t tmr::is_started() {
     return started;
@@ -101,7 +102,6 @@ uint32_t tmr::is_started() {
 
 /**
  * @brief	Determine if a match interrupt is pending
- * @returns 0 timer is not started.
  * @returns false if the interrupt is not pending, otherwise true
  * @note	Determine if the match interrupt for the passed timer and match
  * 			counter is pending. If the interrupt is pending clears the match counter

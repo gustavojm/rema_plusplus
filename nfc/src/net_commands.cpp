@@ -49,12 +49,14 @@ static QueueHandle_t get_queue(const char *axis) {
 
 static JSON_Value* telemetria_cmd(JSON_Value const *pars) {
     JSON_Value *ans = json_value_init_object();
-    json_object_set_number(json_value_get_object(ans), "cuentas A",
+    json_object_set_number(json_value_get_object(ans), "POS X",
             x_axis.pos_act / static_cast<float>(x_axis.inches_to_counts_factor));
-    json_object_set_number(json_value_get_object(ans), "cuentas B", 0);
-    json_object_set_number(json_value_get_object(ans), "cuentas Z", 0);
+    json_object_set_number(json_value_get_object(ans), "POS Y",
+            y_axis.pos_act / static_cast<float>(y_axis.inches_to_counts_factor));
+    json_object_set_number(json_value_get_object(ans), "POS Z",
+            z_axis.pos_act / static_cast<float>(z_axis.inches_to_counts_factor));
 
-    //json_object_set_value(json_value_get_object(ans), "eje_x", mot_pap_json(&x_axis));
+    //json_object_set_value(json_value_get_object(ans), "eje_x", x_axis));
 
     return ans;
 }
@@ -349,15 +351,15 @@ static JSON_Value* bresehman_move_cmd(JSON_Value const *pars) {
         struct bresenham_msg *msg = (struct bresenham_msg*) pvPortMalloc(
                 sizeof(struct bresenham_msg));
         msg->type = mot_pap::TYPE_BRESENHAM;
-        msg->x_setpoint = static_cast<int>(x_setpoint);
-        msg->y_setpoint = static_cast<int>(y_setpoint);
+        msg->x_setpoint = static_cast<float>(x_setpoint);
+        msg->y_setpoint = static_cast<float>(y_setpoint);
 
         if (xQueueSend(xy_axes.queue, &msg, portMAX_DELAY) == pdPASS) {
             lDebug(Debug, " Comando enviado!");
         }
 
-        lDebug(Info, "AXIS_BRESENHAM SETPOINT X= %i, SETPOINT Y=%i",
-                static_cast<int>(x_setpoint), static_cast<int>(y_setpoint));
+        lDebug(Info, "AXIS_BRESENHAM SETPOINT X= %f, SETPOINT Y=%f",
+                x_setpoint, y_setpoint);
     }
     JSON_Value *ans = json_value_init_object();
     json_object_set_boolean(json_value_get_object(ans), "ACK", true);

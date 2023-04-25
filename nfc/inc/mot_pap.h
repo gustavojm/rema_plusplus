@@ -17,10 +17,9 @@
 #define MOT_PAP_COMPUMOTOR_MAX_FREQ             300000
 #define MOT_PAP_DIRECTION_CHANGE_DELAY_MS       500
 
-#define MOT_PAP_SUPERVISOR_RATE                 625  // 2 means one step
 #define MOT_PAP_POS_THRESHOLD                   2
 #define MOT_PAP_STALL_THRESHOLD                 3
-#define MOT_PAP_STALL_MAX_COUNT                 40
+#define MOT_PAP_STALL_MAX_COUNT                 5
 
 using namespace std::chrono_literals;
 /**
@@ -70,8 +69,6 @@ public:
 		this->gpios = gpios;
 	}
 
-	void read_corrected_pos();
-
 	void set_direction(enum direction direction);
 
 	void supervise();
@@ -91,6 +88,8 @@ public:
 	void isr();
 
 	void update_position();
+
+	void update_position_simulated();
 
 	bool check_for_stall();
 
@@ -116,12 +115,14 @@ public:
 	int last_pos = 0;
 	int delta;
 	int inches_to_counts_factor = 0;
+	int motor_resolution = 0;
+	int encoder_resolution = 0;
 	int stalled_counter = 0;
 	struct gpios gpios;
 	enum direction last_dir = DIRECTION_NONE;
-	int half_pulses = 0;                // counts steps from the last call to supervisor task
+	unsigned int half_pulses = 0;                // counts steps from the last call to stall control
 	class tmr tmr;
-	int ticks_last_time = 0;
+	TickType_t ticks_last_time = 0;
 	bool already_there = false;
 	bool stalled = false;
     QueueHandle_t queue;

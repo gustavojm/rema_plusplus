@@ -14,8 +14,8 @@
 #include "tmr.h"
 #include "gpio.h"
 
-#define Y_AXIS_TASK_PRIORITY ( configMAX_PRIORITIES - 1 )
-#define Y_AXIS_SUPERVISOR_TASK_PRIORITY ( configMAX_PRIORITIES - 3)
+#define Y_AXIS_TASK_PRIORITY ( configMAX_PRIORITIES - 3 )
+#define Y_AXIS_SUPERVISOR_TASK_PRIORITY ( configMAX_PRIORITIES - 1)
 
 tmr y_axis_tmr = tmr(LPC_TIMER2, RGU_TIMER2_RST, CLK_MX_TIMER2, TIMER2_IRQn);
 mot_pap y_axis("y_axis", y_axis_tmr);
@@ -41,7 +41,6 @@ static void y_axis_task(void *par)
 static void y_axis_supervisor_task(void *par)
 {
     while (true) {
-        xSemaphoreTake(y_axis.supervisor_semaphore, portMAX_DELAY);
         y_axis.supervise();
     }
 }
@@ -52,10 +51,12 @@ static void y_axis_supervisor_task(void *par)
  */
 void y_axis_init() {
     y_axis.queue = xQueueCreate(5, sizeof(struct mot_pap_msg*));
+    y_axis.motor_resolution = 25000;
+    y_axis.encoder_resolution = 500;
     y_axis.inches_to_counts_factor = 1000;
 
-    y_axis.gpios.step = gpio {4, 6, SCU_MODE_FUNC0, 2, 5}.init_output();       		//DOUT2 P4_6    PIN11   GPIO2[6]
-    y_axis.gpios.direction = gpio {4, 8, SCU_MODE_FUNC4, 5, 12}.init_output();      //DOUT4 P4_8    PIN15   GPIO5[12]
+    y_axis.gpios.step = gpio {4, 6, SCU_MODE_FUNC0, 2, 5}.init_output();        //DOUT2 P4_6    PIN11   GPIO2[6]
+    y_axis.gpios.direction = gpio {4, 8, SCU_MODE_FUNC4, 5, 12}.init_output();  //DOUT4 P4_8    PIN15   GPIO5[12]
 
     y_axis.kp = {100,                               //!< Kp
             kp::DIRECT,                             //!< Control type

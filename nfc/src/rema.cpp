@@ -4,6 +4,10 @@
 
 gpio relay_4 = { 4, 4, SCU_MODE_FUNC0, 2, 4 };  //DOUT3 P4_4    PIN9    GPIO2[4]
 
+bool rema::control_enabled = false;
+bool rema::probe_enabled = false;
+bool rema::stall_detection = true;
+
 void rema::control_enabled_set(bool status) {
     control_enabled = status;
 }
@@ -13,11 +17,11 @@ bool rema::control_enabled_get() {
 }
 
 void rema::probe_enabled_set(bool status)  {
-    rema::probe_enabled = status;
+    probe_enabled = status;
 }
 
 bool rema::probe_enabled_get()  {
-    return rema::probe_enabled;
+    return probe_enabled;
 }
 
 void rema::stall_control_set(bool status) {
@@ -32,8 +36,4 @@ void rema::lamp_pwr_set(bool status) {
     relay_4.init_output();
     relay_4.set_pin_state(status);
 }
-
-bool rema::control_enabled = false;
-bool rema::probe_enabled = false;
-bool rema::stall_detection = true;
 
