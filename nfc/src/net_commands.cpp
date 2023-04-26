@@ -25,26 +25,25 @@ typedef struct {
 	JSON_Value* (*cmd_function)(JSON_Value const *pars);
 } cmd_entry;
 
-static QueueHandle_t get_queue(const char *axis) {
-    QueueHandle_t queue = NULL;
+static mot_pap* get_axis(const char *axis) {
 
     switch (*axis) {
     case 'x':
     case 'X':
-        queue = x_axis.queue;
+        return &x_axis;
         break;
 	case 'y':
 	case 'Y':
-	    queue = y_axis.queue;
+	    return &y_axis;
 		  break;
 	case 'z':
 	case 'Z':
-		queue = z_axis.queue;
+		return &z_axis;
 	    break;
 	default:
-		  break;
+	    return nullptr;
+		break;
     }
-    return queue;
 }
 
 static JSON_Value* telemetria_cmd(JSON_Value const *pars) {
@@ -140,7 +139,7 @@ static JSON_Value* axis_closed_loop_cmd(JSON_Value const *pars) {
         msg->type = mot_pap::TYPE_CLOSED_LOOP;
         msg->closed_loop_setpoint = (float) setpoint;
 
-        QueueHandle_t queue = get_queue(axis);
+        QueueHandle_t queue = get_axis(axis)->queue;
 
         if (queue && xQueueSend(queue, &msg, portMAX_DELAY) == pdPASS) {
             lDebug(Debug, " Comando enviado!");
@@ -182,34 +181,20 @@ static JSON_Value* kp_set_tunings_cmd(JSON_Value const *pars) {
         int abs_min = (int) json_object_get_number(json_value_get_object(pars),
                 "abs_min");
 
-        struct mot_pap *axis_ = NULL;
+        struct mot_pap *axis_ = get_axis(axis);
 
-        switch (*axis) {
-        case 'x':
-        case 'X':
-            axis_ = &x_axis;
-            break;
-//              case 'y':
-//              case 'Y':
-//                      axis_ = &y_axis_;
-//                      break;
-//              case 'z':
-//              case 'Z':
-//                      msg->axis = &z_axis;
-//                  break;
-        default:
+        if (axis_ == nullptr) {
             json_object_set_boolean(json_value_get_object(ans), "ACK", false);
             json_object_set_string(json_value_get_object(ans), "ERROR", "No axis specified");
-            return ans;
-            break;
+        } else {
+            axis_->step_time = std::chrono::milliseconds(update);
+            axis_->kp.set_output_limits(min, max, abs_min);
+            axis_->kp.set_sample_period(axis_->step_time);
+            axis_->kp.set_tunings(kp);
+            lDebug(Debug, "KP Settings set");
+            json_object_set_boolean(json_value_get_object(ans), "ACK", true);
         }
-        axis_->step_time = std::chrono::milliseconds(update);
-        axis_->kp.set_output_limits(min, max, abs_min);
-        axis_->kp.set_sample_period(axis_->step_time);
-        axis_->kp.set_tunings(kp);
-        lDebug(Debug, "KP Settings set");
     }
-    json_object_set_boolean(json_value_get_object(ans), "ACK", true);
     return ans;
 }
 
@@ -235,7 +220,7 @@ static JSON_Value* axis_free_run_cmd(JSON_Value const *pars) {
 
             msg->free_run_speed = (int) speed;
 
-            QueueHandle_t queue = get_queue(axis);
+            QueueHandle_t queue = get_axis(axis)->queue;
 
             if (queue && xQueueSend(queue, &msg, portMAX_DELAY) == pdPASS) {
                 lDebug(Debug, " Comando enviado!");

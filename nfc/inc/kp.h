@@ -69,7 +69,7 @@ public:
 
     //! @brief 		Computes new KP values
     //! @details 	Call once per sampleTimeMs. Output is stored in the kpData structure.
-    int run(float setpoint, float input);
+    int run(int setpoint, int input);
 
     void set_output_limits(int min, int max, int min_abs_output);
 

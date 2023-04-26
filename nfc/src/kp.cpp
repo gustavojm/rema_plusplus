@@ -28,7 +28,7 @@ void kp::restart(int input) {
 }
 
 
-int kp::run(float setpoint, float input) {
+int kp::run(int setpoint, int input) {
 #define RAMP_RATE	0.01		//Change the setpoint by at most 0.1 per iteration
 
 //	if (num_times_ran == 1) {

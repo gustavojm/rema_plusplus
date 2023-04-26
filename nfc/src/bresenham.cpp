@@ -40,27 +40,28 @@ void bresenham::task() {
 
 void bresenham::move(int setpoint_x, int setpoint_y) {
     type = TYPE_BRESENHAM;
+    already_there = false;
     x_axis.pos_cmd = setpoint_x;
     y_axis.pos_cmd = setpoint_y;
 
-    int dx = abs(x_axis.pos_cmd - x_axis.pos_act);
-    int dy = abs(y_axis.pos_cmd - y_axis.pos_act);
+    int dx = x_axis.pos_cmd - x_axis.pos_act;
+    int dy = y_axis.pos_cmd - y_axis.pos_act;
 
-    x_axis.delta = dx;
-    y_axis.delta = dy;
+    x_axis.delta = abs(dx);
+    y_axis.delta = abs(dy);
 
-    x_axis.set_direction(x_axis.direction_calculate(dx));
-    y_axis.set_direction(y_axis.direction_calculate(dy));
+    x_axis.set_direction();
+    y_axis.set_direction();
 
-    if (dx > dy) {
+    error =  x_axis.delta - y_axis.delta;
+
+    if (x_axis.delta > y_axis.delta) {
         leader_axis = &x_axis;
-        follower_axis = &y_axis;
     } else {
         leader_axis = &y_axis;
-        follower_axis = &x_axis;
     }
 
-    if (leader_axis->check_already_there() && follower_axis->check_already_there()) {
+    if (x_axis.check_already_there() && y_axis.check_already_there()) {
         stop();
         lDebug(Info, "%s: already there", name);
     } else {
@@ -74,12 +75,18 @@ void bresenham::move(int setpoint_x, int setpoint_y) {
 }
 
 void bresenham::step() {
-    int over = leader_axis->delta >> 1;
-    leader_axis->step();
-    over += follower_axis->delta;
-    if (over >= leader_axis->delta) {
-        over -= leader_axis->delta;
-        follower_axis->step();
+    int e2 = error << 1;
+    if (e2 >= -y_axis.delta) {
+        error -= y_axis.delta;
+        if (!x_axis.check_already_there()) {
+            x_axis.step();
+        }
+    }
+    if (e2 <= x_axis.delta) {
+        error += x_axis.delta;
+        if (!y_axis.check_already_there()) {
+            y_axis.step();
+        }
     }
 }
 
@@ -91,24 +98,27 @@ void bresenham::step() {
 void bresenham::supervise() {
     if (xSemaphoreTake(supervisor_semaphore,
             portMAX_DELAY) == pdPASS) {
-        if (rema::stall_control_get()) {
-            bool leader_stalled = leader_axis->check_for_stall();       // make sure both stall checks are executed;
-            bool follower_stalled = follower_axis->check_for_stall();   // make sure both stall checks are executed;
+        if (already_there) {
+            lDebug(Info, "%s: position reached", name);
+            stop();
+            goto end;
+        }
 
-            if (leader_stalled || follower_stalled) {
+        if (rema::stall_control_get()) {
+            bool x_stalled = x_axis.check_for_stall();   // make sure both stall checks are executed;
+            bool y_stalled = y_axis.check_for_stall();   // make sure both stall checks are executed;
+
+            if (x_stalled || y_stalled) {
                 stop();
                 rema::control_enabled_set(false);
                 goto end;
             }
         }
 
-        if (leader_axis->check_already_there()
-                || follower_axis->check_already_there()) {
-            lDebug(Info, "%s: position reached", name);
-            goto end;
-        }
-
         if (type == TYPE_BRESENHAM) {
+            x_axis.set_direction();     // if didn't stop for proximity to set point, avoid going to infinity
+            y_axis.set_direction();     // keeps dancing around the setpoint...
+
             int out = kp.run(leader_axis->pos_cmd, leader_axis->pos_act);
             lDebug(Info, "Control output = %i: ", out);
             requested_freq = abs(out);
@@ -119,7 +129,7 @@ void bresenham::supervise() {
     end: ;
 }
 
-/**
+/**if (x_axis->check_already_there()
  * @brief   function called by the timer ISR to generate the output pulses
  */
 void bresenham::isr() {
@@ -128,8 +138,9 @@ void bresenham::isr() {
 
 
     if (type == TYPE_BRESENHAM) {
-        if (leader_axis->check_already_there() || follower_axis->check_already_there()) {
-            tmr.stop();
+        already_there = x_axis.check_already_there() && y_axis.check_already_there();
+        if (already_there) {
+            stop();
             xSemaphoreGiveFromISR(supervisor_semaphore, &xHigherPriorityTaskWoken);
             portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
             goto cont;
@@ -153,7 +164,6 @@ void bresenham::isr() {
  * @returns nothing
  */
 void bresenham::stop() {
-    type = TYPE_STOP;
     tmr.stop();
-    lDebug(Info, "%s: STOP", name);
+    type = TYPE_STOP;
 }

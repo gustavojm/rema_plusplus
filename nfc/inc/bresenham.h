@@ -58,8 +58,9 @@ public:
     QueueHandle_t queue;
     SemaphoreHandle_t supervisor_semaphore;
     mot_pap* leader_axis = nullptr;
-    mot_pap* follower_axis = nullptr;
+    volatile bool already_there = false;
     class kp kp;
+    int error;
 };
 
 /**

@@ -48,7 +48,7 @@ public:
 
 	void task();
 
-	enum direction direction_calculate(int32_t error);
+	enum direction direction_calculate(int error);
 
 	mot_pap() = delete;
 
@@ -70,6 +70,8 @@ public:
 	}
 
 	void set_direction(enum direction direction);
+
+	void set_direction();
 
 	void supervise();
 
@@ -94,10 +96,6 @@ public:
 	bool check_for_stall();
 
 	bool check_already_there();
-
-	bool free_run_speed_ok(uint32_t speed) const;
-
-	uint32_t read_on_condition(void);
 
 	JSON_Value* json() const;
 

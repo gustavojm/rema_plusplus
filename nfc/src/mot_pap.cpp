@@ -52,15 +52,11 @@ void mot_pap::task() {
  * @returns	DIRECTION_CW if error is positive
  * @returns	DIRECTION_CCW if error is negative
  */
-enum mot_pap::direction mot_pap::direction_calculate(int32_t error) {
+enum mot_pap::direction mot_pap::direction_calculate(int error) {
     if (reversed) {
-        return error < 0 ?
-                mot_pap::direction::DIRECTION_CW :
-                mot_pap::direction::DIRECTION_CCW;
+        return error < 0 ? mot_pap::direction::DIRECTION_CW : mot_pap::direction::DIRECTION_CCW;
     } else {
-        return error < 0 ?
-                mot_pap::direction::DIRECTION_CCW :
-                mot_pap::direction::DIRECTION_CW;
+        return error < 0 ? mot_pap::direction::DIRECTION_CCW : mot_pap::direction::DIRECTION_CW;
     }
 }
 
@@ -68,6 +64,12 @@ void mot_pap::set_direction(enum direction direction) {
     dir = direction;
     gpios.direction.set_pin_state(dir == DIRECTION_CW ? 0 : 1);
 }
+
+void mot_pap::set_direction() {
+    dir = direction_calculate(pos_cmd - pos_act);
+    gpios.direction.set_pin_state(dir == DIRECTION_CW ? 0 : 1);
+}
+
 
 /**
  * @brief	if allowed, starts a free run movement
@@ -98,7 +100,7 @@ void mot_pap::move_free_run(enum direction direction, int speed) {
 }
 
 void mot_pap::move_closed_loop(int setpoint) {
-    int32_t error;
+    int error;
     bool already_there;
     enum direction new_dir;
     stalled = false; // If a new command was received, assume we are not stalled
@@ -272,11 +274,12 @@ void mot_pap::update_position_simulated() {
 #endif
 
 void mot_pap::step() {
-    gpios.step.toggle();
     ++half_pulses;
 
 #ifdef SIMULATE_ENCODER
     update_position_simulated();
+#else
+    gpios.step.toggle();
 #endif
 }
 
