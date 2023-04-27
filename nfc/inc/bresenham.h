@@ -61,6 +61,9 @@ public:
     volatile bool already_there = false;
     class kp kp;
     int error;
+
+private:
+    void calculate();
 };
 
 /**

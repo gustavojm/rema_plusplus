@@ -38,17 +38,10 @@ void bresenham::task() {
     }
 }
 
-void bresenham::move(int setpoint_x, int setpoint_y) {
-    type = TYPE_BRESENHAM;
-    already_there = false;
-    x_axis.pos_cmd = setpoint_x;
-    y_axis.pos_cmd = setpoint_y;
 
-    int dx = x_axis.pos_cmd - x_axis.pos_act;
-    int dy = y_axis.pos_cmd - y_axis.pos_act;
-
-    x_axis.delta = abs(dx);
-    y_axis.delta = abs(dy);
+void bresenham::calculate() {
+    x_axis.delta = abs(x_axis.pos_cmd - x_axis.pos_act);
+    y_axis.delta = abs(y_axis.pos_cmd - y_axis.pos_act);
 
     x_axis.set_direction();
     y_axis.set_direction();
@@ -60,6 +53,15 @@ void bresenham::move(int setpoint_x, int setpoint_y) {
     } else {
         leader_axis = &y_axis;
     }
+}
+
+void bresenham::move(int setpoint_x, int setpoint_y) {
+    type = TYPE_BRESENHAM;
+    already_there = false;
+    x_axis.pos_cmd = setpoint_x;
+    y_axis.pos_cmd = setpoint_y;
+
+    calculate();
 
     if (x_axis.check_already_there() && y_axis.check_already_there()) {
         stop();
@@ -116,6 +118,7 @@ void bresenham::supervise() {
         }
 
         if (type == TYPE_BRESENHAM) {
+            calculate();                // recalculate to compensate for encoder errors
             x_axis.set_direction();     // if didn't stop for proximity to set point, avoid going to infinity
             y_axis.set_direction();     // keeps dancing around the setpoint...
 
