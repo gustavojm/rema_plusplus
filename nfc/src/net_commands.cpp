@@ -170,7 +170,7 @@ static JSON_Value* kp_set_tunings_cmd(JSON_Value const *pars) {
 
         char const *axis = json_object_get_string(json_value_get_object(pars),
                 "axis");
-        int kp = (int) json_object_get_number(json_value_get_object(pars),
+        float kp = (float) json_object_get_number(json_value_get_object(pars),
                 "kp");
         int update = (int) json_object_get_number(json_value_get_object(pars),
                 "update");

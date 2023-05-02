@@ -67,7 +67,7 @@ void bresenham::move(int setpoint_x, int setpoint_y) {
         stop();
         lDebug(Info, "%s: already there", name);
     } else {
-        kp.restart(leader_axis->pos_act);
+        kp.restart();
 
         int out = kp.run(leader_axis->pos_cmd, leader_axis->pos_act);
         requested_freq = abs(out);

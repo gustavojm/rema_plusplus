@@ -118,7 +118,7 @@ void mot_pap::move_closed_loop(int setpoint) {
         tmr.stop();
         lDebug(Info, "%s: already there", name);
     } else {
-        kp.restart(pos_act);
+        kp.restart();
 
         int out = kp.run(pos_cmd, pos_act);
         new_dir = direction_calculate(out);

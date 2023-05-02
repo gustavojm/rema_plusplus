@@ -17,28 +17,13 @@ public:
 	int setpoint;
 
 	//! @brief		The control output.
-	//! @details	This is updated when kp_run() is called.
+	//! @details	This is updated when kp::run() is called.
 	int output;
 
-	//! @brief		Time-step scaled proportional constant for quick calculation (equal to actualKp)
-	float zp;
+	//! @brief		Proportional constant
+	float kp_;
 
-	//! @brief		Actual (non-scaled) proportional constant
-	int kp_;
-
-	//! @brief		Actual (non-scaled) previous input
-	int prev_input = 0;
-
-	//! @brief		The change in input between the current and previous value
-	int input_change;
-
-	//! @brief 		The output value calculated the previous time Pid_Run() was called.
-	//! @details	Used in ACCUMULATE_OUTPUT mode.
-	int prev_output = 0;
-	int prev_error = 0;
-
-	//! @brief		The sample period (in milliseconds) between successive Pid_Run() calls.
-	//! @details	The constants with the z prefix are scaled according to this value.
+	//! @brief		The sample period (in milliseconds) between successive kp::run() calls.
 	std::chrono::milliseconds sample_period_ms;
 
 	float p_term = 0;		//!< The proportional term that is summed as part of the output (calculated in Pid_Run())
@@ -61,11 +46,11 @@ public:
     //! @brief 		Constructor
     //! @details   	The parameters specified here are those for for which we can't set up
     //!    			reliable defaults, so we need to have the user set them.
-    kp(int ki,
+    kp(int kp,
             enum controller_direction controller_dir,
             std::chrono::milliseconds sample_period_ms, int min_output, int max_output, int min_abs_output);
 
-    void restart(int input);
+    void restart();
 
     //! @brief 		Computes new KP values
     //! @details 	Call once per sampleTimeMs. Output is stored in the kpData structure.
@@ -83,13 +68,10 @@ public:
     //! @brief		This function allows the controller's dynamic performance to be adjusted.
     //! @details	It's called automatically from the init function, but tunings can also
     //! 			be adjusted on the fly during normal operation
-    void set_tunings(int kp);
+    void set_tunings(float kp);
 
     //! @brief		Returns the actual (not time-scaled) proportional constant.
     int get_kp();
-
-    //! @brief		Returns the time-scaled (dependent on sample period) proportional constant.
-    int get_zp();
 
 };
 
