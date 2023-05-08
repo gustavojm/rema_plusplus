@@ -39,13 +39,13 @@ void xy_axes_init() {
 
       if (xy_axes.supervisor_semaphore != NULL) {
           // Create the 'handler' task, which is the task to which interrupt processing is deferred
-          xTaskCreate([](void *axis) { static_cast<bresenham*>(axis)->supervise();}, "XY_AXIS supervisor",
+          xTaskCreate([](void* axes) { static_cast<bresenham*>(axes)->supervise();}, "XY_AXIS supervisor",
           256,
           &xy_axes, XY_AXES_SUPERVISOR_TASK_PRIORITY, NULL);
           lDebug(Info, "xy_axis: supervisor task created");
       }
 
-      xTaskCreate([](void *axis) { static_cast<bresenham*>(axis)->task();}, "XY_AXIS", 256, &xy_axes,
+      xTaskCreate([](void* axes) { static_cast<bresenham*>(axes)->task();}, "XY_AXIS", 256, &xy_axes,
       XY_AXES_TASK_PRIORITY, NULL);
 
       lDebug(Info, "xy_axis: task created");
