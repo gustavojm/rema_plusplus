@@ -16,33 +16,35 @@ using namespace std::chrono_literals;
 void mot_pap::task() {
     struct mot_pap_msg *msg_rcv;
 
-    if (xQueueReceive(queue, &msg_rcv, portMAX_DELAY) == pdPASS) {
-        lDebug(Info, "%s: command received", name);
+    while (true) {
+        if (xQueueReceive(queue, &msg_rcv, portMAX_DELAY) == pdPASS) {
+            lDebug(Info, "%s: command received", name);
 
-        stalled = false; // If a new command was received, assume we are not stalled
-        stalled_counter = 0;
-        already_there = false;
-        half_pulses = 0;
+            stalled = false; // If a new command was received, assume we are not stalled
+            stalled_counter = 0;
+            already_there = false;
+            half_pulses = 0;
 
-        switch (msg_rcv->type) {
-        case mot_pap::TYPE_FREE_RUNNING:
-            move_free_run(msg_rcv->free_run_direction,
-                    msg_rcv->free_run_speed);
-            break;
+            switch (msg_rcv->type) {
+            case mot_pap::TYPE_FREE_RUNNING:
+                move_free_run(msg_rcv->free_run_direction,
+                        msg_rcv->free_run_speed);
+                break;
 
-        case mot_pap::TYPE_CLOSED_LOOP:
-            move_closed_loop(
-                    msg_rcv->closed_loop_setpoint
-                            * inches_to_counts_factor);
-            break;
+            case mot_pap::TYPE_CLOSED_LOOP:
+                move_closed_loop(
+                        msg_rcv->closed_loop_setpoint
+                                * inches_to_counts_factor);
+                break;
 
-        default:
-            stop();
-            break;
+            default:
+                stop();
+                break;
+            }
+
+            vPortFree(msg_rcv);
+            msg_rcv = NULL;
         }
-
-        vPortFree(msg_rcv);
-        msg_rcv = NULL;
     }
 }
 
@@ -186,38 +188,40 @@ bool mot_pap::check_already_there() {
  * @note    to be called by the deferred interrupt task handler
  */
 void mot_pap::supervise() {
-    if (xSemaphoreTake(supervisor_semaphore,
-            portMAX_DELAY) == pdPASS) {
-        if (rema::stall_control_get()) {
-            if (check_for_stall()) {
-                stop();
-                rema::control_enabled_set(false);
+    while (true) {
+        if (xSemaphoreTake(supervisor_semaphore,
+                portMAX_DELAY) == pdPASS) {
+            if (rema::stall_control_get()) {
+                if (check_for_stall()) {
+                    stop();
+                    rema::control_enabled_set(false);
+                    goto end;
+                }
+            }
+
+            if (already_there) {
+                lDebug(Info, "%s: position reached", name);
                 goto end;
             }
-        }
 
-        if (already_there) {
-            lDebug(Info, "%s: position reached", name);
-            goto end;
-        }
+            if (type == TYPE_CLOSED_LOOP) {
+                int out = kp.run(pos_cmd, pos_act);
+                lDebug(Info, "Control output = %i: ", out);
 
-        if (type == TYPE_CLOSED_LOOP) {
-            int out = kp.run(pos_cmd, pos_act);
-            lDebug(Info, "Control output = %i: ", out);
-
-            enum direction dir = direction_calculate(out);
-            if ((this->dir != dir) && (type != TYPE_STOP)) {
-                tmr.stop();
-                vTaskDelay(
-                        pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
+                enum direction dir = direction_calculate(out);
+                if ((this->dir != dir) && (type != TYPE_STOP)) {
+                    tmr.stop();
+                    vTaskDelay(
+                            pdMS_TO_TICKS(MOT_PAP_DIRECTION_CHANGE_DELAY_MS));
+                }
+                set_direction(dir);
+                requested_freq = abs(out);
+                tmr.change_freq(requested_freq);
             }
-            set_direction(dir);
-            requested_freq = abs(out);
-            tmr.change_freq(requested_freq);
-        }
 
+        }
+        end: ;
     }
-end: ;
 }
 
 /**
