@@ -20,21 +20,23 @@ extern mot_pap y_axis;
 void bresenham::task() {
     struct bresenham_msg *msg_rcv;
 
-    if (xQueueReceive(queue, &msg_rcv, portMAX_DELAY) == pdPASS) {
-        lDebug(Info, "%s: command received", name);
+    while (true) {
+        if (xQueueReceive(queue, &msg_rcv, portMAX_DELAY) == pdPASS) {
+            lDebug(Info, "%s: command received", name);
 
-        switch (msg_rcv->type) {
-        case mot_pap::TYPE_BRESENHAM:
-            move(msg_rcv->x_setpoint * x_axis.inches_to_counts_factor, msg_rcv->y_setpoint * y_axis.inches_to_counts_factor);
-            break;
+            switch (msg_rcv->type) {
+            case mot_pap::TYPE_BRESENHAM:
+                move(msg_rcv->x_setpoint * x_axis.inches_to_counts_factor, msg_rcv->y_setpoint * y_axis.inches_to_counts_factor);
+                break;
 
-        default:
-            stop();
-            break;
+            default:
+                stop();
+                break;
+            }
+
+            vPortFree (msg_rcv);
+            msg_rcv = NULL;
         }
-
-        vPortFree (msg_rcv);
-        msg_rcv = NULL;
     }
 }
 
@@ -98,38 +100,40 @@ void bresenham::step() {
  * @note    to be called by the deferred interrupt task handler
  */
 void bresenham::supervise() {
-    if (xSemaphoreTake(supervisor_semaphore,
-            portMAX_DELAY) == pdPASS) {
-        if (already_there) {
-            lDebug(Info, "%s: position reached", name);
-            stop();
-            goto end;
-        }
-
-        if (rema::stall_control_get()) {
-            bool x_stalled = x_axis.check_for_stall();   // make sure both stall checks are executed;
-            bool y_stalled = y_axis.check_for_stall();   // make sure both stall checks are executed;
-
-            if (x_stalled || y_stalled) {
+    while (true) {
+        if (xSemaphoreTake(supervisor_semaphore,
+                portMAX_DELAY) == pdPASS) {
+            if (already_there) {
+                lDebug(Info, "%s: position reached", name);
                 stop();
-                rema::control_enabled_set(false);
                 goto end;
             }
+
+            if (rema::stall_control_get()) {
+                bool x_stalled = x_axis.check_for_stall();   // make sure both stall checks are executed;
+                bool y_stalled = y_axis.check_for_stall();   // make sure both stall checks are executed;
+
+                if (x_stalled || y_stalled) {
+                    stop();
+                    rema::control_enabled_set(false);
+                    goto end;
+                }
+            }
+
+            if (type == TYPE_BRESENHAM) {
+                calculate();                // recalculate to compensate for encoder errors
+                x_axis.set_direction();     // if didn't stop for proximity to set point, avoid going to infinity
+                y_axis.set_direction();     // keeps dancing around the setpoint...
+
+                int out = kp.run(leader_axis->pos_cmd, leader_axis->pos_act);
+                lDebug(Info, "Control output = %i: ", out);
+                requested_freq = abs(out);
+                tmr.change_freq(requested_freq);
+            }
+
         }
-
-        if (type == TYPE_BRESENHAM) {
-            calculate();                // recalculate to compensate for encoder errors
-            x_axis.set_direction();     // if didn't stop for proximity to set point, avoid going to infinity
-            y_axis.set_direction();     // keeps dancing around the setpoint...
-
-            int out = kp.run(leader_axis->pos_cmd, leader_axis->pos_act);
-            lDebug(Info, "Control output = %i: ", out);
-            requested_freq = abs(out);
-            tmr.change_freq(requested_freq);
-        }
-
+        end: ;
     }
-    end: ;
 }
 
 /**if (x_axis->check_already_there()

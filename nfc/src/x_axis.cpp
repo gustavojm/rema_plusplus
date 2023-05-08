@@ -21,29 +21,6 @@ tmr x_axis_tmr = tmr(LPC_TIMER1, RGU_TIMER1_RST, CLK_MX_TIMER1, TIMER1_IRQn);
 mot_pap x_axis("x_axis", x_axis_tmr);
 
 /**
- * @brief   handles the X axis movement.
- * @param   par     : unused
- * @returns never
- * @note    Receives commands from x_axis_queue
- */
-static void x_axis_task(void *par) {
-    while (true) {
-        x_axis.task();
-    }
-}
-
-/**
- * @brief   checks if stalled and if position reached in closed loop.
- * @param   par : unused
- * @returns never
- */
-static void x_axis_supervisor_task(void *par) {
-    while (true) {
-        x_axis.supervise();
-    }
-}
-
-/**
  * @brief 	creates the queues, semaphores and endless tasks to handle X axis movements.
  * @returns	nothing
  */
@@ -68,12 +45,12 @@ void x_axis_init() {
 
     if (x_axis.supervisor_semaphore != NULL) {
         // Create the 'handler' task, which is the task to which interrupt processing is deferred
-        xTaskCreate(x_axis_supervisor_task, "X_AXIS supervisor", 256,
-        NULL, X_AXIS_SUPERVISOR_TASK_PRIORITY, NULL);
+        xTaskCreate([](void* axis) { static_cast<mot_pap*>(axis)->supervise();}, "X_AXIS supervisor", 256,
+        &x_axis, X_AXIS_SUPERVISOR_TASK_PRIORITY, NULL);
         lDebug(Info, "x_axis: supervisor task created");
     }
 
-    xTaskCreate(x_axis_task, "X_AXIS", 256, NULL,
+    xTaskCreate([](void* axis) { static_cast<mot_pap*>(axis)->task(); }, "X_AXIS", 256, &x_axis,
     X_AXIS_TASK_PRIORITY, NULL);
 
     lDebug(Info, "x_axis: task created");
