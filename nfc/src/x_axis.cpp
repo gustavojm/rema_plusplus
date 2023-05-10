@@ -28,7 +28,8 @@ void x_axis_init() {
     x_axis.queue = xQueueCreate(5, sizeof(struct mot_pap_msg*));
     x_axis.motor_resolution = 25000;
     x_axis.encoder_resolution = 500;
-    x_axis.inches_to_counts_factor = 1000;
+    x_axis.inches_to_counts_factor = 5000;
+    x_axis.reversed = true;
 
     x_axis.gpios.step = gpio { 2, 1, SCU_MODE_FUNC4, 5, 1 }.init_output();      //DOUT0 P2_1    PIN81   GPIO5[1]
     x_axis.gpios.direction = gpio { 4, 5, SCU_MODE_FUNC0, 2, 6 }.init_output(); //DOUT1 P4_5    PIN10   GPIO2[6]

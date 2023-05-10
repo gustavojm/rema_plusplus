@@ -155,8 +155,12 @@ static JSON_Value* set_cal_point_cmd(JSON_Value const *pars) {
 
         double pos_x = json_object_get_number(json_value_get_object(pars),
                 "position_x");
+        double pos_y = json_object_get_number(json_value_get_object(pars),
+                "position_y");
+
 
         x_axis.set_position(pos_x);
+        y_axis.set_position(pos_y);
     }
     JSON_Value *ans = json_value_init_object();
     json_object_set_boolean(json_value_get_object(ans), "ACK", true);
