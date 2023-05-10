@@ -246,6 +246,7 @@ static JSON_Value* axis_stop_all_cmd(JSON_Value const *pars) {
     x_axis.stop();
     y_axis.stop();
     z_axis.stop();
+    xy_axes.stop();         // Stop Bresenham movement if any
     JSON_Value *ans = json_value_init_object();
     json_object_set_boolean(json_value_get_object(ans), "ACK", true);
     return ans;
