@@ -118,7 +118,8 @@ public:
 	int stalled_counter = 0;
 	struct gpios gpios;
 	enum direction last_dir = DIRECTION_NONE;
-	unsigned int half_pulses = 0;                // counts steps from the last call to stall control
+	unsigned int half_pulses_stall = 0;                // counts steps from the last call to stall control
+	unsigned int half_pulses = 0;                      // counts steps for encoder simulation
 	class tmr tmr;
 	TickType_t ticks_last_time = 0;
 	bool already_there = false;

@@ -27,7 +27,7 @@ mot_pap z_axis("z_axis", z_axis_tmr);
 void z_axis_init() {
     z_axis.queue = xQueueCreate(5, sizeof(struct mot_pap_msg*));
     z_axis.motor_resolution = 25000;
-    z_axis.encoder_resolution = 500;
+    z_axis.encoder_resolution = 5000;
     z_axis.inches_to_counts_factor = 1000;
 
 

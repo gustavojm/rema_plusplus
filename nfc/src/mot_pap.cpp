@@ -23,7 +23,7 @@ void mot_pap::task() {
             stalled = false; // If a new command was received, assume we are not stalled
             stalled_counter = 0;
             already_there = false;
-            half_pulses = 0;
+            half_pulses_stall = 0;
 
             switch (msg_rcv->type) {
             case mot_pap::TYPE_FREE_RUNNING:
@@ -156,7 +156,7 @@ void mot_pap::stop() {
 }
 
 bool mot_pap::check_for_stall() {
-    const int expected_counts = ((half_pulses << 1) * encoder_resolution / motor_resolution) - MOT_PAP_STALL_THRESHOLD;
+    const int expected_counts = ((half_pulses_stall >> 1) * encoder_resolution / motor_resolution) - MOT_PAP_STALL_THRESHOLD;
     const int pos_diff = abs((int) (pos_act - last_pos));
 
     if (pos_diff < expected_counts) {
@@ -171,7 +171,7 @@ bool mot_pap::check_for_stall() {
         stalled_counter = 0;
     }
 
-    half_pulses = 0;
+    half_pulses_stall = 0;
     last_pos = pos_act;
     return false;
 }
@@ -271,7 +271,7 @@ void mot_pap::update_position() {
  */
 void mot_pap::update_position_simulated() {
     int ratio = motor_resolution / encoder_resolution;
-    if (!((half_pulses << 1) % ratio)) {
+    if (!((half_pulses) % (ratio << 1))) {
         update_position();
     }
 }
@@ -279,6 +279,7 @@ void mot_pap::update_position_simulated() {
 
 void mot_pap::step() {
     ++half_pulses;
+    ++half_pulses_stall;
 
 #ifdef SIMULATE_ENCODER
     update_position_simulated();
