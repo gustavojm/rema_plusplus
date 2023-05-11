@@ -26,7 +26,7 @@ void bresenham::task() {
 
             switch (msg_rcv->type) {
             case mot_pap::TYPE_BRESENHAM:
-                move(msg_rcv->x_setpoint * x_axis.inches_to_counts_factor, msg_rcv->y_setpoint * y_axis.inches_to_counts_factor);
+                move(msg_rcv->x_setpoint, msg_rcv->y_setpoint);
                 break;
 
             default:
