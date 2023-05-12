@@ -25,7 +25,7 @@ bresenham& x_y_axes_get_instance() {
 }
 
 /**
- * @brief 	creates the queues, semaphores and endless tasks to handle X axis movements.
+ * @brief   initializes the stepper motors for bresenham control
  * @returns	nothing
  */
 void xy_axes_init() {

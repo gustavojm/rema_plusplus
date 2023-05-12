@@ -148,8 +148,8 @@ static JSON_Value* kp_set_tunings_cmd(JSON_Value const *pars) {
 
     if (pars && json_value_get_type(pars) == JSONObject) {
 
-        char const *axis = json_object_get_string(json_value_get_object(pars),
-                "axis");
+        char const *axes = json_object_get_string(json_value_get_object(pars),
+                "axes");
         float kp = (float) json_object_get_number(json_value_get_object(pars),
                 "kp");
         int update = (int) json_object_get_number(json_value_get_object(pars),
@@ -161,16 +161,16 @@ static JSON_Value* kp_set_tunings_cmd(JSON_Value const *pars) {
         int abs_min = (int) json_object_get_number(json_value_get_object(pars),
                 "abs_min");
 
-        bresenham *axis_ = get_axes(axis);
+        bresenham *axes_ = get_axes(axes);
 
-        if (axis_ == nullptr) {
+        if (axes_ == nullptr) {
             json_object_set_boolean(json_value_get_object(ans), "ACK", false);
             json_object_set_string(json_value_get_object(ans), "ERROR", "No axis specified");
         } else {
-            axis_->step_time = std::chrono::milliseconds(update);
-            axis_->kp.set_output_limits(min, max, abs_min);
-            axis_->kp.set_sample_period(axis_->step_time);
-            axis_->kp.set_tunings(kp);
+            axes_->step_time = std::chrono::milliseconds(update);
+            axes_->kp.set_output_limits(min, max, abs_min);
+            axes_->kp.set_sample_period(axes_->step_time);
+            axes_->kp.set_tunings(kp);
             lDebug(Debug, "KP Settings set");
             json_object_set_boolean(json_value_get_object(ans), "ACK", true);
         }
