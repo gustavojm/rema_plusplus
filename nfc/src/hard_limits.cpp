@@ -2,14 +2,15 @@
 #include "board.h"
 #include "gpio.h"
 #include "bresenham.h"
+#include "z_axis.h"
+#include "xy_axes.h"
 
 extern bresenham x_y_axes;
-extern bresenham z_dummy_axes;
 
 static void hard_limits_reached() {
     /* TODO Read input pins to determine which limit has been reached and stop only one motor*/
-    x_y_axes.stop();
-    z_dummy_axes.stop();
+    z_dummy_axes_get_instance().stop();
+    x_y_axes_get_instance().stop();
 }
 
 /**

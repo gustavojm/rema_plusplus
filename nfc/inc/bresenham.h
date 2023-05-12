@@ -37,6 +37,28 @@ public:
 
         queue = xQueueCreate(5, sizeof(struct bresenham_msg*));
         supervisor_semaphore = xSemaphoreCreateBinary();
+
+        char supervisor_task_name[configMAX_TASK_NAME_LEN];
+        memset(supervisor_task_name, 0, sizeof(supervisor_task_name));
+        strncat(supervisor_task_name, name, sizeof(supervisor_task_name) - strlen(supervisor_task_name) - 1);
+        strncat(supervisor_task_name, "_supervisor", sizeof(supervisor_task_name) - strlen(supervisor_task_name) -1);
+        if (supervisor_semaphore != NULL) {
+            // Create the 'handler' task, which is the task to which interrupt processing is deferred
+            xTaskCreate([](void* axes) { static_cast<bresenham*>(axes)->supervise();}, supervisor_task_name,
+            256,
+            this, SUPERVISOR_TASK_PRIORITY, NULL);
+            lDebug(Info, "%s: created", supervisor_task_name);
+        }
+
+        char task_name[configMAX_TASK_NAME_LEN];
+        memset(task_name, 0, sizeof(task_name));
+        strncat(task_name, name, sizeof(task_name) - strlen(task_name) - 1);
+        strncat(task_name, "_task", sizeof(task_name) - strlen(task_name) - 1);
+        xTaskCreate([](void* axes) { static_cast<bresenham*>(axes)->task();}, task_name, 256, this,
+        TASK_PRIORITY, NULL);
+
+        lDebug(Info, "%s: created", task_name);
+
     }
 
 	void task();

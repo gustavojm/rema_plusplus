@@ -11,11 +11,12 @@
 #include "temperature_ds18b20.h"
 #include "rema.h"
 #include "bresenham.h"
+#include "z_axis.h"
+#include "xy_axes.h"
 
 #define PROTOCOL_VERSION  	"JSON_1.0"
 
 extern mot_pap x_axis, y_axis, z_axis;
-extern bresenham x_y_axes, z_dummy_axes;
 
 typedef struct {
 	const char *cmd_name;
@@ -27,10 +28,10 @@ static bresenham* get_axes(const char *axis) {
     switch (*axis) {
     case 'z':
     case 'Z':
-        return &z_dummy_axes;
+        return &z_dummy_axes_get_instance();
         break;
 	default:
-	    return &x_y_axes;
+	    return &x_y_axes_get_instance();
 		break;
     }
 }
@@ -215,8 +216,8 @@ static JSON_Value* axis_free_run_cmd(JSON_Value const *pars) {
 }
 
 static JSON_Value* axis_stop_all_cmd(JSON_Value const *pars) {
-    x_y_axes.stop();
-    z_dummy_axes.stop();
+    x_y_axes_get_instance().stop();
+    z_dummy_axes_get_instance().stop();
     JSON_Value *ans = json_value_init_object();
     json_object_set_boolean(json_value_get_object(ans), "ACK", true);
     return ans;

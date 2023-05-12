@@ -88,8 +88,6 @@ public:
     bool probe_triggered = false;
     int probe_pos = 0;
     enum direction probe_last_dir = DIRECTION_NONE;
-	int requested_freq = 0;
-	std::chrono::milliseconds step_time = 100ms;
 	int last_pos = 0;
 	int inches_to_counts_factor = 0;
 	int motor_resolution = 0;
@@ -100,7 +98,6 @@ public:
 	enum direction last_dir = DIRECTION_NONE;
 	unsigned int half_pulses_stall = 0;                // counts steps from the last call to stall control
 	unsigned int half_pulses = 0;                      // counts steps for encoder simulation
-	TickType_t ticks_last_time = 0;
 	bool already_there = false;
 	bool stalled = false;
     bool reversed = false;
