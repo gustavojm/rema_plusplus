@@ -14,8 +14,8 @@ using namespace std::chrono_literals;
 
 #define BRESENHAM_TASK_PRIORITY ( configMAX_PRIORITIES - 1 )
 
-extern mot_pap x_axis;
-extern mot_pap y_axis;
+extern mot_pap first_axis;
+extern mot_pap second_axis;
 
 void bresenham::task() {
     struct bresenham_msg *msg_rcv;
@@ -26,7 +26,7 @@ void bresenham::task() {
 
             switch (msg_rcv->type) {
             case mot_pap::TYPE_BRESENHAM:
-                move(msg_rcv->x_setpoint, msg_rcv->y_setpoint);
+                move(msg_rcv->first_axis_setpoint, msg_rcv->second_axis_setpoint);
                 break;
 
             default:
@@ -42,30 +42,30 @@ void bresenham::task() {
 
 
 void bresenham::calculate() {
-    x_axis.delta = abs(x_axis.pos_cmd - x_axis.pos_act);
-    y_axis.delta = abs(y_axis.pos_cmd - y_axis.pos_act);
+    first_axis->delta = abs(first_axis->pos_cmd - first_axis->pos_act);
+    second_axis->delta = abs(second_axis->pos_cmd - second_axis->pos_act);
 
-    x_axis.set_direction();
-    y_axis.set_direction();
+    first_axis->set_direction();
+    second_axis->set_direction();
 
-    error =  x_axis.delta - y_axis.delta;
+    error =  first_axis->delta - second_axis->delta;
 
-    if (x_axis.delta > y_axis.delta) {
-        leader_axis = &x_axis;
+    if (first_axis->delta > second_axis->delta) {
+        leader_axis = first_axis;
     } else {
-        leader_axis = &y_axis;
+        leader_axis = second_axis;
     }
 }
 
-void bresenham::move(int setpoint_x, int setpoint_y) {
+void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
     type = TYPE_BRESENHAM;
     already_there = false;
-    x_axis.pos_cmd = setpoint_x;
-    y_axis.pos_cmd = setpoint_y;
+    first_axis->pos_cmd = first_axis_setpoint;
+    second_axis->pos_cmd = second_axis_setpoint;
 
     calculate();
 
-    if (x_axis.check_already_there() && y_axis.check_already_there()) {
+    if (first_axis->check_already_there() && second_axis->check_already_there()) {
         stop();
         lDebug(Info, "%s: already there", name);
     } else {
@@ -75,21 +75,21 @@ void bresenham::move(int setpoint_x, int setpoint_y) {
         requested_freq = abs(out);
         tmr.change_freq(requested_freq);
     }
-    lDebug(Info, "%s: MOVE, X: %i, Y: %i", name, setpoint_x, setpoint_y);
+    lDebug(Info, "%s: MOVE, X: %i, Y: %i", name, first_axis_setpoint, second_axis_setpoint);
 }
 
 void bresenham::step() {
     int e2 = error << 1;
-    if (e2 >= -y_axis.delta) {
-        error -= y_axis.delta;
-        if (!x_axis.check_already_there()) {
-            x_axis.step();
+    if (e2 >= -second_axis->delta) {
+        error -= second_axis->delta;
+        if (!first_axis->check_already_there()) {
+            first_axis->step();
         }
     }
-    if (e2 <= x_axis.delta) {
-        error += x_axis.delta;
-        if (!y_axis.check_already_there()) {
-            y_axis.step();
+    if (e2 <= first_axis->delta) {
+        error += first_axis->delta;
+        if (!second_axis->check_already_there()) {
+            second_axis->step();
         }
     }
 }
@@ -110,8 +110,8 @@ void bresenham::supervise() {
             }
 
             if (rema::stall_control_get()) {
-                bool x_stalled = x_axis.check_for_stall();   // make sure both stall checks are executed;
-                bool y_stalled = y_axis.check_for_stall();   // make sure both stall checks are executed;
+                bool x_stalled = first_axis->check_for_stall();   // make sure both stall checks are executed;
+                bool y_stalled = second_axis->check_for_stall();   // make sure both stall checks are executed;
 
                 if (x_stalled || y_stalled) {
                     stop();
@@ -122,8 +122,8 @@ void bresenham::supervise() {
 
             if (type == TYPE_BRESENHAM) {
                 calculate();                // recalculate to compensate for encoder errors
-                x_axis.set_direction();     // if didn't stop for proximity to set point, avoid going to infinity
-                y_axis.set_direction();     // keeps dancing around the setpoint...
+                first_axis->set_direction();     // if didn't stop for proximity to set point, avoid going to infinity
+                second_axis->set_direction();     // keeps dancing around the setpoint...
 
                 int out = kp.run(leader_axis->pos_cmd, leader_axis->pos_act);
                 lDebug(Info, "Control output = %i: ", out);
@@ -136,7 +136,7 @@ void bresenham::supervise() {
     }
 }
 
-/**if (x_axis->check_already_there()
+/**if (first_axis->check_already_there()
  * @brief   function called by the timer ISR to generate the output pulses
  */
 void bresenham::isr() {
@@ -145,7 +145,7 @@ void bresenham::isr() {
 
 
     if (type == TYPE_BRESENHAM) {
-        already_there = x_axis.check_already_there() && y_axis.check_already_there();
+        already_there = first_axis->check_already_there() && second_axis->check_already_there();
         if (already_there) {
             stop();
             xSemaphoreGiveFromISR(supervisor_semaphore, &xHigherPriorityTaskWoken);

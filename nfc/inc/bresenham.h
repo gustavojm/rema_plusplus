@@ -7,11 +7,17 @@
 #include "mot_pap.h"
 #include "gpio.h"
 #include "FreeRTOS.h"
+#include "task.h"
 #include "semphr.h"
 #include "tmr.h"
 #include "parson.h"
 #include "gpio.h"
 #include "kp.h"
+#include "debug.h"
+
+#define TASK_PRIORITY ( configMAX_PRIORITIES - 3 )
+#define SUPERVISOR_TASK_PRIORITY ( configMAX_PRIORITIES - 1)
+
 
 using namespace std::chrono_literals;
 /**
@@ -26,8 +32,11 @@ public:
 
     bresenham() = delete;
 
-    explicit bresenham(const char *name, class tmr t) :
-            name(name), tmr(t){
+    explicit bresenham(const char *name, mot_pap* first_axis, mot_pap* second_axis, class tmr t) :
+            name(name), first_axis(first_axis), second_axis(second_axis), tmr(t) {
+
+        queue = xQueueCreate(5, sizeof(struct bresenham_msg*));
+        supervisor_semaphore = xSemaphoreCreateBinary();
     }
 
 	void task();
@@ -53,11 +62,13 @@ public:
 	enum type type;
     int requested_freq = 0;
     std::chrono::milliseconds step_time = 100ms;
-	class tmr tmr;
     int ticks_last_time = 0;
     QueueHandle_t queue;
     SemaphoreHandle_t supervisor_semaphore;
+    mot_pap* first_axis = nullptr;
+    mot_pap* second_axis = nullptr;
     mot_pap* leader_axis = nullptr;
+    class tmr tmr;
     volatile bool already_there = false;
     class kp kp;
     int error;
@@ -72,8 +83,8 @@ private:
  */
 struct bresenham_msg {
     enum mot_pap::type type;
-    int x_setpoint;
-    int y_setpoint;
+    int first_axis_setpoint;
+    int second_axis_setpoint;
 };
 
 #endif /* BRESENHAM_H_ */

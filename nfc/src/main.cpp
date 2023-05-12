@@ -28,8 +28,6 @@
 #include "mem_check.h"
 #include "encoders.h"
 #include "mot_pap.h"
-#include "x_axis.h"
-#include "y_axis.h"
 #include "z_axis.h"
 
 #include "xy_axes.h"
@@ -42,9 +40,9 @@ extern mot_pap z_axis;
 extern "C" void GPIO3_IRQHandler(void)
 {
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(3));
-    x_axis.save_probe_pos_and_stop();
-    y_axis.save_probe_pos_and_stop();
-    z_axis.save_probe_pos_and_stop();
+//    x_axis.save_probe_pos_and_stop();
+//    y_axis.save_probe_pos_and_stop();
+//    z_axis.save_probe_pos_and_stop();
 }
 
 probe palper(gpio_pinint {4, 0, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | SCU_MODE_FUNC0), 2, 0, PIN_INT3_IRQn});
@@ -73,11 +71,8 @@ static void prvSetupHardware(void) {
     settings::init();
     //settings_erase();
 
-    x_axis_init();
-    y_axis_init();
-    z_axis_init();
-
     xy_axes_init();
+    z_axis_init();
     //hard_limits_init();
 
     // temperature_init();

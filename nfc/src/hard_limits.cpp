@@ -1,17 +1,15 @@
 #include <stdint.h>
 #include "board.h"
 #include "gpio.h"
-#include "mot_pap.h"
+#include "bresenham.h"
 
-extern mot_pap x_axis;
-extern mot_pap y_axis;
-extern mot_pap z_axis;
+extern bresenham x_y_axes;
+extern bresenham z_dummy_axes;
 
 static void hard_limits_reached() {
     /* TODO Read input pins to determine which limit has been reached and stop only one motor*/
-    x_axis.stop();
-    y_axis.stop();
-    z_axis.stop();
+    x_y_axes.stop();
+    z_dummy_axes.stop();
 }
 
 /**

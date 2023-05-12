@@ -46,23 +46,17 @@ public:
 	};
 
 
-	void task();
-
-	enum direction direction_calculate(int error);
-
 	mot_pap() = delete;
 
-	explicit mot_pap(const char *name, class tmr t) :
-	        name(name), tmr(t){
+	explicit mot_pap(const char *name, bool is_dummy = false) :
+	        name(name), is_dummy(is_dummy){
 	}
+
+    enum direction direction_calculate(int error);
 
 	void set_position(double pos)
 	{
 	    pos_act = static_cast<int>(pos) * inches_to_counts_factor;
-	}
-
-	void set_timer(class tmr tmr) {
-		this->tmr = tmr;
 	}
 
 	void set_gpios(struct gpios gpios) {
@@ -73,21 +67,7 @@ public:
 
 	void set_direction();
 
-	void supervise();
-
-	void new_cmd_received();
-
-	void move_free_run(enum direction direction, int speed);
-
-	void move_closed_loop(int setpoint);
-
-	void save_probe_pos_and_stop();
-
-	void stop();
-
 	void step();
-
-	void isr();
 
 	void update_position();
 
@@ -111,23 +91,22 @@ public:
 	int requested_freq = 0;
 	std::chrono::milliseconds step_time = 100ms;
 	int last_pos = 0;
-	int delta;
 	int inches_to_counts_factor = 0;
 	int motor_resolution = 0;
 	int encoder_resolution = 0;
 	int stalled_counter = 0;
+	int delta = 0;
 	struct gpios gpios;
 	enum direction last_dir = DIRECTION_NONE;
 	unsigned int half_pulses_stall = 0;                // counts steps from the last call to stall control
 	unsigned int half_pulses = 0;                      // counts steps for encoder simulation
-	class tmr tmr;
 	TickType_t ticks_last_time = 0;
 	bool already_there = false;
 	bool stalled = false;
-    QueueHandle_t queue;
-    SemaphoreHandle_t supervisor_semaphore;
-    class kp kp;
     bool reversed = false;
+
+private:
+    bool is_dummy;
 };
 
 /**
