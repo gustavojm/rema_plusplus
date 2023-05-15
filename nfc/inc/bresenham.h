@@ -26,9 +26,6 @@ using namespace std::chrono_literals;
  */
 class bresenham {
 public:
-    enum type {
-        TYPE_BRESENHAM, TYPE_FREERUN, TYPE_STOP
-    };
 
     bresenham() = delete;
 
@@ -77,12 +74,14 @@ public:
 
 	void stop();
 
+	void soft_stop();
+
 	JSON_Value* json() const;
 
 public:
 	const char *name;
-	enum type type;
-    int requested_freq = 0;
+	bool is_moving = false;
+    int current_freq = 0;
     std::chrono::milliseconds step_time = 100ms;
     int ticks_last_time = 0;
     QueueHandle_t queue;
@@ -97,6 +96,16 @@ public:
 
 private:
     void calculate();
+
+    bresenham(bresenham const&) = delete;
+    void operator=(bresenham const&) = delete;
+
+    // Note: Scott Meyers mentions in his Effective Modern
+    //       C++ book, that deleted functions should generally
+    //       be public as it results in better error messages
+    //       due to the compilers behavior to check accessibility
+    //       before deleted status
+
 };
 
 /**

@@ -10,7 +10,6 @@
 #include "tmr.h"
 #include "parson.h"
 #include "gpio.h"
-#include "kp.h"
 
 
 #define MOT_PAP_MAX_FREQ                        125000
@@ -56,7 +55,7 @@ public:
 
 	void set_position(double pos)
 	{
-	    pos_act = static_cast<int>(pos) * inches_to_counts_factor;
+	    current_counts() = static_cast<int>(pos) * inches_to_counts_factor;
 	}
 
 	void set_gpios(struct gpios gpios) {
@@ -77,14 +76,14 @@ public:
 
 	bool check_already_there();
 
+	void soft_stop(int counts);
+
 	JSON_Value* json() const;
 
 public:
 	const char *name;
 	enum type type = TYPE_STOP;
 	enum direction dir = DIRECTION_NONE;
-    volatile int pos_act = 0;
-    int pos_cmd = 0;
     bool probe_triggered = false;
     int probe_pos = 0;
     enum direction probe_last_dir = DIRECTION_NONE;
@@ -102,21 +101,16 @@ public:
 	bool stalled = false;
     bool reversed = false;
 
-private:
-    bool is_dummy;
-};
+    volatile int&  current_counts()        { return current_counts_; }  // setter
+    volatile const int& current_counts() const  { return current_counts_; } // getter
 
-/**
- * @struct  mot_pap_msg
- * @brief   messages to axis tasks.
- */
-struct mot_pap_msg {
-    enum mot_pap::type type;
-    enum mot_pap::direction free_run_direction;
-    int free_run_speed;
-    float closed_loop_setpoint;
-    int steps;
-    struct mot_pap *axis;
+    int&  destination_counts()        { return destination_counts_; }
+    const int& destination_counts() const  { return destination_counts_; }
+
+private:
+    volatile int current_counts_ = 0;
+    int destination_counts_ = 0;
+    bool is_dummy;
 };
 
 #endif /* MOT_PAP_H_ */

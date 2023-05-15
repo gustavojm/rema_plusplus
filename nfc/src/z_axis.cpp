@@ -38,11 +38,9 @@ void z_axis_init() {
 
     bresenham& z_dummy_axes = z_dummy_axes_get_instance();
     z_dummy_axes.kp = {100,                         //!< Kp
-            kp::DIRECT,                             //!< Control type
             z_dummy_axes.step_time,                 //!< Update rate (ms)
-            -100000,                                //!< Min output
-            100000,                                 //!< Max output
-            10000                                   //!< Absolute Min output
+            10000,                                  //!< Min output
+            100000                                  //!< Max output
     };
 
 }

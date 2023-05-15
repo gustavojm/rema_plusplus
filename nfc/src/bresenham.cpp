@@ -42,8 +42,8 @@ void bresenham::task() {
 
 
 void bresenham::calculate() {
-    first_axis->delta = abs(first_axis->pos_cmd - first_axis->pos_act);
-    second_axis->delta = abs(second_axis->pos_cmd - second_axis->pos_act);
+    first_axis->delta = abs(first_axis->destination_counts() - first_axis->current_counts());
+    second_axis->delta = abs(second_axis->destination_counts() - second_axis->current_counts());
 
     first_axis->set_direction();
     second_axis->set_direction();
@@ -58,10 +58,10 @@ void bresenham::calculate() {
 }
 
 void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
-    type = TYPE_BRESENHAM;
+    is_moving = true;
     already_there = false;
-    first_axis->pos_cmd = first_axis_setpoint;
-    second_axis->pos_cmd = second_axis_setpoint;
+    first_axis->destination_counts() = first_axis_setpoint;
+    second_axis->destination_counts() = second_axis_setpoint;
 
     calculate();
 
@@ -71,11 +71,13 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
     } else {
         kp.restart();
 
-        int out = kp.run(leader_axis->pos_cmd, leader_axis->pos_act);
-        requested_freq = abs(out);
-        tmr.change_freq(requested_freq);
+        current_freq = kp.run(leader_axis->destination_counts(), leader_axis->current_counts());
+        lDebug(Info, "Control output = %i: ", current_freq);
+
+        ticks_last_time = xTaskGetTickCount();
+        tmr.change_freq(current_freq);
     }
-    lDebug(Info, "%s: MOVE, X: %i, Y: %i", name, first_axis_setpoint, second_axis_setpoint);
+    lDebug(Info, "MOVE, %s: %i, %s: %i", first_axis->name, first_axis_setpoint, second_axis->name, second_axis_setpoint);
 }
 
 void bresenham::step() {
@@ -120,38 +122,32 @@ void bresenham::supervise() {
                 }
             }
 
-            if (type == TYPE_BRESENHAM) {
-                calculate();                // recalculate to compensate for encoder errors
-                first_axis->set_direction();     // if didn't stop for proximity to set point, avoid going to infinity
-                second_axis->set_direction();     // keeps dancing around the setpoint...
+            calculate();                // recalculate to compensate for encoder errors
+            first_axis->set_direction();     // if didn't stop for proximity to set point, avoid going to infinity
+            second_axis->set_direction();     // keeps dancing around the setpoint...
 
-                int out = kp.run(leader_axis->pos_cmd, leader_axis->pos_act);
-                lDebug(Info, "Control output = %i: ", out);
-                requested_freq = abs(out);
-                tmr.change_freq(requested_freq);
-            }
+            current_freq = kp.run(leader_axis->destination_counts(), leader_axis->current_counts());
+            lDebug(Info, "Control output = %i: ", current_freq);
+            tmr.change_freq(current_freq);
 
         }
         end: ;
     }
 }
 
-/**if (first_axis->check_already_there()
+/**
  * @brief   function called by the timer ISR to generate the output pulses
  */
 void bresenham::isr() {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     TickType_t ticks_now = xTaskGetTickCount();
 
-
-    if (type == TYPE_BRESENHAM) {
-        already_there = first_axis->check_already_there() && second_axis->check_already_there();
-        if (already_there) {
-            stop();
-            xSemaphoreGiveFromISR(supervisor_semaphore, &xHigherPriorityTaskWoken);
-            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-            goto cont;
-        }
+    already_there = first_axis->check_already_there() && second_axis->check_already_there();
+    if (already_there) {
+        stop();
+        xSemaphoreGiveFromISR(supervisor_semaphore, &xHigherPriorityTaskWoken);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        goto cont;
     }
 
     step();
@@ -171,6 +167,29 @@ void bresenham::isr() {
  * @returns nothing
  */
 void bresenham::stop() {
+    is_moving = false;
     tmr.stop();
-    type = TYPE_STOP;
+    current_freq = 0;
 }
+
+/**
+ * @brief   if there is a movement in process, stops it
+ * @param   me  : struct mot_pap pointer
+ * @returns nothing
+ */
+void bresenham::soft_stop() {
+    if (is_moving) {
+        int x2 = kp.out_max;
+        int x1 = kp.out_min;
+        int y2 = 500;
+        int y1 = 1;
+        int x = current_freq;
+        int y = ((static_cast<float>(y2 - y1) / (x2 - x1)) * (x - x1)) + y1;
+
+        lDebug(Info, "Soft_stop in %i", y);
+
+        first_axis->soft_stop(y);
+        second_axis->soft_stop(y);
+    }
+}
+

@@ -45,12 +45,10 @@ void xy_axes_init() {
     y_axis.gpios.direction = gpio {4, 8, SCU_MODE_FUNC4, 5, 12}.init_output();  //DOUT4 P4_8    PIN15   GPIO5[12]
 
     bresenham& x_y_axes = x_y_axes_get_instance();
-    x_y_axes.kp = {100,                              //!< Kp
-            kp::DIRECT,                             //!< Control type
-            x_y_axes.step_time,                      //!< Update rate (ms)
-            -100000,                                //!< Min output
-            100000,                                 //!< Max output
-            10000                                   //!< Absolute Min output
+    x_y_axes.kp = {100,                             //!< Kp
+            x_y_axes.step_time,                     //!< Update rate (ms)
+            10000,                                  //!< Min output
+            100000                                  //!< Max output
     };
 
 }

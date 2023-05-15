@@ -39,11 +39,11 @@ static bresenham* get_axes(const char *axis) {
 static JSON_Value* telemetria_cmd(JSON_Value const *pars) {
     JSON_Value *ans = json_value_init_object();
     json_object_set_number(json_value_get_object(ans), "POS X",
-            x_axis.pos_act / static_cast<float>(x_axis.inches_to_counts_factor));
+            x_axis.current_counts() / static_cast<float>(x_axis.inches_to_counts_factor));
     json_object_set_number(json_value_get_object(ans), "POS Y",
-            y_axis.pos_act / static_cast<float>(y_axis.inches_to_counts_factor));
+            y_axis.current_counts() / static_cast<float>(y_axis.inches_to_counts_factor));
     json_object_set_number(json_value_get_object(ans), "POS Z",
-            z_axis.pos_act / static_cast<float>(z_axis.inches_to_counts_factor));
+            z_axis.current_counts() / static_cast<float>(z_axis.inches_to_counts_factor));
 
     JSON_Value *limits = json_value_init_object();
     json_object_set_boolean(json_value_get_object(limits), "left", false);
@@ -158,8 +158,6 @@ static JSON_Value* kp_set_tunings_cmd(JSON_Value const *pars) {
                 "min");
         int max = (int) json_object_get_number(json_value_get_object(pars),
                 "max");
-        int abs_min = (int) json_object_get_number(json_value_get_object(pars),
-                "abs_min");
 
         bresenham *axes_ = get_axes(axes);
 
@@ -168,7 +166,7 @@ static JSON_Value* kp_set_tunings_cmd(JSON_Value const *pars) {
             json_object_set_string(json_value_get_object(ans), "ERROR", "No axis specified");
         } else {
             axes_->step_time = std::chrono::milliseconds(update);
-            axes_->kp.set_output_limits(min, max, abs_min);
+            axes_->kp.set_output_limits(min, max);
             axes_->kp.set_sample_period(axes_->step_time);
             axes_->kp.set_tunings(kp);
             lDebug(Debug, "KP Settings set");
@@ -178,46 +176,17 @@ static JSON_Value* kp_set_tunings_cmd(JSON_Value const *pars) {
     return ans;
 }
 
-static JSON_Value* axis_free_run_cmd(JSON_Value const *pars) {
-    if (pars && json_value_get_type(pars) == JSONObject) {
-
-        char const *axis = json_object_get_string(json_value_get_object(pars),
-                "axis");
-        char const *dir = json_object_get_string(json_value_get_object(pars),
-                "dir");
-        double speed = json_object_get_number(json_value_get_object(pars),
-                "speed");
-
-        if (dir && speed != 0) {
-
-            struct mot_pap_msg *msg = (struct mot_pap_msg*) pvPortMalloc(
-                    sizeof(struct mot_pap_msg));
-
-            msg->type = mot_pap::TYPE_FREE_RUNNING;
-            msg->free_run_direction = (
-                    strcmp(dir, "CW") == 0 ?
-                            mot_pap::DIRECTION_CW : mot_pap::DIRECTION_CCW);
-
-            msg->free_run_speed = (int) speed;
-
-            QueueHandle_t queue = get_axes(axis)->queue;
-
-            if (queue && xQueueSend(queue, &msg, portMAX_DELAY) == pdPASS) {
-                lDebug(Debug, " Comando enviado!");
-            }
-
-            lDebug(Info, "AXIS_FREE_RUN DIR: %s, SPEED: %d", dir, (int ) speed);
-        }
-        JSON_Value *ans = json_value_init_object();
-        json_object_set_boolean(json_value_get_object(ans), "ACK", true);
-        return ans;
-    }
-    return NULL;
-}
-
-static JSON_Value* axis_stop_all_cmd(JSON_Value const *pars) {
+static JSON_Value* axes_hard_stop_all_cmd(JSON_Value const *pars) {
     x_y_axes_get_instance().stop();
     z_dummy_axes_get_instance().stop();
+    JSON_Value *ans = json_value_init_object();
+    json_object_set_boolean(json_value_get_object(ans), "ACK", true);
+    return ans;
+}
+
+static JSON_Value* axes_soft_stop_all_cmd(JSON_Value const *pars) {
+    x_y_axes_get_instance().soft_stop();
+    z_dummy_axes_get_instance().soft_stop();
     JSON_Value *ans = json_value_init_object();
     json_object_set_boolean(json_value_get_object(ans), "ACK", true);
     return ans;
@@ -337,14 +306,14 @@ static JSON_Value* move_free_run_cmd(JSON_Value const *pars) {
             first_axis_setpoint = static_cast<int>(json_object_get_number(json_value_get_object(pars),
                             "first_axis_setpoint"));
         } else {
-            first_axis_setpoint = axes_->first_axis->pos_act;
+            first_axis_setpoint = axes_->first_axis->current_counts();
         }
 
         if (json_object_has_value_of_type(json_value_get_object(pars), "second_axis_setpoint", JSONNumber)) {
             second_axis_setpoint = static_cast<int>(json_object_get_number(json_value_get_object(pars),
                             "second_axis_setpoint"));
         } else {
-            second_axis_setpoint = axes_->second_axis->pos_act;
+            second_axis_setpoint = axes_->second_axis->current_counts();
         }
 
         struct bresenham_msg *msg = (struct bresenham_msg*) pvPortMalloc(
@@ -382,12 +351,12 @@ const cmd_entry cmds_table[] = {
                 stall_control_cmd,
         },
         {
-                "AXIS_STOP_ALL",
-                axis_stop_all_cmd,
+                "AXES_HARD_STOP_ALL",
+                axes_hard_stop_all_cmd,
         },
         {
-                "AXIS_FREE_RUN",
-                axis_free_run_cmd,
+                "AXES_SOFT_STOP_ALL",
+                axes_soft_stop_all_cmd,
         },
         {
                 "TELEMETRIA",

@@ -31,7 +31,7 @@ void mot_pap::set_direction(enum direction direction) {
 }
 
 void mot_pap::set_direction() {
-    dir = direction_calculate(pos_cmd - pos_act);
+    dir = direction_calculate(destination_counts() - current_counts());
     gpios.direction.set_pin_state(dir == DIRECTION_CW ? 0 : 1);
 }
 
@@ -41,7 +41,7 @@ bool mot_pap::check_for_stall() {
     }
 
     const int expected_counts = ((half_pulses_stall >> 1) * encoder_resolution / motor_resolution) - MOT_PAP_STALL_THRESHOLD;
-    const int pos_diff = abs((int) (pos_act - last_pos));
+    const int pos_diff = abs((int) (current_counts() - last_pos));
 
     if (pos_diff < expected_counts) {
         stalled_counter++;
@@ -56,7 +56,7 @@ bool mot_pap::check_for_stall() {
     }
 
     half_pulses_stall = 0;
-    last_pos = pos_act;
+    last_pos = current_counts();
     return false;
 }
 
@@ -65,7 +65,7 @@ bool mot_pap::check_already_there() {
         return true;
     }
 
-    int error = pos_cmd - pos_act;
+    int error = destination_counts() - current_counts();
     already_there = (abs((int) error) < MOT_PAP_POS_THRESHOLD);
     return already_there;
 }
@@ -75,9 +75,9 @@ bool mot_pap::check_already_there() {
  */
 void mot_pap::update_position() {
     if (reversed) {
-        (dir == DIRECTION_CW) ? pos_act-- : pos_act++;
+        (dir == DIRECTION_CW) ? current_counts()-- : current_counts()++;
     } else {
-        (dir == DIRECTION_CW) ? pos_act++ : pos_act--;
+        (dir == DIRECTION_CW) ? current_counts()++ : current_counts()--;
     }
 }
 
@@ -108,10 +108,20 @@ void mot_pap::step() {
 #endif
 }
 
+void mot_pap::soft_stop(int counts) {
+    if (destination_counts() > current_counts()) {
+        destination_counts() = current_counts() + counts;
+    }
+    // DO NOT use "else". If destination_counts() == current_counts nothing must be done
+    if (destination_counts() < current_counts()) {
+        destination_counts() = current_counts() - counts;
+    }
+}
+
 JSON_Value* mot_pap::json() const {
     JSON_Value *ans = json_value_init_object();
-    json_object_set_number(json_value_get_object(ans), "posCmd", pos_cmd);
-    json_object_set_number(json_value_get_object(ans), "posAct", pos_act);
+    json_object_set_number(json_value_get_object(ans), "posCmd", destination_counts());
+    json_object_set_number(json_value_get_object(ans), "posAct", current_counts());
     json_object_set_boolean(json_value_get_object(ans), "stalled", stalled);
     return ans;
 }
