@@ -176,7 +176,7 @@ do { \
             } \
        }\
        \
-       if (DEBUG_ENABLED && debug_to_network && (debugNetLevel <= level && debug_queue!=nullptr) && (level != InfoLocal)) {\
+       if (DEBUG_ENABLED && debug_to_network && debug_queue!=nullptr && (debugNetLevel <= level) && (level != InfoLocal)) {\
                char *dbg_msg = make_message("%u - %s %s[%d] %s() " fmt, xTaskGetTickCount(), \
                 levelText(level), __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
             if (xQueueSend(debug_queue, &dbg_msg, (TickType_t) 0) != pdPASS) { \
