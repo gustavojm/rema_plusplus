@@ -105,6 +105,7 @@ int main(void) {
 
     prvSetupHardware();
 
+
     /* Task - Ethernet PHY Initialization  */
     xTaskCreate(vStackIpSetup, "StackIpSetup",
     configMINIMAL_STACK_SIZE * 4, NULL, (tskIDLE_PRIORITY + 1UL),

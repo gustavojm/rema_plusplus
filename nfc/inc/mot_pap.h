@@ -12,8 +12,8 @@
 #include "gpio.h"
 
 
-#define MOT_PAP_MAX_FREQ                        125000
-#define MOT_PAP_COMPUMOTOR_MAX_FREQ             300000
+#define MOT_PAP_MAX_FREQ                        500000
+#define MOT_PAP_COMPUMOTOR_MAX_FREQ             500000 //300000
 #define MOT_PAP_DIRECTION_CHANGE_DELAY_MS       500
 
 #define MOT_PAP_POS_THRESHOLD                   1
@@ -55,7 +55,7 @@ public:
 
 	void set_position(double pos)
 	{
-	    current_counts() = static_cast<int>(pos) * inches_to_counts_factor;
+	    current_counts() = static_cast<int>(pos * inches_to_counts_factor);
 	}
 
 	void set_gpios(struct gpios gpios) {

@@ -18,10 +18,19 @@
 #include "json_wp.h"
 #include "tcp_server.h"
 #include "debug.h"
+#include "xy_axes.h"
+#include "z_axis.h"
 
 #define KEEPALIVE_IDLE              (5)
 #define KEEPALIVE_INTERVAL          (5)
 #define KEEPALIVE_COUNT             (3)
+
+
+static void stop_all() {
+    x_y_axes_get_instance().stop();
+    z_dummy_axes_get_instance().stop();
+    lDebug(Warn, "Stopping all");
+}
 
 static void do_retransmit(const int sock) {
     int len;
@@ -30,8 +39,10 @@ static void do_retransmit(const int sock) {
     do {
         len = recv(sock, rx_buffer, sizeof(rx_buffer) - 1, 0);
         if (len < 0) {
+            stop_all();
             lDebug(Error, "Error occurred during receiving: errno %d", errno);
         } else if (len == 0) {
+            stop_all();
             lDebug(Warn, "Connection closed");
         } else {
             rx_buffer[len] = 0;  // Null-terminate whatever is received and treat it like a string
@@ -55,6 +66,7 @@ static void do_retransmit(const int sock) {
                     int written = send(sock, tx_buffer + (ack_len - to_write),
                             to_write, 0);
                     if (written < 0) {
+                        stop_all();
                         lDebug(Error, "Error occurred during sending: errno %d",
                                 errno);
                         goto free_buffer;
@@ -156,6 +168,6 @@ void stackIp_ThreadInit(uint16_t port) {
     sys_thread_new("tcp_thread", tcp_server_task, (void*) (uintptr_t) port,
     // DEFAULT_THREAD_STACKSIZE,
             1024,
-            configMAX_PRIORITIES - 2);
+            configMAX_PRIORITIES);
 }
 /*---------------------------------------------------------------------------*/

@@ -12,8 +12,6 @@
 
 using namespace std::chrono_literals;
 
-#define BRESENHAM_TASK_PRIORITY ( configMAX_PRIORITIES - 1 )
-
 extern mot_pap first_axis;
 extern mot_pap second_axis;
 
