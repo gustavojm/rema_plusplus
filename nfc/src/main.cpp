@@ -19,7 +19,6 @@
 
 #include "debug.h"
 #include "gpio.h"
-#include "temperature.h"
 #include "temperature_ds18b20.h"
 #include "lwip_init.h"
 #include "settings.h"

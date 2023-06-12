@@ -17,9 +17,13 @@ public:
 
     gpio& toggle();
 
-    gpio& set_pin_state(bool state);
+    gpio& set();
 
-    bool get_pin_state();
+    gpio& reset();
+
+    gpio& set(bool state);
+
+    bool read();
 
 	int scu_port;
 	int scu_pin;

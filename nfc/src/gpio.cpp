@@ -23,10 +23,28 @@ gpio& gpio::init_input() {
 }
 
 /**
- * @brief	 GPIO sets pin passed as parameter to the state specified
+ * @brief    GPIO sets pin passed to high
  * @returns nothing
  */
-gpio& gpio::set_pin_state(bool state) {
+gpio& gpio::set() {
+    Chip_GPIO_SetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit, true);
+    return *this;
+}
+
+/**
+ * @brief    GPIO sets pin passed to low
+ * @returns nothing
+ */
+gpio& gpio::reset() {
+    Chip_GPIO_SetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit, false);
+    return *this;
+}
+
+/**
+ * @brief	 GPIO sets pin passed to the state specified
+ * @returns nothing
+ */
+gpio& gpio::set(bool state) {
 	Chip_GPIO_SetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit, state);
 	return *this;
 }
@@ -35,7 +53,7 @@ gpio& gpio::set_pin_state(bool state) {
  * @brief    GPIO sets pin passed as parameter to the state specified
  * @returns nothing
  */
-bool gpio::get_pin_state() {
+bool gpio::read() {
     return Chip_GPIO_GetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit);
 }
 

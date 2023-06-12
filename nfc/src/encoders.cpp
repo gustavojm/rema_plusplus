@@ -4,9 +4,7 @@
 #include "encoders.h"
 #include "gpio.h"
 
-extern class mot_pap x_axis;
-extern class mot_pap y_axis;
-extern class mot_pap z_axis;
+extern class mot_pap x_axis, y_axis, z_axis;
 
 extern "C" void GPIO0_IRQHandler(void)
 {
