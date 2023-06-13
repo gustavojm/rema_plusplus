@@ -37,7 +37,7 @@ static void do_retransmit(const int sock) {
     char rx_buffer[1024];
 
     do {
-        len = recv(sock, rx_buffer, sizeof(rx_buffer) - 1, 0);
+        len = lwip_recv(sock, rx_buffer, sizeof(rx_buffer) - 1, 0);
         if (len < 0) {
             stop_all();
             lDebug(Error, "Error occurred during receiving: errno %d", errno);
@@ -63,7 +63,7 @@ static void do_retransmit(const int sock) {
 //                send(sock, ack_buff, 4, 0);
 
                 while (to_write > 0) {
-                    int written = send(sock, tx_buffer + (ack_len - to_write),
+                    int written = lwip_send(sock, tx_buffer + (ack_len - to_write),
                             to_write, 0);
                     if (written < 0) {
                         stop_all();
@@ -101,18 +101,18 @@ static void tcp_server_task(void *pvParameters) {
     dest_addr_ip4->sin_port = htons(port);
     ip_protocol = IPPROTO_IP;
 
-    int listen_sock = socket(AF_INET, SOCK_STREAM, ip_protocol);
+    int listen_sock = lwip_socket(AF_INET, SOCK_STREAM, ip_protocol);
     if (listen_sock < 0) {
         lDebug(Error, "Unable to create socket: errno %d", errno);
         vTaskDelete(NULL);
         return;
     }
     int opt = 1;
-    setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+    lwip_setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
     lDebug(Info, "Socket created");
 
-    int err = bind(listen_sock, (struct sockaddr*) &dest_addr,
+    int err = lwip_bind(listen_sock, (struct sockaddr*) &dest_addr,
             sizeof(dest_addr));
     if (err != 0) {
         lDebug(Error, "Socket unable to bind: errno %d", errno);
@@ -121,7 +121,7 @@ static void tcp_server_task(void *pvParameters) {
     }
     lDebug(Info, "Socket bound, port %d", port);
 
-    err = listen(listen_sock, 1);
+    err = lwip_listen(listen_sock, 1);
     if (err != 0) {
         lDebug(Error, "Error occurred during listen: errno %d", errno);
         goto CLEAN_UP;
@@ -132,7 +132,7 @@ static void tcp_server_task(void *pvParameters) {
 
         struct sockaddr source_addr;
         socklen_t addr_len = sizeof(source_addr);
-        int sock = accept(listen_sock, (struct sockaddr*) &source_addr,
+        int sock = lwip_accept(listen_sock, (struct sockaddr*) &source_addr,
                 &addr_len);
         if (sock < 0) {
             lDebug(Error, "Unable to accept connection: errno %d", errno);
@@ -140,11 +140,11 @@ static void tcp_server_task(void *pvParameters) {
         }
 
         // Set tcp keepalive option
-        setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &keepAlive, sizeof(int));
-        setsockopt(sock, IPPROTO_TCP, TCP_KEEPIDLE, &keepIdle, sizeof(int));
-        setsockopt(sock, IPPROTO_TCP, TCP_KEEPINTVL, &keepInterval,
+        lwip_setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &keepAlive, sizeof(int));
+        lwip_setsockopt(sock, IPPROTO_TCP, TCP_KEEPIDLE, &keepIdle, sizeof(int));
+        lwip_setsockopt(sock, IPPROTO_TCP, TCP_KEEPINTVL, &keepInterval,
                 sizeof(int));
-        setsockopt(sock, IPPROTO_TCP, TCP_KEEPCNT, &keepCount, sizeof(int));
+        lwip_setsockopt(sock, IPPROTO_TCP, TCP_KEEPCNT, &keepCount, sizeof(int));
         // Convert ip address to string
         if (source_addr.sa_family == PF_INET) {
             inet_ntoa_r(((struct sockaddr_in*)&source_addr)->sin_addr,
@@ -154,12 +154,12 @@ static void tcp_server_task(void *pvParameters) {
 
         do_retransmit(sock);
 
-        shutdown(sock, 0);
-        close(sock);
+        lwip_shutdown(sock, 0);
+        lwip_close(sock);
     }
 
 CLEAN_UP:
-    close(listen_sock);
+    lwip_close(listen_sock);
     vTaskDelete(NULL);
 }
 
