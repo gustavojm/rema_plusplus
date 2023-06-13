@@ -63,15 +63,14 @@ enum RomCommand {
  */
 template<class Pin>
 class BitBangOneWireMaster {
-    using PIN = Pin;
 
 public:
     static void connect() {
-        PIN::init_output();
+        Pin::init_output();
     }
 
     static void initialize() {
-        PIN::set();
+        Pin::init_input();
     }
 
     /**
@@ -83,13 +82,14 @@ public:
     static bool touchReset() {
         taskENTER_CRITICAL();
         delay(G);
-        PIN::reset();   // drives the bus low
+        Pin::init_output();
+        Pin::reset();           // drives the bus low
         delay(H);
-        PIN::set();     // releases the bus
+        Pin::init_input();     // releases the bus
         delay(I);
 
         // sample for presence pulse from slave
-        bool result = !PIN::read();
+        bool result = !Pin::read();
 
         delay(J);           // complete the reset sequence recovery
         taskEXIT_CRITICAL();
@@ -104,14 +104,16 @@ public:
     static void writeBit(bool bit) {
         taskENTER_CRITICAL();
         if (bit) {
-            PIN::reset();   // Drives bus low
+            Pin::init_output();
+            Pin::reset();   // Drives bus low
             delay(A);
-            PIN::set();     // Releases the bus
+            Pin::init_input();     // Releases the bus
             delay(B);       // Complete the time slot and 10us recovery
         } else {
-            PIN::reset();
+            Pin::init_output();
+            Pin::reset();
             delay(C);
-            PIN::set();
+            Pin::init_input();
             delay(D);
         }
         taskEXIT_CRITICAL();
@@ -124,13 +126,14 @@ public:
      */
     static bool readBit() {
         taskENTER_CRITICAL();
-        PIN::reset();   // drives the bus low
+        Pin::init_output();
+        Pin::reset();   // drives the bus low
         delay(A);
-        PIN::set();     // releases the bus
+        Pin::init_input();     // releases the bus
         delay(E);
 
         // Sample the bit value from the slave
-        bool result = PIN::read();
+        bool result = Pin::read();
 
         delay(F);           // complete the reset sequence recovery
         taskEXIT_CRITICAL();

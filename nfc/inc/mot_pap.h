@@ -35,22 +35,19 @@ public:
 		TYPE_FREE_RUNNING, TYPE_CLOSED_LOOP, TYPE_STOP, TYPE_BRESENHAM
 	};
 
-    /**
-     * @struct  mot_pap_gpios
-     * @brief   pointers to functions to handle GPIO lines of this stepper motor.
-     */
-    struct gpios {
-        gpio direction;
-        gpio step;
-    };
+	/**
+	 * @struct 	mot_pap_gpios
+	 * @brief	pointers to functions to handle GPIO lines of this stepper motor.
+	 */
+	struct gpios {
+	    gpio direction;
+		gpio step;
+	};
+
 
 	mot_pap() = delete;
 
-    explicit mot_pap(const char *name, bool is_dummy = true) :
-            name(name), is_dummy(is_dummy){
-    }
-
-	explicit mot_pap(const char *name, gpio direction_pin, gpio step_pin, bool is_dummy = false) :
+	explicit mot_pap(const char *name, bool is_dummy = false) :
 	        name(name), is_dummy(is_dummy){
 	}
 
@@ -59,6 +56,10 @@ public:
 	void set_position(double pos)
 	{
 	    current_counts() = static_cast<int>(pos * inches_to_counts_factor);
+	}
+
+	void set_gpios(struct gpios gpios) {
+		this->gpios = gpios;
 	}
 
 	void set_direction(enum direction direction);
@@ -92,7 +93,7 @@ public:
 	int encoder_resolution = 0;
 	int stalled_counter = 0;
 	int delta = 0;
-    struct gpios gpios;
+	struct gpios gpios;
 	enum direction last_dir = DIRECTION_NONE;
 	unsigned int half_pulses_stall = 0;                // counts steps from the last call to stall control
 	unsigned int half_pulses = 0;                      // counts steps for encoder simulation

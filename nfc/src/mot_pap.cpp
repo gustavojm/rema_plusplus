@@ -32,7 +32,7 @@ void mot_pap::set_direction(enum direction direction) {
 
 void mot_pap::set_direction() {
     dir = direction_calculate(destination_counts() - current_counts());
-    gpios.direction.set(dir == DIRECTION_CW ? 0 : 1);
+    set_direction(dir);
 }
 
 bool mot_pap::check_for_stall() {
