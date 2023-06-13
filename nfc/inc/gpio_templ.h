@@ -7,39 +7,33 @@
 template <int scu_port, int scu_pin, int scu_mode, int gpio_port, int gpio_bit>
 class gpio_templ {
 public:
-    gpio_templ& init_output() {
+    static void init_output() {
         Chip_SCU_PinMuxSet(scu_port, scu_pin, scu_mode);
         Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, gpio_port, gpio_bit);
-        return *this;
     }
 
-    gpio_templ& init_input() {
+    static void init_input() {
         Chip_SCU_PinMuxSet(scu_port, scu_pin, scu_mode);
         Chip_GPIO_SetPinDIRInput(LPC_GPIO_PORT, gpio_port, gpio_bit);
-        return *this;
     }
 
-    gpio_templ& set() {
+    static void set() {
         Chip_GPIO_SetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit, true);
-        return *this;
     }
 
-    gpio_templ& reset() {
+    static void reset() {
         Chip_GPIO_SetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit, false);
-        return *this;
     }
 
-    gpio_templ& set(bool state) {
+    static void set(bool state) {
         Chip_GPIO_SetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit, state);
-        return *this;
     }
 
-    gpio_templ& toggle(bool state) {
+    static void toggle(bool state) {
         Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, gpio_port, gpio_bit);
-        return *this;
     }
 
-    bool read() {
+    static bool read() {
         return Chip_GPIO_GetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit);
     }
 };

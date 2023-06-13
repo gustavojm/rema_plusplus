@@ -10,11 +10,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 // ----------------------------------------------------------------------------
-#ifndef ONE_WIRE_BITBANG_HPP
-#define ONE_WIRE_BITBANG_HPP
+#ifndef ONE_WIRE_BITBANG_MASTER_H_
+#define ONE_WIRE_BITBANG_MASTER_H_
 
 #include <gpio.h>
 #include <chrono>
+#include "wait.h"
 
 namespace one_wire {
 
@@ -34,8 +35,7 @@ namespace one_wire {
  *
  * @ingroup modm_architecture_1_wire
  */
-enum RomCommand
-{
+enum RomCommand {
     SEARCH_ROM = 0xf0,
     READ_ROM = 0x33,
     MATCH_ROM = 0x55,
@@ -61,17 +61,15 @@ enum RomCommand
  *
  * \ingroup	modm_platform_1_wire_bitbang
  */
-template<typename Pin>
+template<class Pin>
 class BitBangOneWireMaster {
     using PIN = Pin;
 
 public:
-    template<class ... Signals>
     static void connect() {
         PIN::init_output();
     }
 
-    template<class SystemClock>
     static void initialize() {
         PIN::set();
     }
@@ -82,36 +80,105 @@ public:
      * \return	\c true devices detected, \n
      * 			\c false failed to detect devices
      */
-    static bool
-    touchReset();
+    static bool touchReset() {
+        taskENTER_CRITICAL();
+        delay(G);
+        PIN::reset();   // drives the bus low
+        delay(H);
+        PIN::set();     // releases the bus
+        delay(I);
+
+        // sample for presence pulse from slave
+        bool result = !PIN::read();
+
+        delay(J);           // complete the reset sequence recovery
+        taskEXIT_CRITICAL();
+        return result;
+    }
 
     /**
-     * Send a 1-wire write bit.direction_pin
+     * Send a 1-wire write bit.
      *
      * Provides 10us recovery time.
      */
-    static void
-    writeBit(bool bit);
+    static void writeBit(bool bit) {
+        taskENTER_CRITICAL();
+        if (bit) {
+            PIN::reset();   // Drives bus low
+            delay(A);
+            PIN::set();     // Releases the bus
+            delay(B);       // Complete the time slot and 10us recovery
+        } else {
+            PIN::reset();
+            delay(C);
+            PIN::set();
+            delay(D);
+        }
+        taskEXIT_CRITICAL();
+    }
 
     /**
      * Read a bit from the 1-wire bus and return it.
      *
      * Provides 10us recovery time.
      */
-    static bool
-    readBit();
+    static bool readBit() {
+        taskENTER_CRITICAL();
+        PIN::reset();   // drives the bus low
+        delay(A);
+        PIN::set();     // releases the bus
+        delay(E);
+
+        // Sample the bit value from the slave
+        bool result = PIN::read();
+
+        delay(F);           // complete the reset sequence recovery
+        taskEXIT_CRITICAL();
+        return result;
+    }
 
     /// Write 1-Wire data byte
-    static void
-    writeByte(uint8_t data);
+    static void writeByte(uint8_t data) {
+        // Loop to write each bit in the byte, LS-bit first
+        for (uint8_t i = 0; i < 8; ++i) {
+            writeBit(data & 0x01);
+            data >>= 1;
+        }
+    }
 
     /// Read 1-Wire data byte and return it
-    static uint8_t
-    readByte();
+    static uint8_t readByte() {
+        uint8_t result = 0;
+        for (uint8_t i = 0; i < 8; ++i) {
+            result >>= 1;
+            if (readBit()) {
+                result |= 0x80;
+            }
+        }
+
+        return result;
+    }
 
     /// Write a 1-Wire data byte and return the sampled result.
-    static uint8_t
-    touchByte(uint8_t data);
+    static uint8_t touchByte(uint8_t data) {
+        uint8_t result = 0;
+        for (uint8_t i = 0; i < 8; ++i) {
+            result >>= 1;
+
+            // If sending a '1' then read a bit else write a '0'
+            if (data & 0x01) {
+                if (readBit()) {
+                    result |= 0x80;
+                }
+            } else {
+                writeBit(0);
+            }
+
+            data >>= 1;
+        }
+
+        return result;
+    }
 
     /**
      * Verify that the with the given ROM number is present
@@ -120,25 +187,75 @@ public:
      * \return	\c true device presens verified, \n
      * 			\c false device not present
      */
-    static bool
-    verifyDevice(const uint8_t *rom);
+    static bool verifyDevice(const uint8_t *rom) {
+        uint8_t romBufferBackup[8];
+        bool result;
+
+        // keep a backup copy of the current state
+        for (uint8_t i = 0; i < 8; i++) {
+            romBufferBackup[i] = romBuffer[i];
+        }
+        uint16_t ld_backup = lastDiscrepancy;
+        bool ldf_backup = lastDeviceFlag;
+        uint16_t lfd_backup = lastFamilyDiscrepancy;
+
+        // set search to find the same device
+        lastDiscrepancy = 64;
+        lastDeviceFlag = false;
+        if (performSearch()) {
+            // check if same device found
+            result = true;
+            for (uint8_t i = 0; i < 8; i++) {
+                if (rom[i] != romBuffer[i]) {
+                    result = false;
+                    break;
+                }
+            }
+        } else {
+            result = false;
+        }
+
+        // restore the search state
+        for (uint8_t i = 0; i < 8; i++) {
+            romBuffer[i] = romBufferBackup[i];
+        }
+        lastDiscrepancy = ld_backup;
+        lastDeviceFlag = ldf_backup;
+        lastFamilyDiscrepancy = lfd_backup;
+
+        // return the result of the verify
+        return result;
+    }
 
     /**
      * Reset search state
      * \see		searchNext()
      */
-    static void
-    resetSearch();
+    static void resetSearch() {
+        // reset the search state
+        lastDiscrepancy = 0;
+        lastFamilyDiscrepancy = 0;
+        lastDeviceFlag = false;
+    }
 
     /**
      * Reset search state and setup it to find the device type
      * 			'familyCode' on the next call to searchNext().
      *
-     * This will accelerate the search because only devices of the given
+     * This will accelerate the search because only devices of the givenreadBit
      * type will be considered.
      */
-    static void
-    resetSearch(uint8_t familyCode);
+    static void resetSearch(uint8_t familyCode) {
+        // set the search state to find family type devices
+        romBuffer[0] = familyCode;
+        for (uint8_t i = 1; i < 8; ++i) {
+            romBuffer[i] = 0;
+        }
+
+        lastDiscrepancy = 64;
+        lastFamilyDiscrepancy = 0;
+        lastDeviceFlag = false;
+    }
 
     /**
      * Perform the 1-Wire search algorithm on the 1-Wire bus
@@ -152,24 +269,157 @@ public:
      *
      * \see		resetSearch()
      */
-    static bool
-    searchNext(uint8_t *rom);
+    static bool searchNext(uint8_t *rom) {
+        if (performSearch()) {
+            for (uint8_t i = 0; i < 8; ++i) {
+                rom[i] = romBuffer[i];
+            }
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Setup the search to skip the current device type on the
      * 			next call to searchNext()
      */
-    static void
-    searchSkipCurrentFamily();
+    static void searchSkipCurrentFamily() {
+        // set the Last discrepancy to last family discrepancy
+        lastDiscrepancy = lastFamilyDiscrepancy;
+        lastFamilyDiscrepancy = 0;
+
+        // check for end of list
+        if (lastDiscrepancy == 0) {
+            lastDeviceFlag = true;
+        }
+    }
+
+    static void delay(std::chrono::microseconds us) {
+        wait_us(us.count());
+    }
 
 protected:
-    static uint8_t
-    crcUpdate(uint8_t crc, uint8_t data);
+    static uint8_t crcUpdate(uint8_t crc, uint8_t data) {
+        crc = crc ^ data;
+        for (uint_fast8_t i = 0; i < 8; ++i) {
+            if (crc & 0x01) {
+                crc = (crc >> 1) ^ 0x8C;
+            } else {
+                crc >>= 1;
+            }
+        }
+        return crc;
+    }
 
     /// Perform the actual search algorithm
-    static bool
-    performSearch();
+    static bool performSearch() {
+        bool searchResult = false;
 
+        // if the last call was not the last one
+        if (!lastDeviceFlag) {
+            // 1-Wire reset
+            if (!touchReset()) {
+                // reset the search
+                lastDiscrepancy = 0;
+                lastDeviceFlag = false;
+                lastFamilyDiscrepancy = 0;
+                return false;
+            }
+
+            // issue the search command
+            writeByte(0xF0);
+
+            // initialize for search
+            uint8_t idBitNumber = 1;
+            uint8_t lastZeroBit = 0;
+            uint8_t romByteNumber = 0;
+            uint8_t romByteMask = 1;
+            bool searchDirection;
+
+            crc8 = 0;
+
+            // loop to do the search
+            do {
+                // read a bit and its complement
+                bool idBit = readBit();
+                bool complementIdBit = readBit();
+
+                // check for no devices on 1-wire
+                if ((idBit == true) && (complementIdBit == true)) {
+                    break;
+                } else {
+                    // all devices coupled have 0 or 1
+                    if (idBit != complementIdBit) {
+                        searchDirection = idBit; // bit write value for search
+                    } else {
+                        // if this discrepancy if before the Last Discrepancy
+                        // on a previous next then pick the same as last time
+                        if (idBitNumber < lastDiscrepancy) {
+                            searchDirection = ((romBuffer[romByteNumber]
+                                    & romByteMask) > 0);
+                        } else {
+                            // if equal to last pick 1, if not then pick 0
+                            searchDirection = (idBitNumber == lastDiscrepancy);
+                        }
+
+                        // if 0 was picked then record its position in LastZero
+                        if (searchDirection == false) {
+                            lastZeroBit = idBitNumber;
+                            // check for Last discrepancy in family
+                            if (lastZeroBit < 9)
+                                lastFamilyDiscrepancy = lastZeroBit;
+                        }
+                    }
+
+                    // set or clear the bit in the ROM byte rom_byte_number
+                    // with mask rom_byte_mask
+                    if (searchDirection == true) {
+                        romBuffer[romByteNumber] |= romByteMask;
+                    } else {
+                        romBuffer[romByteNumber] &= ~romByteMask;
+                    }
+
+                    // serial number search direction write bit
+                    writeBit(searchDirection);
+
+                    // increment the byte counter id_bit_number
+                    // and shift the mask rom_byte_mask
+                    idBitNumber++;
+                    romByteMask <<= 1;
+
+                    // if the mask is 0 then go to new SerialNum byte rom_byte_number and reset mask
+                    if (romByteMask == 0) {
+                        crc8 = crcUpdate(crc8, romBuffer[romByteNumber]); // accumulate the CRC
+                        romByteNumber++;
+                        romByteMask = 1;
+                    }
+                }
+            } while (romByteNumber < 8); // loop until through all ROM bytes 0-7
+
+            // if the search was successful then
+            if (!((idBitNumber < 65) || (crc8 != 0))) {
+                // search successful
+                lastDiscrepancy = lastZeroBit;
+                // check for last device
+                if (lastDiscrepancy == 0) {
+                    lastDeviceFlag = true;
+                }
+                searchResult = true;
+            }
+        }
+
+        // if no device found then reset counters so next 'search' will be like a first
+        if (!searchResult || !romBuffer[0]) {
+            lastDiscrepancy = 0;
+            lastDeviceFlag = false;
+            lastFamilyDiscrepancy = 0;
+            searchResult = false;
+        }
+
+        return searchResult;
+    }
+
+public:
     // standard delay times in microseconds
     static constexpr std::chrono::microseconds A { 6 };
     static constexpr std::chrono::microseconds B { 64 };
@@ -190,5 +440,25 @@ protected:
     static uint8_t romBuffer[8];
 };
 
+template <typename Pin> uint8_t one_wire::BitBangOneWireMaster<Pin>::lastDiscrepancy;
+template <typename Pin> uint8_t one_wire::BitBangOneWireMaster<Pin>::lastFamilyDiscrepancy;
+template <typename Pin> bool    one_wire::BitBangOneWireMaster<Pin>::lastDeviceFlag;
+template <typename Pin> uint8_t one_wire::BitBangOneWireMaster<Pin>::crc8;
+template <typename Pin> uint8_t one_wire::BitBangOneWireMaster<Pin>::romBuffer[8];
+
+template <typename Pin> constexpr std::chrono::microseconds one_wire::BitBangOneWireMaster<Pin>::A;
+template <typename Pin> constexpr std::chrono::microseconds one_wire::BitBangOneWireMaster<Pin>::B;
+template <typename Pin> constexpr std::chrono::microseconds one_wire::BitBangOneWireMaster<Pin>::C;
+template <typename Pin> constexpr std::chrono::microseconds one_wire::BitBangOneWireMaster<Pin>::D;
+template <typename Pin> constexpr std::chrono::microseconds one_wire::BitBangOneWireMaster<Pin>::E;
+template <typename Pin> constexpr std::chrono::microseconds one_wire::BitBangOneWireMaster<Pin>::F;
+template <typename Pin> constexpr std::chrono::microseconds one_wire::BitBangOneWireMaster<Pin>::G;
+template <typename Pin> constexpr std::chrono::microseconds one_wire::BitBangOneWireMaster<Pin>::H;
+template <typename Pin> constexpr std::chrono::microseconds one_wire::BitBangOneWireMaster<Pin>::I;
+template <typename Pin> constexpr std::chrono::microseconds one_wire::BitBangOneWireMaster<Pin>::J;
+
+
+
 }
-#endif // ONE-WIRE_BITBANG_HPP
+
+#endif // ONE-WIRE_BITBANG_MASTER_H_

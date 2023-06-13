@@ -75,7 +75,7 @@ static void prvSetupHardware(void) {
     //hard_limits_init();
 
     // temperature_init();
-    //temperature_ds18b20_init();
+    temperature_ds18b20_init();
     encoders_init();
     mem_check_init();
 }
