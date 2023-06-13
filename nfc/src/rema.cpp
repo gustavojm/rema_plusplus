@@ -34,6 +34,6 @@ bool rema::stall_control_get() {
 
 void rema::lamp_pwr_set(bool status) {
     relay_4.init_output();
-    relay_4.set_pin_state(status);
+    relay_4.set(status);
 }
 

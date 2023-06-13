@@ -27,12 +27,12 @@ enum mot_pap::direction mot_pap::direction_calculate(int error) {
 
 void mot_pap::set_direction(enum direction direction) {
     dir = direction;
-    gpios.direction.set_pin_state(dir == DIRECTION_CW ? 0 : 1);
+    gpios.direction.set(dir == DIRECTION_CW ? 0 : 1);
 }
 
 void mot_pap::set_direction() {
     dir = direction_calculate(destination_counts() - current_counts());
-    gpios.direction.set_pin_state(dir == DIRECTION_CW ? 0 : 1);
+    gpios.direction.set(dir == DIRECTION_CW ? 0 : 1);
 }
 
 bool mot_pap::check_for_stall() {
