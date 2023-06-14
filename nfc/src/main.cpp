@@ -19,7 +19,6 @@
 
 #include "debug.h"
 #include "gpio.h"
-#include "temperature.h"
 #include "temperature_ds18b20.h"
 #include "lwip_init.h"
 #include "settings.h"
@@ -76,7 +75,7 @@ static void prvSetupHardware(void) {
     //hard_limits_init();
 
     // temperature_init();
-    //temperature_ds18b20_init();
+    temperature_ds18b20_init();
     encoders_init();
     mem_check_init();
 }

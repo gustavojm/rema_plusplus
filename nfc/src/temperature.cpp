@@ -2,7 +2,6 @@
 
 #include "board.h"
 #include "debug.h"
-#include "temperature.h"
 
 #define LPC_ADC LPC_ADC0
 #define TEMP_ADC_CH ADC_CH1

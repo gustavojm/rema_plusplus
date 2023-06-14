@@ -2,80 +2,85 @@
 
 #include "board.h"
 #include "debug.h"
-#include "one-wire.h"
-#include "ds18b20.h"
-#include "temperature_ds18b20.h"
-
-#define STB_DEFINE
-
-#include "misc.h"
+#include "gpio_templ.h"
+#include "one-wire_bitbang_master.hpp"
+#include "ds18b20.hpp"
 
 #define TEMPERATURE_DS18B20_TASK_PRIORITY (configMAX_PRIORITIES - 4)
 
-static float temperatures[2];
+using gpio_ow = gpio_templ<2, 5, SCU_MODE_FUNC4 | SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP, 5, 5>;          // TODO asignar el pin correcto según arquitectura
+using OneWireMaster = one_wire::BitBangOneWireMaster<gpio_ow>;
+constexpr int reading_interval = 1000;
+constexpr int max_sensors = 3;
 
-uint32_t temperature_ds18b20_get(uint8_t sensor, float *var) {
-    if (sensor >= (sizeof temperatures / sizeof temperatures[0])) {
-        return ERR_RANGE; /* error */
-    }
-    *var = temperatures[sensor];
-    return ERR_OK;
-}
+struct sensor {
+    Ds18b20<OneWireMaster>* ds18b20;
+    int16_t reading;
+};
 
-/**
- * @brief    returns status temperature of the NFC.
- * @return     the temperature value in °C
- */
-static int temperature_ds18b20_read(uint8_t sensor, float *var) {
-    int err;
-    if (sensor >= (sizeof temperatures / sizeof temperatures[0])) {
-        return ERR_RANGE; /* error */
-    }
-
-    err = ds18b20_start_conversion(sensor);
-    lDebug(Info, "start_conversion: %i", err);
-    if (err != ERR_OK) {
-        return err;
-    }
-
-    err = ds18b20_read_temperature(sensor);
-    lDebug(Info, "read_temperature: %i", err);
-    if (err != ERR_OK) {
-        return err;
-    }
-
-    err = ds18b20_get_temperature_float(sensor, var);
-    lDebug(Info, "get_tempeature_float: %i", err);
-    if (err != ERR_OK) {
-        return err;
-    }
-
-//    char buff[6];
-//    snprint_double(buff, sizeof buff / sizeof buff[0], temp, 2);
-//    lDebug(Info, "Temperatura leida del DS18B20: %s", buff);
-
-    return ERR_OK;
-}
+sensor sensors[max_sensors];
+int detected_sensors = 0;
 
 static void temperature_ds18b20_task(void *par) {
-    while (true) {
-        temperature_ds18b20_read(0, &temperatures[0]);
-        temperature_ds18b20_read(1, &temperatures[1]);
 
-        vTaskDelay(pdMS_TO_TICKS(2000));
+    OneWireMaster::connect();
+    OneWireMaster::initialize();
+
+    if (!OneWireMaster::touchReset()) {
+        lDebug(Info, "No devices found! Suspending task");
+        vTaskSuspend(NULL);
+    }
+
+    // search for connected DS18B20 devices
+    OneWireMaster::resetSearch(0x28);
+
+    uint8_t rom[8];
+    while (OneWireMaster::searchNext(rom)) {
+        char rom_str[8 * 3 + 1];
+        char *cur_pos = rom_str;
+        for (uint8_t i = 0; i < 8; i++) {
+            cur_pos += sprintf(cur_pos, "%02X ", rom[i]);
+        }
+        lDebug(Info, "found: %s", rom_str);
+        sensors[detected_sensors].ds18b20 = new Ds18b20<OneWireMaster>(rom);
+
+        detected_sensors++;
+        vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    lDebug(Info, "Sensor detection finished, %i found", detected_sensors);
+    lDebug(Info, "Updating readings every %ims", reading_interval);
+
+
+    // read the temperature from a connected DS18B20 sensor
+
+    sensors[0].ds18b20->startConversions();
+
+    while (true) {
+        for (int i=0; i<detected_sensors; i++) {
+            if (sensors[i].ds18b20->isConversionDone()) {
+                sensors[i].reading = sensors[i].ds18b20->readTemperature();
+                vTaskDelay(pdMS_TO_TICKS(reading_interval));
+
+                sensors[0].ds18b20->startConversions();
+            }
+        }
     }
 }
 
+
+int16_t temperature_ds18b20_get(uint8_t sensor) {
+    if (sensor > detected_sensors) {
+        return INT16_MIN;
+    }
+    return sensors[sensor].reading;
+}
+
+
 /**
- * @brief     initializes ADC to read temperature sensor.
+ * @brief     initializes DS18B20 sensors to read temperatures.
  * @return    nothing
  */
 void temperature_ds18b20_init() {
-    one_wire_init();
-    ds18b20_init();
-    uint8_t err = ds18b20_search_and_assign_ROM_codes();
-    lDebug(Info, "search_And_assign_ROM: %i", err);
-    // lDebug(Info, "read_ROM: %i", ds18b20_read_ROM(0));
     xTaskCreate(temperature_ds18b20_task, "DS18B20",
     configMINIMAL_STACK_SIZE * 2, NULL,
     TEMPERATURE_DS18B20_TASK_PRIORITY, NULL);
