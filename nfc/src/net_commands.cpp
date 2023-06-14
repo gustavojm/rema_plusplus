@@ -12,6 +12,7 @@
 #include "bresenham.h"
 #include "z_axis.h"
 #include "xy_axes.h"
+#include "temperature_ds18b20.h"
 
 #define PROTOCOL_VERSION  	"JSON_1.0"
 
@@ -266,11 +267,9 @@ static JSON_Value* mem_info_cmd(JSON_Value const *pars) {
 
 static JSON_Value* temperature_info_cmd(JSON_Value const *pars) {
     JSON_Value *ans = json_value_init_object();
-    [[maybe_unused]] float temp1, temp2;
-//	temperature_ds18b20_get(0, &temp1);
-//	temperature_ds18b20_get(1, &temp2);
-//  json_object_set_number(json_value_get_object(ans), "TEMP1", (double) temp1);
-//  json_object_set_number(json_value_get_object(ans), "TEMP2", (double) temp2);
+    json_object_set_number(json_value_get_object(ans), "TEMP X", (static_cast<double>(temperature_ds18b20_get(0))) / 10);
+    json_object_set_number(json_value_get_object(ans), "TEMP Y", (static_cast<double>(temperature_ds18b20_get(1))) / 10);
+    json_object_set_number(json_value_get_object(ans), "TEMP Z", (static_cast<double>(temperature_ds18b20_get(2))) / 10);
     return ans;
 }
 

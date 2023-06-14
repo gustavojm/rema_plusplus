@@ -23,8 +23,6 @@
  * 10 bits:	187.5 ms
  * 11 bits:	375 ms
  * 12 bits:	750 ms
- *
- * \ingroup	modm_driver_ds18b20
  */
 struct ds18b20 {
     enum class Resolution : uint8_t {
@@ -36,10 +34,7 @@ struct ds18b20 {
 };
 
 /**
- * \todo	Implement temperature alarm functionality
- *
  * \author	Fabian Greif
- * \ingroup	modm_driver_ds18b20
  */
 template<typename OneWire>
 class Ds18b20: public ds18b20 {
@@ -51,7 +46,9 @@ public:
      *
      * \param 	rom		8-byte unique ROM number of the device
      */
-    Ds18b20(const uint8_t *rom);
+    Ds18b20(const uint8_t *rom) {
+        std::memcpy(this->identifier, rom, 8);
+    }
 
     /**
      * \brief	Configure measurement resolution
@@ -62,8 +59,17 @@ public:
      * \return	\c true if a device is found, \c false if no
      * 			device is available on the bus.
      */
-    bool
-    configure(Resolution resolution);
+    bool configure(Resolution resolution) {
+        if (!selectDevice()) {
+            return false;
+        }
+
+        ow.writeByte(this->WRITE_SCRATCHPAD);
+        ow.writeByte(0); // alert high value, not supported
+        ow.writeByte(0); // alert low value, not supported
+        ow.writeByte(static_cast<uint8_t>(resolution));
+        return true;
+    }
 
     /**
      * \brief	Check if the device is present
@@ -71,14 +77,18 @@ public:
      * \return	\c true if the device is found, \c false if the
      * 			ROM number is not available on the bus.
      */
-    bool
-    isAvailable();
+    bool isAvailable() {
+        return ow.verifyDevice(this->identifier);
+    }
 
     /**
      * \brief	Start the conversion of this device
      */
-    void
-    startConversion();
+    void startConversion() {
+        selectDevice();
+
+        ow.writeByte(CONVERT_T);
+    }
 
     /**
      * \brief	Start the conversion for all connected devices
@@ -90,8 +100,20 @@ public:
      * 			than the DS18B20 connected to your 1-wire bus check if
      * 			they tolerate the SKIP_ROM + CONVERT_T command.
      */
-    void
-    startConversions();
+    void startConversions() {
+        //Reset the bus / Initialization
+        if (!ow.touchReset()) {
+            //no devices detected
+            return;
+        }
+
+        // Send this to everybody
+        ow.writeByte(one_wire::SKIP_ROM);
+
+        // Issue Convert Temperature command
+        ow.writeByte(this->CONVERT_T);
+
+    }
 
     /**
      * \brief	Check if the last conversion is complete
@@ -99,8 +121,9 @@ public:
      * \return	\c true conversion complete, \n
      * 			\c false conversion in progress.
      */
-    bool
-    isConversionDone();
+    bool isConversionDone() {
+        return ow.readBit();
+    }
 
     /**
      * \brief	Read the current temperature in centi-degree
@@ -108,15 +131,45 @@ public:
      * \todo	Needs a better output format
      * \return	temperature in centi-degree
      */
-    int16_t
-    readTemperature();
+    int16_t readTemperature() {
+        selectDevice();
+        ow.writeByte(this->READ_SCRATCHPAD);
+
+        // Read the first bytes of the scratchpad memory
+        // and then send a reset because we do not want the other bytes
+
+        int16_t temp = ow.readByte();
+        temp |= (ow.readByte() << 8);
+
+        ow.touchReset();
+
+        int32_t convertedTemperature = INT32_C(625) * temp;
+
+        // round to centi-degree
+        convertedTemperature = (convertedTemperature + 50) / 100;
+
+        return (static_cast<int16_t>(convertedTemperature));
+    }
 
 protected:
     /**
      * \brief	Select the current device
      */
-    bool
-    selectDevice();
+    bool selectDevice() {
+        // Reset the bus / Initialization
+        if (!ow.touchReset()) {
+            // no devices detected
+            return false;
+        }
+
+        ow.writeByte(one_wire::MATCH_ROM);
+
+        for (uint8_t i = 0; i < 8; ++i) {
+            ow.writeByte(this->identifier[i]);
+        }
+
+        return true;
+    }
 
     uint8_t identifier[8];
 
@@ -130,95 +183,4 @@ protected:
     static OneWire ow;
 };
 
-template<typename OneWire>
-Ds18b20<OneWire>::Ds18b20(const uint8_t *rom) {
-    std::memcpy(this->identifier, rom, 8);
-}
-
-// ----------------------------------------------------------------------------
-template<typename OneWire>
-bool Ds18b20<OneWire>::isAvailable() {
-    return ow.verifyDevice(this->identifier);
-}
-
-template<typename OneWire>
-bool Ds18b20<OneWire>::configure(Resolution resolution) {
-    if (!selectDevice()) {
-        return false;
-    }
-
-    ow.writeByte(this->WRITE_SCRATCHPAD);
-    ow.writeByte(0); // alert high value, not supported
-    ow.writeByte(0); // alert low value, not supported
-    ow.writeByte(static_cast<uint8_t>(resolution));
-    return true;
-}
-
-// ----------------------------------------------------------------------------
-template<typename OneWire>
-void Ds18b20<OneWire>::startConversion() {
-    selectDevice();
-
-    ow.writeByte(CONVERT_T);
-}
-
-template<typename OneWire>
-void Ds18b20<OneWire>::startConversions() {
-    //Reset the bus / Initialization
-    if (!ow.touchReset()) {
-        //no devices detected
-        return;
-    }
-
-    // Send this to everybody
-    ow.writeByte(one_wire::SKIP_ROM);
-
-    // Issue Convert Temperature command
-    ow.writeByte(this->CONVERT_T);
-}
-
-template<typename OneWire>
-bool Ds18b20<OneWire>::isConversionDone() {
-    return ow.readBit();
-}
-
-// ----------------------------------------------------------------------------
-template<typename OneWire>
-int16_t Ds18b20<OneWire>::readTemperature() {
-    selectDevice();
-    ow.writeByte(this->READ_SCRATCHPAD);
-
-    // Read the first bytes of the scratchpad memory
-    // and then send a reset because we do not want the other bytes
-
-    int16_t temp = ow.readByte();
-    temp |= (ow.readByte() << 8);
-
-    ow.touchReset();
-
-    int32_t convertedTemperature = INT32_C(625) * temp;
-
-    // round to centi-degree
-    convertedTemperature = (convertedTemperature + 50) / 100;
-
-    return (static_cast<int16_t>(convertedTemperature));
-}
-
-// ----------------------------------------------------------------------------
-template<typename OneWire>
-bool Ds18b20<OneWire>::selectDevice() {
-    // Reset the bus / Initialization
-    if (!ow.touchReset()) {
-        // no devices detected
-        return false;
-    }
-
-    ow.writeByte(one_wire::MATCH_ROM);
-
-    for (uint8_t i = 0; i < 8; ++i) {
-        ow.writeByte(this->identifier[i]);
-    }
-
-    return true;
-}
 #endif // DS18B20_HPP

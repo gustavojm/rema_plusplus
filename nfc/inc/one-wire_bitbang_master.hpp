@@ -460,8 +460,6 @@ template <typename Pin> constexpr std::chrono::microseconds one_wire::BitBangOne
 template <typename Pin> constexpr std::chrono::microseconds one_wire::BitBangOneWireMaster<Pin>::I;
 template <typename Pin> constexpr std::chrono::microseconds one_wire::BitBangOneWireMaster<Pin>::J;
 
-
-
 }
 
 #endif // ONE-WIRE_BITBANG_MASTER_H_
