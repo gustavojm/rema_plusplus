@@ -101,8 +101,8 @@ public:
 	bool stalled = false;
     bool reversed = false;
 
-    volatile int&  current_counts()        { return current_counts_; }  // setter
-    volatile const int& current_counts() const  { return current_counts_; } // getter
+    volatile int&  current_counts() { return current_counts_; }             // setter
+    volatile const int& current_counts() const { return current_counts_; }  // getter
 
     int&  destination_counts()        { return destination_counts_; }
     const int& destination_counts() const  { return destination_counts_; }
