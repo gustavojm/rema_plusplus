@@ -67,6 +67,7 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
         stop();
         lDebug(Info, "%s: already there", name);
     } else {
+        rema::update_watchdog_timer();
         kp.restart();
 
         current_freq = kp.run(leader_axis->destination_counts(), leader_axis->current_counts());
@@ -118,6 +119,12 @@ void bresenham::supervise() {
                     rema::control_enabled_set(false);
                     goto end;
                 }
+            }
+
+            if (rema::is_watchdog_expired()) {
+                stop();
+                lDebug(Info, "Watchdog expired");
+                goto end;
             }
 
             calculate();                // recalculate to compensate for encoder errors

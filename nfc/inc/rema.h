@@ -1,6 +1,11 @@
 #ifndef REMA_H_
 #define REMA_H_
 
+#include "FreeRTOS.h"
+#include "task.h"
+
+#define WATCHDOG_TIME_MS   1000
+
 class rema {
 public:
     static void control_enabled_set(bool status);
@@ -17,9 +22,14 @@ public:
 
     void lamp_pwr_set(bool status);
 
+    static void update_watchdog_timer();
+
+    static bool is_watchdog_expired();
+
     static bool control_enabled;
     static bool probe_enabled;
     static bool stall_detection;
+    static TickType_t lastKeepAliveTicks;
 
 };
 

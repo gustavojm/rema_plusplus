@@ -20,6 +20,7 @@
 #include "debug.h"
 #include "xy_axes.h"
 #include "z_axis.h"
+#include "rema.h"
 
 #define KEEPALIVE_IDLE              (5)
 #define KEEPALIVE_INTERVAL          (5)
@@ -45,6 +46,7 @@ static void do_retransmit(const int sock) {
             stop_all();
             lDebug(Warn, "Connection closed");
         } else {
+            rema::update_watchdog_timer();
             rx_buffer[len] = 0;  // Null-terminate whatever is received and treat it like a string
 
             char *tx_buffer;

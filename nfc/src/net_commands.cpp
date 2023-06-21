@@ -40,13 +40,13 @@ static JSON_Value* telemetria_cmd(JSON_Value const *pars) {
     JSON_Value *ans = json_value_init_object();
     json_object_set_number(json_value_get_object(ans), "POS X",
             x_axis.current_counts()
-                    / static_cast<float>(x_axis.inches_to_counts_factor));
+                    / static_cast<double>(x_axis.inches_to_counts_factor));
     json_object_set_number(json_value_get_object(ans), "POS Y",
             y_axis.current_counts()
-                    / static_cast<float>(y_axis.inches_to_counts_factor));
+                    / static_cast<double>(y_axis.inches_to_counts_factor));
     json_object_set_number(json_value_get_object(ans), "POS Z",
             z_axis.current_counts()
-                    / static_cast<float>(z_axis.inches_to_counts_factor));
+                    / static_cast<double>(z_axis.inches_to_counts_factor));
 
     JSON_Value *limits = json_value_init_object();
     json_object_set_boolean(json_value_get_object(limits), "left", false);
@@ -389,7 +389,7 @@ const cmd_entry cmds_table[] = {
                 mem_info_cmd,
         },
         {
-                "TEMPERATURE_INFO",
+                "TEMP_INFO",
                 temperature_info_cmd,
         },
         {
