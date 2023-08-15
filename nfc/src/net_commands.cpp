@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include "debug.h"
 #include "FreeRTOS.h"
+    int len;
+
 
 #include "mot_pap.h"
 #include "net_commands.h"

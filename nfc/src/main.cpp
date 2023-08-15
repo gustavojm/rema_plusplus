@@ -23,7 +23,6 @@
 #include "lwip_init.h"
 #include "settings.h"
 #include "lwip/ip_addr.h"
-#include "tcp_server.h"
 #include "mem_check.h"
 #include "encoders.h"
 #include "mot_pap.h"

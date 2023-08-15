@@ -19,7 +19,8 @@
 #include "arch/sys_arch.h"
 #include "lpc_phy.h" /* For the PHY monitor support */
 #include "settings.h"
-#include "tcp_server.h"
+#include "tcp_server_comm.h"
+#include "tcp_server_telemetry.h"
 #include "debug.h"
 
 #define ip_addr_print(ipaddr) \
@@ -95,6 +96,7 @@ extern "C" void vStackIpSetup(void *pvParameters) {
 
     /* Initialize and start application */
     stackIp_ThreadInit(settings::network.port);
+    stackIp_Telemetry_ThreadInit(settings::network.port + 1);
 
     /* This loop monitors the PHY link and will handle cable events
      via the PHY driver. */

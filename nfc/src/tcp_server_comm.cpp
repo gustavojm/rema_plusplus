@@ -16,7 +16,7 @@
 #include "lwip/sys.h"
 #include <lwip/netdb.h>
 #include "json_wp.h"
-#include "tcp_server.h"
+#include "tcp_server_comm.h"
 #include "debug.h"
 #include "xy_axes.h"
 #include "z_axis.h"
@@ -40,14 +40,15 @@ static void do_retransmit(const int sock) {
     do {
         len = lwip_recv(sock, rx_buffer, sizeof(rx_buffer) - 1, 0);
         if (len < 0) {
-            stop_all();
-            lDebug(Error, "Error occurred during receiving: errno %d", errno);
+       //     stop_all();
+       //     lDebug(Error, "Error occurred during receiving: errno %d", errno);
         } else if (len == 0) {
-            stop_all();
-            lDebug(Warn, "Connection closed");
+        //    stop_all();
+        //    lDebug(Warn, "Connection closed");
         } else {
             rema::update_watchdog_timer();
             rx_buffer[len] = 0;  // Null-terminate whatever is received and treat it like a string
+            lDebug(InfoLocal, "Received %s", rx_buffer);
 
             char *tx_buffer;
 
