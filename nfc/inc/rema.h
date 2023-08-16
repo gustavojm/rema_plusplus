@@ -29,8 +29,8 @@ public:
     static bool control_enabled;
     static bool probe_enabled;
     static bool stall_detection;
-    static TickType_t lastKeepAliveTicks;
 
+    static TickType_t lastKeepAliveTicks;
 };
 
 #endif /* REMA_H_ */

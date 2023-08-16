@@ -121,11 +121,11 @@ void bresenham::supervise() {
                 }
             }
 
-            if (rema::is_watchdog_expired()) {
-                stop();
-                lDebug(Info, "Watchdog expired");
-                goto end;
-            }
+//            if (rema::is_watchdog_expired()) {
+//                stop();
+//                lDebug(Info, "Watchdog expired");
+//                goto end;
+//            }
 
             calculate();                // recalculate to compensate for encoder errors
             first_axis->set_direction();     // if didn't stop for proximity to set point, avoid going to infinity

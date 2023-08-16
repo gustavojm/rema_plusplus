@@ -47,6 +47,18 @@ static void send_telemetry(const int sock) {
 
         json_object_set_value(json_value_get_object(ans), "LIMITS", limits);
 
+        bresenham &x_y_axes = x_y_axes_get_instance();
+        bresenham &z_dummy_axes = z_dummy_axes_get_instance();
+
+        json_object_set_boolean(json_value_get_object(ans), "X_STALLED", x_axis.stalled );
+        json_object_set_boolean(json_value_get_object(ans), "Y_STALLED", y_axis.stalled );
+        json_object_set_boolean(json_value_get_object(ans), "Z_STALLED", z_axis.stalled );
+
+        json_object_set_boolean(json_value_get_object(ans), "X_Y_ON_COND", x_y_axes.already_there);
+        json_object_set_boolean(json_value_get_object(ans), "Z_ON_COND", z_dummy_axes.already_there);
+
+        json_object_set_boolean(json_value_get_object(ans), "PROBE_TOUCHING", false);
+
         if (!(times % 50)) {
             JSON_Value *temperatures = json_value_init_object();
             json_object_set_number(json_value_get_object(temperatures), "TEMP X", (static_cast<double>(temperature_ds18b20_get(0))) / 10);
@@ -71,7 +83,7 @@ static void send_telemetry(const int sock) {
                 int written = lwip_send(sock, tx_buffer + (buff_len - to_write),
                         to_write, 0);
                 if (written < 0) {
-                    lDebug(Error, "Error occurred during sending: errno %d",
+                    lDebug(Error, "Error occurred during sending telemetry: errno %d",
                             errno);
                     goto err_send;
                 }
@@ -104,19 +116,19 @@ static void tcp_telemetry_server_task(void *pvParameters) {
 
     int listen_sock = lwip_socket(AF_INET, SOCK_STREAM, ip_protocol);
     if (listen_sock < 0) {
-        lDebug(Error, "Unable to create socket: errno %d", errno);
+        lDebug(Error, "Unable to create telemetry socket: errno %d", errno);
         vTaskDelete(NULL);
         return;
     }
     int opt = 1;
     lwip_setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
-    lDebug(Info, "Socket created");
+    lDebug(Info, "Telemetry socket created");
 
     int err = lwip_bind(listen_sock, (struct sockaddr*) &dest_addr,
             sizeof(dest_addr));
     if (err != 0) {
-        lDebug(Error, "Socket unable to bind: errno %d", errno);
+        lDebug(Error, "Telemetry socket unable to bind: errno %d", errno);
         lDebug(Error, "IPPROTO: %d", AF_INET);
         goto CLEAN_UP;
     }
@@ -129,7 +141,7 @@ static void tcp_telemetry_server_task(void *pvParameters) {
     }
 
     while (1) {
-        lDebug(Info, "Socket listening");
+        lDebug(Info, "Telemetry socket listening");
 
         struct sockaddr source_addr;
         socklen_t addr_len = sizeof(source_addr);
@@ -154,7 +166,7 @@ static void tcp_telemetry_server_task(void *pvParameters) {
             inet_ntoa_r(((struct sockaddr_in* )&source_addr)->sin_addr,
                     addr_str, sizeof(addr_str) - 1);
         }
-        lDebug(Info, "Socket accepted ip address: %s", addr_str);
+        // lDebug(Info, "Telemetry socket accepted ip address: %s", addr_str);
 
         send_telemetry(sock);
 
