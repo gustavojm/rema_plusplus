@@ -24,16 +24,18 @@ extern mot_pap x_axis, y_axis, z_axis;
 static void send_telemetry(const int sock) {
     char tx_buffer[512];
     JSON_Value *ans = json_value_init_object();
+    JSON_Value *telemetry = json_value_init_object();
+
     int times = 0;
 
     while (true) {
-        json_object_set_number(json_value_get_object(ans), "POS X",
+        json_object_set_number(json_value_get_object(telemetry), "x",
                 x_axis.current_counts()
                         / static_cast<double>(x_axis.inches_to_counts_factor));
-        json_object_set_number(json_value_get_object(ans), "POS Y",
+        json_object_set_number(json_value_get_object(telemetry), "y",
                 y_axis.current_counts()
                         / static_cast<double>(y_axis.inches_to_counts_factor));
-        json_object_set_number(json_value_get_object(ans), "POS Z",
+        json_object_set_number(json_value_get_object(telemetry), "z",
                 z_axis.current_counts()
                         / static_cast<double>(z_axis.inches_to_counts_factor));
 
@@ -44,32 +46,37 @@ static void send_telemetry(const int sock) {
         json_object_set_boolean(json_value_get_object(limits), "down", true);
         json_object_set_boolean(json_value_get_object(limits), "in", true);
         json_object_set_boolean(json_value_get_object(limits), "out", false);
+        json_object_set_boolean(json_value_get_object(limits), "probe", false);
+        json_object_set_value(json_value_get_object(telemetry), "limits", limits);
 
-        json_object_set_value(json_value_get_object(ans), "LIMITS", limits);
+        JSON_Value *stalled = json_value_init_object();
+        json_object_set_boolean(json_value_get_object(stalled), "x", x_axis.stalled );
+        json_object_set_boolean(json_value_get_object(stalled), "y", y_axis.stalled );
+        json_object_set_boolean(json_value_get_object(stalled), "z", z_axis.stalled );
+        json_object_set_value(json_value_get_object(telemetry), "stalled", stalled);
 
         bresenham &x_y_axes = x_y_axes_get_instance();
         bresenham &z_dummy_axes = z_dummy_axes_get_instance();
 
-        json_object_set_boolean(json_value_get_object(ans), "X_STALLED", x_axis.stalled );
-        json_object_set_boolean(json_value_get_object(ans), "Y_STALLED", y_axis.stalled );
-        json_object_set_boolean(json_value_get_object(ans), "Z_STALLED", z_axis.stalled );
+        JSON_Value *on_condition = json_value_init_object();
+        json_object_set_boolean(json_value_get_object(on_condition), "x_y", x_y_axes.already_there);
+        json_object_set_boolean(json_value_get_object(on_condition), "z", z_dummy_axes.already_there);
+        json_object_set_value(json_value_get_object(telemetry), "on_condition", on_condition);
 
-        json_object_set_boolean(json_value_get_object(ans), "X_Y_ON_COND", x_y_axes.already_there);
-        json_object_set_boolean(json_value_get_object(ans), "Z_ON_COND", z_dummy_axes.already_there);
-
-        json_object_set_boolean(json_value_get_object(ans), "PROBE_TOUCHING", false);
 
         if (!(times % 50)) {
             JSON_Value *temperatures = json_value_init_object();
-            json_object_set_number(json_value_get_object(temperatures), "TEMP X", (static_cast<double>(temperature_ds18b20_get(0))) / 10);
-            json_object_set_number(json_value_get_object(temperatures), "TEMP Y", (static_cast<double>(temperature_ds18b20_get(1))) / 10);
-            json_object_set_number(json_value_get_object(temperatures), "TEMP Z", (static_cast<double>(temperature_ds18b20_get(2))) / 10);
-            json_object_set_value(json_value_get_object(ans), "TEMP_INFO", temperatures);
+            json_object_set_number(json_value_get_object(temperatures), "x", (static_cast<double>(temperature_ds18b20_get(0))) / 10);
+            json_object_set_number(json_value_get_object(temperatures), "y", (static_cast<double>(temperature_ds18b20_get(1))) / 10);
+            json_object_set_number(json_value_get_object(temperatures), "z", (static_cast<double>(temperature_ds18b20_get(2))) / 10);
+            json_object_set_value(json_value_get_object(ans), "temps", temperatures);
         } else {
-            json_object_remove(json_value_get_object(ans), "TEMP_INFO");
+            json_object_remove(json_value_get_object(ans), "temps");
 
         }
         times++;
+
+        json_object_set_value(json_value_get_object(ans), "telemetry", telemetry);
 
         int buff_len = json_serialization_size(ans); /* returns 0 on fail */
         json_serialize_to_buffer(ans, tx_buffer, buff_len);
