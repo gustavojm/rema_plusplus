@@ -29,15 +29,18 @@ static void send_telemetry(const int sock) {
     int times = 0;
 
     while (true) {
-        json_object_set_number(json_value_get_object(telemetry), "x",
+        JSON_Value *coords = json_value_init_object();
+        json_object_set_number(json_value_get_object(coords), "x",
                 x_axis.current_counts()
                         / static_cast<double>(x_axis.inches_to_counts_factor));
-        json_object_set_number(json_value_get_object(telemetry), "y",
+        json_object_set_number(json_value_get_object(coords), "y",
                 y_axis.current_counts()
                         / static_cast<double>(y_axis.inches_to_counts_factor));
-        json_object_set_number(json_value_get_object(telemetry), "z",
+        json_object_set_number(json_value_get_object(coords), "z",
                 z_axis.current_counts()
                         / static_cast<double>(z_axis.inches_to_counts_factor));
+
+        json_object_set_value(json_value_get_object(telemetry), "coords", coords);
 
         JSON_Value *limits = json_value_init_object();
         json_object_set_boolean(json_value_get_object(limits), "left", false);
