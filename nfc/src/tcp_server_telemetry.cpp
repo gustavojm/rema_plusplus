@@ -62,10 +62,9 @@ static void send_telemetry(const int sock) {
         bresenham &z_dummy_axes = z_dummy_axes_get_instance();
 
         JSON_Value *on_condition = json_value_init_object();
-        json_object_set_boolean(json_value_get_object(on_condition), "x_y", x_y_axes.already_there);
-        json_object_set_boolean(json_value_get_object(on_condition), "z", z_dummy_axes.already_there);
+        json_object_set_boolean(json_value_get_object(on_condition), "x_y", (x_y_axes.already_there && !x_y_axes.was_soft_stopped));        // Soft stops are only sent by joystick, so no ON_CONDITION reported
+        json_object_set_boolean(json_value_get_object(on_condition), "z", (z_dummy_axes.already_there && !z_dummy_axes.was_soft_stopped));
         json_object_set_value(json_value_get_object(telemetry), "on_condition", on_condition);
-
 
         if (!(times % 50)) {
             JSON_Value *temperatures = json_value_init_object();

@@ -30,8 +30,8 @@ bresenham& z_dummy_axes_get_instance() {
  */
 void z_axis_init() {
     z_axis.motor_resolution = 25000;
-    z_axis.encoder_resolution = 5000;
-    z_axis.inches_to_counts_factor = 1000;
+    z_axis.encoder_resolution = 500;
+    z_axis.inches_to_counts_factor = 5000;
 
     z_axis.gpios.step = gpio {4, 9, SCU_MODE_FUNC4, 5, 13}.init_output();        //DOUT5 P4_9    PIN33   GPIO5[13]
     z_axis.gpios.direction = gpio {4, 10, SCU_MODE_FUNC4, 5, 14}.init_output();  //DOUT6 P4_10   PIN35   GPIO5[14]

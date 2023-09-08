@@ -38,33 +38,6 @@ static bresenham* get_axes(const char *axis) {
     }
 }
 
-static JSON_Value* telemetria_cmd(JSON_Value const *pars) {
-    JSON_Value *ans = json_value_init_object();
-    json_object_set_number(json_value_get_object(ans), "POS X",
-            x_axis.current_counts()
-                    / static_cast<double>(x_axis.inches_to_counts_factor));
-    json_object_set_number(json_value_get_object(ans), "POS Y",
-            y_axis.current_counts()
-                    / static_cast<double>(y_axis.inches_to_counts_factor));
-    json_object_set_number(json_value_get_object(ans), "POS Z",
-            z_axis.current_counts()
-                    / static_cast<double>(z_axis.inches_to_counts_factor));
-
-    JSON_Value *limits = json_value_init_object();
-    json_object_set_boolean(json_value_get_object(limits), "left", false);
-    json_object_set_boolean(json_value_get_object(limits), "right", true);
-    json_object_set_boolean(json_value_get_object(limits), "up", false);
-    json_object_set_boolean(json_value_get_object(limits), "down", true);
-    json_object_set_boolean(json_value_get_object(limits), "in", true);
-    json_object_set_boolean(json_value_get_object(limits), "out", false);
-
-    json_object_set_value(json_value_get_object(ans), "LIMITS", limits);
-
-    //json_object_set_value(json_value_get_object(ans), "eje_x", x_axis));
-
-    return ans;
-}
-
 static JSON_Value* logs_cmd(JSON_Value const *pars) {
     if (pars && json_value_get_type(pars) == JSONObject) {
         if (pars && json_value_get_type(pars) == JSONObject) {
@@ -369,10 +342,6 @@ const cmd_entry cmds_table[] = {
         {
                 "AXES_SOFT_STOP_ALL",
                 axes_soft_stop_all_cmd,
-        },
-        {
-                "TELEMETRIA",
-                telemetria_cmd,
         },
         {
                 "LOGS",

@@ -91,6 +91,7 @@ public:
     mot_pap* leader_axis = nullptr;
     class tmr tmr;
     volatile bool already_there = false;
+    volatile bool was_soft_stopped = false;
     class kp kp;
     int error;
 

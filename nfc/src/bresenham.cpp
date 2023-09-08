@@ -57,6 +57,7 @@ void bresenham::calculate() {
 
 void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
     is_moving = true;
+    was_soft_stopped = false;
     already_there = false;
     first_axis->destination_counts() = first_axis_setpoint;
     second_axis->destination_counts() = second_axis_setpoint;
@@ -168,7 +169,6 @@ void bresenham::isr() {
 
 /**
  * @brief   if there is a movement in process, stops it
- * @param   me  : struct mot_pap pointer
  * @returns nothing
  */
 void bresenham::stop() {
@@ -179,7 +179,6 @@ void bresenham::stop() {
 
 /**
  * @brief   if there is a movement in process, stops it
- * @param   me  : struct mot_pap pointer
  * @returns nothing
  */
 void bresenham::soft_stop() {
@@ -195,6 +194,7 @@ void bresenham::soft_stop() {
 
         first_axis->soft_stop(y);
         second_axis->soft_stop(y);
+        was_soft_stopped = true;
     }
 }
 
