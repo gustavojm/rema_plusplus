@@ -17,20 +17,20 @@
  * Example of the received JSON object:
  *
  * {
- "commands" : [
- {"command": "ARM_FREE_RUN",
- "pars": {
- "dir": "CW",
- "speed": 8
- }
- },
- {"command": "LOGS",
- "pars": {
- "quantity": 10
- }
- }
- ]
- }
+     "commands" : [
+         {"command": "ARM_FREE_RUN",
+             "pars": {
+                 "dir": "CW",
+                 "speed": 8
+             }
+         },
+         {"command": "LOGS",
+             "pars": {
+                 "quantity": 10
+             }
+         }
+     ]
+   }
 
  * Every executed command has the chance of returning a JSON object that will be inserted
  * in the response JSON object under a key corresponding to the executed command name, or
@@ -58,7 +58,7 @@ int json_wp(char *rx_buff, char **tx_buff) {
                 "commands");
 
         if (commands != NULL) {
-            for (uint32_t i = 0; i < json_array_get_count(commands); i++) {
+            for (unsigned int i = 0; i < json_array_get_count(commands); i++) {
                 JSON_Object *command = json_array_get_object(commands, i);
                 char const *command_name = json_object_get_string(command,
                         "command");

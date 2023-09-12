@@ -95,7 +95,6 @@ static JSON_Value* control_enable_cmd(JSON_Value const *pars) {
 }
 
 static JSON_Value* stall_control_cmd(JSON_Value const *pars) {
-
     JSON_Value *ans = json_value_init_object();
 
     if (json_object_has_value_of_type(json_value_get_object(pars), "enabled",
@@ -109,16 +108,26 @@ static JSON_Value* stall_control_cmd(JSON_Value const *pars) {
     return ans;
 }
 
-static JSON_Value* set_cal_point_cmd(JSON_Value const *pars) {
+static JSON_Value* set_coords_cmd(JSON_Value const *pars) {
     if (pars && json_value_get_type(pars) == JSONObject) {
 
-        double pos_x = json_object_get_number(json_value_get_object(pars),
-                "position_x");
-        double pos_y = json_object_get_number(json_value_get_object(pars),
-                "position_y");
+        if (json_object_has_value(json_value_get_object(pars), "position_x")) {
+            double pos_x = json_object_get_number(json_value_get_object(pars),
+                    "position_x");
+            x_axis.set_position(pos_x);
+        }
 
-        x_axis.set_position(pos_x);
-        y_axis.set_position(pos_y);
+        if (json_object_has_value(json_value_get_object(pars), "position_y")) {
+            double pos_y = json_object_get_number(json_value_get_object(pars),
+                    "position_y");
+            y_axis.set_position(pos_y);
+        }
+
+        if (json_object_has_value(json_value_get_object(pars), "position_z")) {
+            double pos_z = json_object_get_number(json_value_get_object(pars),
+                    "position_z");
+            z_axis.set_position(pos_z);
+        }
     }
     JSON_Value *ans = json_value_init_object();
     json_object_set_boolean(json_value_get_object(ans), "ACK", true);
@@ -364,8 +373,8 @@ const cmd_entry cmds_table[] = {
                 temperature_info_cmd,
         },
         {
-                "SET_CAL_POINT",
-                set_cal_point_cmd,
+                "SET_COORDS",
+                set_coords_cmd,
         },
         {
                 "MOVE_FREE_RUN",

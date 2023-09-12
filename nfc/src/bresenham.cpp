@@ -61,10 +61,12 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
     already_there = false;
     first_axis->destination_counts() = first_axis_setpoint;
     second_axis->destination_counts() = second_axis_setpoint;
+    lDebug(Info, "MOVE, %s: %i, %s: %i", first_axis->name, first_axis_setpoint, second_axis->name, second_axis_setpoint);
 
     calculate();
 
     if (first_axis->check_already_there() && second_axis->check_already_there()) {
+        already_there = true;
         stop();
         lDebug(Info, "%s: already there", name);
     } else {
@@ -77,7 +79,6 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
         ticks_last_time = xTaskGetTickCount();
         tmr.change_freq(current_freq);
     }
-    lDebug(Info, "MOVE, %s: %i, %s: %i", first_axis->name, first_axis_setpoint, second_axis->name, second_axis_setpoint);
 }
 
 void bresenham::step() {

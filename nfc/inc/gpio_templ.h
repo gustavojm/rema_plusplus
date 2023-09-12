@@ -7,6 +7,12 @@
 template <int scu_port, int scu_pin, int scu_mode, int gpio_port, int gpio_bit>
 class gpio_templ {
 public:
+    gpio_templ() {
+        gpio_bit_ = gpio_bit;
+    }
+
+    int gpio_bit_;
+
     static void init_output() {
         Chip_SCU_PinMuxSet(scu_port, scu_pin, scu_mode);
         Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, gpio_port, gpio_bit);
@@ -38,10 +44,9 @@ public:
     }
 };
 
-template<int scu_port, int scu_pin, int scu_mode, int gpio_port, int gpio_bit>
+template<int scu_port, int scu_pin, int scu_mode, int gpio_port, int gpio_bit, LPC43XX_IRQn_Type IRQn>
 class gpio_pinint_templ : public gpio_templ <scu_port, scu_pin, scu_mode, gpio_port, gpio_bit> {
 public:
-    LPC43XX_IRQn_Type IRQn;
 
     gpio_pinint_templ() {
         int irq = static_cast<int>(IRQn) - PIN_INT0_IRQn;

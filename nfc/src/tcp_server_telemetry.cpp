@@ -43,13 +43,13 @@ static void send_telemetry(const int sock) {
         json_object_set_value(json_value_get_object(telemetry), "coords", coords);
 
         JSON_Value *limits = json_value_init_object();
-        json_object_set_boolean(json_value_get_object(limits), "left", false);
-        json_object_set_boolean(json_value_get_object(limits), "right", true);
-        json_object_set_boolean(json_value_get_object(limits), "up", false);
-        json_object_set_boolean(json_value_get_object(limits), "down", true);
-        json_object_set_boolean(json_value_get_object(limits), "in", true);
-        json_object_set_boolean(json_value_get_object(limits), "out", false);
-        json_object_set_boolean(json_value_get_object(limits), "probe", false);
+        json_object_set_boolean(json_value_get_object(limits), "left", rema::hard_limits.x_left.read());
+        json_object_set_boolean(json_value_get_object(limits), "right", rema::hard_limits.x_right.read());
+        json_object_set_boolean(json_value_get_object(limits), "up", rema::hard_limits.y_up.read());
+        json_object_set_boolean(json_value_get_object(limits), "down", rema::hard_limits.y_down.read());
+        json_object_set_boolean(json_value_get_object(limits), "in", rema::hard_limits.z_in.read());
+        json_object_set_boolean(json_value_get_object(limits), "out", rema::hard_limits.z_out.read());
+        json_object_set_boolean(json_value_get_object(limits), "probe", rema::palper.read());
         json_object_set_value(json_value_get_object(telemetry), "limits", limits);
 
         JSON_Value *stalled = json_value_init_object();

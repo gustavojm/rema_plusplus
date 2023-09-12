@@ -1,4 +1,3 @@
-#include <hard_limits.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -18,7 +17,6 @@
 #include "board.h"
 
 #include "debug.h"
-#include "gpio.h"
 #include "temperature_ds18b20.h"
 #include "lwip_init.h"
 #include "settings.h"
@@ -29,7 +27,7 @@
 #include "z_axis.h"
 
 #include "xy_axes.h"
-#include "probe.h"
+#include "rema.h"
 
 extern mot_pap x_axis;
 extern mot_pap y_axis;
@@ -42,8 +40,6 @@ extern "C" void GPIO3_IRQHandler(void)
 //    y_axis.save_probe_pos_and_stop();
 //    z_axis.save_probe_pos_and_stop();
 }
-
-probe palper(gpio_pinint {4, 0, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | SCU_MODE_FUNC0), 2, 0, PIN_INT3_IRQn});
 
 /* GPa 201117 1850 Iss2: agregado de Heap_4.c*/
 uint8_t __attribute__((section("." "data" ".$" "RamLoc40"))) ucHeap[configTOTAL_HEAP_SIZE];
@@ -76,6 +72,7 @@ static void prvSetupHardware(void) {
     // temperature_init();
     temperature_ds18b20_init();
     encoders_init();
+    rema::hard_limits_init();
     mem_check_init();
 }
 
