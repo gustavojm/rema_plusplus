@@ -141,11 +141,11 @@ static void tcp_telemetry_server_task(void *pvParameters) {
         lDebug(Error, "IPPROTO: %d", AF_INET);
         goto CLEAN_UP;
     }
-    lDebug(Info, "Socket bound, port %d", port);
+    lDebug(Info, "Telemetry socket bound, port %d", port);
 
     err = lwip_listen(listen_sock, 1);
     if (err != 0) {
-        lDebug(Error, "Error occurred during listen: errno %d", errno);
+        lDebug(Error, "Error occurred during telemetry listen: errno %d", errno);
         goto CLEAN_UP;
     }
 
@@ -157,7 +157,7 @@ static void tcp_telemetry_server_task(void *pvParameters) {
         int sock = lwip_accept(listen_sock, (struct sockaddr*) &source_addr,
                 &addr_len);
         if (sock < 0) {
-            lDebug(Error, "Unable to accept connection: errno %d", errno);
+            lDebug(Error, "Unable to accept telemetry connection: errno %d", errno);
             break;
         }
 
