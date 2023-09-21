@@ -177,8 +177,24 @@ static JSON_Value* axes_hard_stop_all_cmd(JSON_Value const *pars) {
 }
 
 static JSON_Value* axes_soft_stop_all_cmd(JSON_Value const *pars) {
-    x_y_axes_get_instance().soft_stop();
-    z_dummy_axes_get_instance().soft_stop();
+    struct bresenham_msg *msg_xy = (struct bresenham_msg*) pvPortMalloc(
+            sizeof(struct bresenham_msg));
+    msg_xy->type = mot_pap::TYPE_SOFT_STOP;
+
+    bresenham *axes_ = &x_y_axes_get_instance();
+    if (xQueueSend(axes_->queue, &msg_xy, portMAX_DELAY) == pdPASS) {
+        lDebug(Debug, " Comando enviado!");
+    }
+
+    struct bresenham_msg *msg_z = (struct bresenham_msg*) pvPortMalloc(
+            sizeof(struct bresenham_msg));
+    msg_z->type = mot_pap::TYPE_SOFT_STOP;
+
+    axes_ = &z_dummy_axes_get_instance();
+    if (xQueueSend(axes_->queue, &msg_z, portMAX_DELAY) == pdPASS) {
+            lDebug(Debug, " Comando enviado!");
+    }
+
     JSON_Value *ans = json_value_init_object();
     json_object_set_boolean(json_value_get_object(ans), "ACK", true);
     return ans;

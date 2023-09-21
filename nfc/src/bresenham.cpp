@@ -24,13 +24,53 @@ void bresenham::task() {
 
             switch (msg_rcv->type) {
             case mot_pap::TYPE_BRESENHAM:
+                was_soft_stopped = false;
                 move(msg_rcv->first_axis_setpoint, msg_rcv->second_axis_setpoint);
                 break;
 
-            default:
-                stop();
+            case mot_pap::TYPE_SOFT_STOP:
+                if (is_moving) {
+                    int x2 = kp.out_max;
+                    int x1 = kp.out_min;
+                    int y2 = 500;
+                    int y1 = 1;
+                    int x = current_freq;
+                    int y = ((static_cast<float>(y2 - y1) / (x2 - x1)) * (x - x1)) + y1;
+
+                    int counts = y;
+                    lDebug(Info, "Soft_stop in %i", counts);
+
+                    int first_axis_setpoint = first_axis->current_counts();
+                    int second_axis_setpoint = second_axis->current_counts();
+
+                    if (first_axis->destination_counts() > first_axis->current_counts()) {
+                        first_axis_setpoint = first_axis->current_counts() + counts;
+                    }
+                    // DO NOT use "else". If destination_counts() == current_counts nothing must be done
+                    if (first_axis->destination_counts() < first_axis->current_counts()) {
+                        first_axis_setpoint = first_axis->current_counts() - counts;
+                    }
+
+                    if (second_axis->destination_counts() > second_axis->current_counts()) {
+                        second_axis_setpoint = second_axis->current_counts() + counts;
+                    }
+                    // DO NOT use "else". If destination_counts() == current_counts nothing must be done
+                    if (second_axis->destination_counts() < second_axis->current_counts()) {
+                        second_axis_setpoint = second_axis->current_counts() - counts;
+                    }
+
+                    was_soft_stopped = true;
+                    move(first_axis_setpoint, second_axis_setpoint);
+
+                    //first_axis->soft_stop(y);
+                    //second_axis->soft_stop(y);
+                }
                 break;
-            }
+
+                default:
+                        stop();
+                        break;
+                }
 
             vPortFree (msg_rcv);
             msg_rcv = NULL;
@@ -57,7 +97,6 @@ void bresenham::calculate() {
 
 void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
     is_moving = true;
-    was_soft_stopped = false;
     already_there = false;
     first_axis->destination_counts() = first_axis_setpoint;
     second_axis->destination_counts() = second_axis_setpoint;
@@ -176,26 +215,5 @@ void bresenham::stop() {
     is_moving = false;
     tmr.stop();
     current_freq = 0;
-}
-
-/**
- * @brief   if there is a movement in process, stops it
- * @returns nothing
- */
-void bresenham::soft_stop() {
-    if (is_moving) {
-        int x2 = kp.out_max;
-        int x1 = kp.out_min;
-        int y2 = 500;
-        int y1 = 1;
-        int x = current_freq;
-        int y = ((static_cast<float>(y2 - y1) / (x2 - x1)) * (x - x1)) + y1;
-
-        lDebug(Info, "Soft_stop in %i", y);
-
-        first_axis->soft_stop(y);
-        second_axis->soft_stop(y);
-        was_soft_stopped = true;
-    }
 }
 

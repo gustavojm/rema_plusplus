@@ -74,8 +74,6 @@ public:
 
 	void stop();
 
-	void soft_stop();
-
 	JSON_Value* json() const;
 
 public:
