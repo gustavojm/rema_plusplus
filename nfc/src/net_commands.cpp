@@ -180,18 +180,14 @@ static JSON_Value* axes_soft_stop_all_cmd(JSON_Value const *pars) {
     struct bresenham_msg *msg_xy = (struct bresenham_msg*) pvPortMalloc(
             sizeof(struct bresenham_msg));
     msg_xy->type = mot_pap::TYPE_SOFT_STOP;
-
-    bresenham *axes_ = &x_y_axes_get_instance();
-    if (xQueueSend(axes_->queue, &msg_xy, portMAX_DELAY) == pdPASS) {
+    if (xQueueSend((&x_y_axes_get_instance())->queue, &msg_xy, portMAX_DELAY) == pdPASS) {
         lDebug(Debug, " Comando enviado!");
     }
 
     struct bresenham_msg *msg_z = (struct bresenham_msg*) pvPortMalloc(
             sizeof(struct bresenham_msg));
     msg_z->type = mot_pap::TYPE_SOFT_STOP;
-
-    axes_ = &z_dummy_axes_get_instance();
-    if (xQueueSend(axes_->queue, &msg_z, portMAX_DELAY) == pdPASS) {
+    if (xQueueSend((&x_y_axes_get_instance())->queue, &msg_z, portMAX_DELAY) == pdPASS) {
             lDebug(Debug, " Comando enviado!");
     }
 
