@@ -67,10 +67,11 @@ void bresenham::task() {
                 }
                 break;
 
-                default:
-                        stop();
-                        break;
-                }
+            case mot_pap::TYPE_HARD_STOP:
+            default:
+                    stop();
+                    break;
+            }
 
             vPortFree (msg_rcv);
             msg_rcv = NULL;

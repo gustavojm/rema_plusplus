@@ -40,121 +40,107 @@ static bresenham* get_axes(const char *axis) {
 
 static JSON_Value* logs_cmd(JSON_Value const *pars) {
     if (pars && json_value_get_type(pars) == JSONObject) {
-        if (pars && json_value_get_type(pars) == JSONObject) {
-            double quantity = json_object_get_number(
-                    json_value_get_object(pars), "quantity");
+        JSON_Object *pars_object = json_value_get_object(pars);
+        double quantity = json_object_get_number(pars_object, "quantity");
 
-            JSON_Value *ans = json_value_init_object();
-            JSON_Value *msg_array = json_value_init_array();
+        JSON_Value *root_value = json_value_init_object();
+        JSON_Value *msg_array = json_value_init_array();
 
-            int msgs_waiting = uxQueueMessagesWaiting(debug_queue);
+        int msgs_waiting = uxQueueMessagesWaiting(debug_queue);
+        int extract = MIN(quantity, msgs_waiting);
 
-            int extract = MIN(quantity, msgs_waiting);
-
-            for (int x = 0; x < extract; x++) {
-                char *dbg_msg = NULL;
-                if (xQueueReceive(debug_queue, &dbg_msg,
-                        (TickType_t) 0) == pdPASS) {
-                    json_array_append_string(json_value_get_array(msg_array),
-                            dbg_msg);
-                    vPortFree(dbg_msg);
-                    dbg_msg = NULL;
-                }
+        for (int x = 0; x < extract; x++) {
+            char *dbg_msg = NULL;
+            if (xQueueReceive(debug_queue, &dbg_msg,
+                    (TickType_t) 0) == pdPASS) {
+                json_array_append_string(json_value_get_array(msg_array),
+                        dbg_msg);
+                vPortFree(dbg_msg);
+                dbg_msg = NULL;
             }
-
-            json_object_set_value(json_value_get_object(ans), "DEBUG_MSGS",
-                    msg_array);
-
-            return ans;
-
         }
-        return NULL;
+
+        json_object_set_value(json_value_get_object(root_value), "DEBUG_MSGS",
+                msg_array);
+        return root_value;
     }
     return NULL;
 }
 
 static JSON_Value* protocol_version_cmd(JSON_Value const *pars) {
-    JSON_Value *ans = json_value_init_object();
-    json_object_set_string(json_value_get_object(ans), "Version",
-    PROTOCOL_VERSION);
-    return ans;
+    JSON_Value *root_value = json_value_init_object();
+    json_object_set_string(json_value_get_object(root_value), "Version", PROTOCOL_VERSION);
+    return root_value;
 }
 
 static JSON_Value* control_enable_cmd(JSON_Value const *pars) {
-    JSON_Value *ans = json_value_init_object();
+    JSON_Value *root_value = json_value_init_object();
+    JSON_Object *pars_object = json_value_get_object(pars);
 
-    if (json_object_has_value_of_type(json_value_get_object(pars), "enabled",
-            JSONBoolean)) {
-        bool enabled = json_object_get_boolean(json_value_get_object(pars),
-                "enabled");
+    if (json_object_has_value_of_type(pars_object, "enabled", JSONBoolean)) {
+        bool enabled = json_object_get_boolean(pars_object, "enabled");
         rema::control_enabled_set(enabled);
     }
-    json_object_set_boolean(json_value_get_object(ans), "STATUS",
+    json_object_set_boolean(json_value_get_object(root_value), "STATUS",
             rema::control_enabled_get());
-    return ans;
+    return root_value;
 }
 
 static JSON_Value* stall_control_cmd(JSON_Value const *pars) {
-    JSON_Value *ans = json_value_init_object();
-
-    if (json_object_has_value_of_type(json_value_get_object(pars), "enabled",
+    JSON_Value *root_value = json_value_init_object();
+    JSON_Object *pars_object = json_value_get_object(pars);
+    if (json_object_has_value_of_type(pars_object, "enabled",
             JSONBoolean)) {
-        bool enabled = json_object_get_boolean(json_value_get_object(pars),
+        bool enabled = json_object_get_boolean(pars_object,
                 "enabled");
         rema::stall_control_set(enabled);
     }
-    json_object_set_boolean(json_value_get_object(ans), "STATUS",
+    json_object_set_boolean(json_value_get_object(root_value), "STATUS",
             rema::stall_control_get());
-    return ans;
+    return root_value;
 }
 
 static JSON_Value* set_coords_cmd(JSON_Value const *pars) {
     if (pars && json_value_get_type(pars) == JSONObject) {
-
-        if (json_object_has_value(json_value_get_object(pars), "position_x")) {
-            double pos_x = json_object_get_number(json_value_get_object(pars),
-                    "position_x");
+        JSON_Object *pars_object = json_value_get_object(pars);
+        if (json_object_has_value(pars_object, "position_x")) {
+            double pos_x = json_object_get_number(pars_object, "position_x");
             x_axis.set_position(pos_x);
         }
 
-        if (json_object_has_value(json_value_get_object(pars), "position_y")) {
-            double pos_y = json_object_get_number(json_value_get_object(pars),
-                    "position_y");
+        if (json_object_has_value(pars_object, "position_y")) {
+            double pos_y = json_object_get_number(pars_object, "position_y");
             y_axis.set_position(pos_y);
         }
 
-        if (json_object_has_value(json_value_get_object(pars), "position_z")) {
-            double pos_z = json_object_get_number(json_value_get_object(pars),
-                    "position_z");
+        if (json_object_has_value(pars_object, "position_z")) {
+            double pos_z = json_object_get_number(pars_object, "position_z");
             z_axis.set_position(pos_z);
         }
     }
-    JSON_Value *ans = json_value_init_object();
-    json_object_set_boolean(json_value_get_object(ans), "ACK", true);
-    return ans;
+    JSON_Value *root_value = json_value_init_object();
+    json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
+    return root_value;
 }
 
 static JSON_Value* kp_set_tunings_cmd(JSON_Value const *pars) {
-    JSON_Value *ans = json_value_init_object();
+    JSON_Value *root_value = json_value_init_object();
+    JSON_Object *root_object = json_value_get_object(root_value);
+    JSON_Object *pars_object = json_value_get_object(pars);
 
     if (pars && json_value_get_type(pars) == JSONObject) {
 
-        char const *axes = json_object_get_string(json_value_get_object(pars),
-                "axes");
-        float kp = (float) json_object_get_number(json_value_get_object(pars),
-                "kp");
-        int update = (int) json_object_get_number(json_value_get_object(pars),
-                "update");
-        int min = (int) json_object_get_number(json_value_get_object(pars),
-                "min");
-        int max = (int) json_object_get_number(json_value_get_object(pars),
-                "max");
+        char const *axes = json_object_get_string(pars_object, "axes");
+        float kp = (float) json_object_get_number(pars_object, "kp");
+        int update = (int) json_object_get_number(pars_object, "update");
+        int min = (int) json_object_get_number(pars_object, "min");
+        int max = (int) json_object_get_number(pars_object, "max");
 
         bresenham *axes_ = get_axes(axes);
 
         if (axes_ == nullptr) {
-            json_object_set_boolean(json_value_get_object(ans), "ACK", false);
-            json_object_set_string(json_value_get_object(ans), "ERROR",
+            json_object_set_boolean(root_object, "ACK", false);
+            json_object_set_string(root_object, "ERROR",
                     "No axis specified");
         } else {
             axes_->step_time = std::chrono::milliseconds(update);
@@ -162,18 +148,29 @@ static JSON_Value* kp_set_tunings_cmd(JSON_Value const *pars) {
             axes_->kp.set_sample_period(axes_->step_time);
             axes_->kp.set_tunings(kp);
             lDebug(Debug, "KP Settings set");
-            json_object_set_boolean(json_value_get_object(ans), "ACK", true);
+            json_object_set_boolean(root_object, "ACK", true);
         }
     }
-    return ans;
+    return root_value;
 }
 
 static JSON_Value* axes_hard_stop_all_cmd(JSON_Value const *pars) {
-    x_y_axes_get_instance().stop();
-    z_dummy_axes_get_instance().stop();
-    JSON_Value *ans = json_value_init_object();
-    json_object_set_boolean(json_value_get_object(ans), "ACK", true);
-    return ans;
+    struct bresenham_msg *msg_xy = (struct bresenham_msg*) pvPortMalloc(
+            sizeof(struct bresenham_msg));
+    msg_xy->type = mot_pap::TYPE_HARD_STOP;
+    if (xQueueSend((&x_y_axes_get_instance())->queue, &msg_xy, portMAX_DELAY) == pdPASS) {
+        lDebug(Debug, "Command sent");
+    }
+
+    struct bresenham_msg *msg_z = (struct bresenham_msg*) pvPortMalloc(
+            sizeof(struct bresenham_msg));
+    msg_z->type = mot_pap::TYPE_HARD_STOP;
+    if (xQueueSend((&x_y_axes_get_instance())->queue, &msg_z, portMAX_DELAY) == pdPASS) {
+            lDebug(Debug, "Command sent");
+    }
+    JSON_Value *root_value = json_value_init_object();
+    json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
+    return root_value;
 }
 
 static JSON_Value* axes_soft_stop_all_cmd(JSON_Value const *pars) {
@@ -181,31 +178,28 @@ static JSON_Value* axes_soft_stop_all_cmd(JSON_Value const *pars) {
             sizeof(struct bresenham_msg));
     msg_xy->type = mot_pap::TYPE_SOFT_STOP;
     if (xQueueSend((&x_y_axes_get_instance())->queue, &msg_xy, portMAX_DELAY) == pdPASS) {
-        lDebug(Debug, " Comando enviado!");
+        lDebug(Debug, "Command sent");
     }
 
     struct bresenham_msg *msg_z = (struct bresenham_msg*) pvPortMalloc(
             sizeof(struct bresenham_msg));
     msg_z->type = mot_pap::TYPE_SOFT_STOP;
     if (xQueueSend((&x_y_axes_get_instance())->queue, &msg_z, portMAX_DELAY) == pdPASS) {
-            lDebug(Debug, " Comando enviado!");
+            lDebug(Debug, "Command sent");
     }
 
-    JSON_Value *ans = json_value_init_object();
-    json_object_set_boolean(json_value_get_object(ans), "ACK", true);
-    return ans;
+    JSON_Value *root_value = json_value_init_object();
+    json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
+    return root_value;
 }
 
 static JSON_Value* network_settings_cmd(JSON_Value const *pars) {
     if (pars && json_value_get_type(pars) == JSONObject) {
-        char const *gw = json_object_get_string(json_value_get_object(pars),
-                "gw");
-        char const *ipaddr = json_object_get_string(json_value_get_object(pars),
-                "ipaddr");
-        char const *netmask = json_object_get_string(
-                json_value_get_object(pars), "netmask");
-        uint16_t port = (uint16_t) json_object_get_number(
-                json_value_get_object(pars), "port");
+        JSON_Object *pars_object = json_value_get_object(pars);
+        char const *gw = json_object_get_string(pars_object, "gw");
+        char const *ipaddr = json_object_get_string(pars_object, "ipaddr");
+        char const *netmask = json_object_get_string(pars_object, "netmask");
+        uint16_t port = static_cast<uint16_t>(json_object_get_number(pars_object, "port"));
 
         if (gw && ipaddr && netmask && port != 0) {
             lDebug(Info,
@@ -242,44 +236,40 @@ static JSON_Value* network_settings_cmd(JSON_Value const *pars) {
             Chip_RGU_TriggerReset(RGU_CORE_RST);
         }
 
-        JSON_Value *ans = json_value_init_object();
-        json_object_set_boolean(json_value_get_object(ans), "ACK", true);
-        return ans;
+        JSON_Value *root_value = json_value_init_object();
+        json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
+        return root_value;
     }
     return NULL;
 }
 
 static JSON_Value* mem_info_cmd(JSON_Value const *pars) {
-    JSON_Value *ans = json_value_init_object();
-    json_object_set_number(json_value_get_object(ans), "MEM_TOTAL",
-    configTOTAL_HEAP_SIZE);
-
-    json_object_set_number(json_value_get_object(ans), "MEM_FREE",
-            xPortGetFreeHeapSize());
-    json_object_set_number(json_value_get_object(ans), "MEM_MIN_FREE",
-            xPortGetMinimumEverFreeHeapSize());
-    return ans;
+    JSON_Value *root_value = json_value_init_object();
+    JSON_Object *root_object = json_value_get_object(root_value);
+    json_object_set_number(root_object, "MEM_TOTAL", configTOTAL_HEAP_SIZE);
+    json_object_set_number(root_object, "MEM_FREE", xPortGetFreeHeapSize());
+    json_object_set_number(root_object, "MEM_MIN_FREE", xPortGetMinimumEverFreeHeapSize());
+    return root_value;
 }
 
 static JSON_Value* temperature_info_cmd(JSON_Value const *pars) {
-    JSON_Value *ans = json_value_init_object();
-    json_object_set_number(json_value_get_object(ans), "TEMP X", (static_cast<double>(temperature_ds18b20_get(0))) / 10);
-    json_object_set_number(json_value_get_object(ans), "TEMP Y", (static_cast<double>(temperature_ds18b20_get(1))) / 10);
-    json_object_set_number(json_value_get_object(ans), "TEMP Z", (static_cast<double>(temperature_ds18b20_get(2))) / 10);
-    return ans;
+    JSON_Value *root_value = json_value_init_object();
+    JSON_Object *root_object = json_value_get_object(root_value);
+    json_object_set_number(root_object, "TEMP X", (static_cast<double>(temperature_ds18b20_get(0))) / 10);
+    json_object_set_number(root_object, "TEMP Y", (static_cast<double>(temperature_ds18b20_get(1))) / 10);
+    json_object_set_number(root_object, "TEMP Z", (static_cast<double>(temperature_ds18b20_get(2))) / 10);
+    return root_value;
 }
 
 static JSON_Value* move_closed_loop_cmd(JSON_Value const *pars) {
     if (pars && json_value_get_type(pars) == JSONObject) {
-        char const *axes = json_object_get_string(json_value_get_object(pars),
-                "axes");
+        JSON_Object *pars_object = json_value_get_object(pars);
+        char const *axes = json_object_get_string(pars_object, "axes");
         bresenham *axes_ = get_axes(axes);
 
-        double first_axis_setpoint = json_object_get_number(
-                json_value_get_object(pars), "first_axis_setpoint");
+        double first_axis_setpoint = json_object_get_number(pars_object, "first_axis_setpoint");
 
-        double second_axis_setpoint = json_object_get_number(
-                json_value_get_object(pars), "second_axis_setpoint");
+        double second_axis_setpoint = json_object_get_number(pars_object, "second_axis_setpoint");
 
         struct bresenham_msg *msg = (struct bresenham_msg*) pvPortMalloc(
                 sizeof(struct bresenham_msg));
@@ -290,36 +280,35 @@ static JSON_Value* move_closed_loop_cmd(JSON_Value const *pars) {
                 * axes_->second_axis->inches_to_counts_factor);
 
         if (xQueueSend(axes_->queue, &msg, portMAX_DELAY) == pdPASS) {
-            lDebug(Debug, " Comando enviado!");
+            lDebug(Debug, "Command sent");
         }
 
         lDebug(Info, "AXIS_BRESENHAM SETPOINT X= %f, SETPOINT Y=%f",
                 first_axis_setpoint, second_axis_setpoint);
     }
-    JSON_Value *ans = json_value_init_object();
-    json_object_set_boolean(json_value_get_object(ans), "ACK", true);
-    return ans;
+    JSON_Value *root_value = json_value_init_object();
+    json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
+    return root_value;
 }
 
 static JSON_Value* move_free_run_cmd(JSON_Value const *pars) {
     if (pars && json_value_get_type(pars) == JSONObject) {
-        char const *axes = json_object_get_string(json_value_get_object(pars),
-                "axes");
+        JSON_Object *pars_object = json_value_get_object(pars);
+        char const *axes = json_object_get_string(pars_object, "axes");
         bresenham *axes_ = get_axes(axes);
 
         int first_axis_setpoint, second_axis_setpoint;
-        if (json_object_has_value_of_type(json_value_get_object(pars),
+        if (json_object_has_value_of_type(pars_object,
                 "first_axis_setpoint", JSONNumber)) {
             first_axis_setpoint = static_cast<int>(json_object_get_number(
-                    json_value_get_object(pars), "first_axis_setpoint"));
+                    pars_object, "first_axis_setpoint"));
         } else {
             first_axis_setpoint = axes_->first_axis->current_counts();
         }
 
-        if (json_object_has_value_of_type(json_value_get_object(pars),
-                "second_axis_setpoint", JSONNumber)) {
+        if (json_object_has_value_of_type(pars_object, "second_axis_setpoint", JSONNumber)) {
             second_axis_setpoint = static_cast<int>(json_object_get_number(
-                    json_value_get_object(pars), "second_axis_setpoint"));
+                    pars_object, "second_axis_setpoint"));
         } else {
             second_axis_setpoint = axes_->second_axis->current_counts();
         }
@@ -331,15 +320,15 @@ static JSON_Value* move_free_run_cmd(JSON_Value const *pars) {
         msg->second_axis_setpoint = second_axis_setpoint;
 
         if (xQueueSend(axes_->queue, &msg, portMAX_DELAY) == pdPASS) {
-            lDebug(Debug, " Comando enviado!");
+            lDebug(Debug, "Command sent");
         }
 
         lDebug(Info, "AXIS_BRESENHAM SETPOINT X= %i, SETPOINT Y=%i",
                 first_axis_setpoint, second_axis_setpoint);
     }
-    JSON_Value *ans = json_value_init_object();
-    json_object_set_boolean(json_value_get_object(ans), "ACK", true);
-    return ans;
+    JSON_Value *root_value = json_value_init_object();
+    json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
+    return root_value;
 }
 
 // @formatter:off

@@ -32,7 +32,7 @@ public:
 	};
 
 	enum type {
-		TYPE_FREE_RUNNING, TYPE_CLOSED_LOOP, TYPE_STOP, TYPE_BRESENHAM, TYPE_SOFT_STOP
+		TYPE_FREE_RUNNING, TYPE_CLOSED_LOOP, TYPE_HARD_STOP, TYPE_BRESENHAM, TYPE_SOFT_STOP
 	};
 
 	/**
@@ -82,7 +82,7 @@ public:
 
 public:
 	const char *name;
-	enum type type = TYPE_STOP;
+	enum type type = TYPE_HARD_STOP;
 	enum direction dir = DIRECTION_NONE;
     bool probe_triggered = false;
     int probe_pos = 0;
