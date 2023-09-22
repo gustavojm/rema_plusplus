@@ -38,25 +38,25 @@ void bresenham::task() {
                     int y = ((static_cast<float>(y2 - y1) / (x2 - x1)) * (x - x1)) + y1;
 
                     int counts = y;
-                    lDebug(Info, "Soft_stop in %i", counts);
+                    lDebug(Info, "Soft stop in %i counts", counts);
 
                     int first_axis_setpoint = first_axis->current_counts();
                     int second_axis_setpoint = second_axis->current_counts();
 
                     if (first_axis->destination_counts() > first_axis->current_counts()) {
-                        first_axis_setpoint = first_axis->current_counts() + counts;
+                        first_axis_setpoint += counts;
                     }
                     // DO NOT use "else". If destination_counts() == current_counts nothing must be done
                     if (first_axis->destination_counts() < first_axis->current_counts()) {
-                        first_axis_setpoint = first_axis->current_counts() - counts;
+                        first_axis_setpoint -= counts;
                     }
 
                     if (second_axis->destination_counts() > second_axis->current_counts()) {
-                        second_axis_setpoint = second_axis->current_counts() + counts;
+                        second_axis_setpoint += counts;
                     }
                     // DO NOT use "else". If destination_counts() == current_counts nothing must be done
                     if (second_axis->destination_counts() < second_axis->current_counts()) {
-                        second_axis_setpoint = second_axis->current_counts() - counts;
+                        second_axis_setpoint -= counts;
                     }
 
                     was_soft_stopped = true;
@@ -114,7 +114,7 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
         kp.restart();
 
         current_freq = kp.run(leader_axis->destination_counts(), leader_axis->current_counts());
-        lDebug(Info, "Control output = %i: ", current_freq);
+        lDebug(Debug, "Control output = %i: ", current_freq);
 
         ticks_last_time = xTaskGetTickCount();
         tmr.change_freq(current_freq);
@@ -174,7 +174,7 @@ void bresenham::supervise() {
             second_axis->set_direction();     // keeps dancing around the setpoint...
 
             current_freq = kp.run(leader_axis->destination_counts(), leader_axis->current_counts());
-            lDebug(Info, "Control output = %i: ", current_freq);
+            lDebug(Debug, "Control output = %i: ", current_freq);
             tmr.change_freq(current_freq);
 
         }

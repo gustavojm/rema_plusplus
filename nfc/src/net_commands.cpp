@@ -131,10 +131,10 @@ static JSON_Value* kp_set_tunings_cmd(JSON_Value const *pars) {
     if (pars && json_value_get_type(pars) == JSONObject) {
 
         char const *axes = json_object_get_string(pars_object, "axes");
-        float kp = (float) json_object_get_number(pars_object, "kp");
-        int update = (int) json_object_get_number(pars_object, "update");
-        int min = (int) json_object_get_number(pars_object, "min");
-        int max = (int) json_object_get_number(pars_object, "max");
+        double kp = json_object_get_number(pars_object, "kp");
+        int update = static_cast<int>(json_object_get_number(pars_object, "update"));
+        int min = static_cast<int>(json_object_get_number(pars_object, "min"));
+        int max = static_cast<int>(json_object_get_number(pars_object, "max"));
 
         bresenham *axes_ = get_axes(axes);
 
@@ -165,7 +165,7 @@ static JSON_Value* axes_hard_stop_all_cmd(JSON_Value const *pars) {
     struct bresenham_msg *msg_z = (struct bresenham_msg*) pvPortMalloc(
             sizeof(struct bresenham_msg));
     msg_z->type = mot_pap::TYPE_HARD_STOP;
-    if (xQueueSend((&x_y_axes_get_instance())->queue, &msg_z, portMAX_DELAY) == pdPASS) {
+    if (xQueueSend((&z_dummy_axes_get_instance())->queue, &msg_z, portMAX_DELAY) == pdPASS) {
             lDebug(Debug, "Command sent");
     }
     JSON_Value *root_value = json_value_init_object();
@@ -184,7 +184,7 @@ static JSON_Value* axes_soft_stop_all_cmd(JSON_Value const *pars) {
     struct bresenham_msg *msg_z = (struct bresenham_msg*) pvPortMalloc(
             sizeof(struct bresenham_msg));
     msg_z->type = mot_pap::TYPE_SOFT_STOP;
-    if (xQueueSend((&x_y_axes_get_instance())->queue, &msg_z, portMAX_DELAY) == pdPASS) {
+    if (xQueueSend((&z_dummy_axes_get_instance())->queue, &msg_z, portMAX_DELAY) == pdPASS) {
             lDebug(Debug, "Command sent");
     }
 
@@ -291,6 +291,7 @@ static JSON_Value* move_closed_loop_cmd(JSON_Value const *pars) {
     return root_value;
 }
 
+
 static JSON_Value* move_free_run_cmd(JSON_Value const *pars) {
     if (pars && json_value_get_type(pars) == JSONObject) {
         JSON_Object *pars_object = json_value_get_object(pars);
@@ -325,6 +326,45 @@ static JSON_Value* move_free_run_cmd(JSON_Value const *pars) {
 
         lDebug(Info, "AXIS_BRESENHAM SETPOINT X= %i, SETPOINT Y=%i",
                 first_axis_setpoint, second_axis_setpoint);
+    }
+    JSON_Value *root_value = json_value_init_object();
+    json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
+    return root_value;
+}
+
+
+static JSON_Value* move_incremental_cmd(JSON_Value const *pars) {
+    if (pars && json_value_get_type(pars) == JSONObject) {
+        JSON_Object *pars_object = json_value_get_object(pars);
+        char const *axes = json_object_get_string(pars_object, "axes");
+        bresenham *axes_ = get_axes(axes);
+
+        double first_axis_delta, second_axis_delta;
+        if (json_object_has_value_of_type(pars_object,
+                "first_axis_delta", JSONNumber)) {
+            first_axis_delta = json_object_get_number(pars_object, "first_axis_delta");
+        } else {
+            first_axis_delta = 0;
+        }
+
+        if (json_object_has_value_of_type(pars_object, "second_axis_delta", JSONNumber)) {
+            second_axis_delta = json_object_get_number(pars_object, "second_axis_delta");
+        } else {
+            second_axis_delta = 0;
+        }
+
+        struct bresenham_msg *msg = (struct bresenham_msg*) pvPortMalloc(
+                sizeof(struct bresenham_msg));
+        msg->type = mot_pap::TYPE_BRESENHAM;
+        msg->first_axis_setpoint = axes_->first_axis->current_counts() + (first_axis_delta * axes_->first_axis->inches_to_counts_factor);
+        msg->second_axis_setpoint = axes_->second_axis->current_counts() + (second_axis_delta * axes_->first_axis->inches_to_counts_factor);
+
+        if (xQueueSend(axes_->queue, &msg, portMAX_DELAY) == pdPASS) {
+            lDebug(Debug, "Command sent");
+        }
+
+        lDebug(Info, "AXIS_BRESENHAM SETPOINT X=%i, SETPOINT Y=%i",
+                msg->first_axis_setpoint, msg->second_axis_setpoint);
     }
     JSON_Value *root_value = json_value_init_object();
     json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
@@ -385,6 +425,11 @@ const cmd_entry cmds_table[] = {
                 "MOVE_CLOSED_LOOP",
                 move_closed_loop_cmd,
         },
+        {
+                "MOVE_INCREMENTAL",
+                move_incremental_cmd,
+        },
+
 
 };
 // @formatter:on
