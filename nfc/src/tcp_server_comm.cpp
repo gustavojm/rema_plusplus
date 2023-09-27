@@ -75,7 +75,7 @@ static void do_retransmit(const int sock) {
 
 free_buffer:
                 if (tx_buffer) {
-                    vPortFree(tx_buffer);
+                    delete[] tx_buffer;
                     tx_buffer = NULL;
                 }
             }

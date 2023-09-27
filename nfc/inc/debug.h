@@ -143,14 +143,14 @@ static inline char* make_message(const char *fmt, ...) {
         return NULL;
 
     size++; /* For '\0' */
-    p = (char*) pvPortMalloc(size);
+    p = new char[size];
     if (p == NULL)
         return NULL;
 
     va_start(ap, fmt);
     size = vsnprintf(p, size, fmt, ap);
     if (size < 0) {
-        vPortFree(p);
+        delete[] p;
         return NULL;
     }
     va_end(ap);
@@ -180,7 +180,7 @@ do { \
                char *dbg_msg = make_message("%u - %s %s[%d] %s() " fmt, xTaskGetTickCount(), \
                 levelText(level), __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
             if (xQueueSend(debug_queue, &dbg_msg, (TickType_t) 0) != pdPASS) { \
-                vPortFree(dbg_msg); \
+                delete[] dbg_msg; \
                 dbg_msg = NULL; \
             } \
        } \

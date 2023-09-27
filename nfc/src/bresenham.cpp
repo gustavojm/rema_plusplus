@@ -73,7 +73,7 @@ void bresenham::task() {
                     break;
             }
 
-            vPortFree (msg_rcv);
+            delete msg_rcv;
             msg_rcv = NULL;
         }
     }

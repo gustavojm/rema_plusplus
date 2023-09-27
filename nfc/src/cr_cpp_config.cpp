@@ -34,21 +34,22 @@
 //*****************************************************************************
 
 #include <stdlib.h>
+#include "FreeRTOS.h"
 
 void* operator new(size_t size) {
-    return malloc(size);
+    return pvPortMalloc(size);
 }
 
 void* operator new[](size_t size) {
-    return malloc(size);
+    return pvPortMalloc(size);
 }
 
 void operator delete(void *p) {
-    free(p);
+    vPortFree(p);
 }
 
 void operator delete[](void *p) {
-    free(p);
+    vPortFree(p);
 }
 
 extern "C" int __aeabi_atexit(void *object, void (*destructor)(void*),

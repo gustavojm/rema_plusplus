@@ -55,7 +55,7 @@ static JSON_Value* logs_cmd(JSON_Value const *pars) {
                     (TickType_t) 0) == pdPASS) {
                 json_array_append_string(json_value_get_array(msg_array),
                         dbg_msg);
-                vPortFree(dbg_msg);
+                delete[] dbg_msg;
                 dbg_msg = NULL;
             }
         }
@@ -155,15 +155,13 @@ static JSON_Value* kp_set_tunings_cmd(JSON_Value const *pars) {
 }
 
 static JSON_Value* axes_hard_stop_all_cmd(JSON_Value const *pars) {
-    struct bresenham_msg *msg_xy = (struct bresenham_msg*) pvPortMalloc(
-            sizeof(struct bresenham_msg));
+    bresenham_msg *msg_xy = new bresenham_msg;
     msg_xy->type = mot_pap::TYPE_HARD_STOP;
     if (xQueueSend((&x_y_axes_get_instance())->queue, &msg_xy, portMAX_DELAY) == pdPASS) {
         lDebug(Debug, "Command sent");
     }
 
-    struct bresenham_msg *msg_z = (struct bresenham_msg*) pvPortMalloc(
-            sizeof(struct bresenham_msg));
+    bresenham_msg *msg_z = new bresenham_msg;
     msg_z->type = mot_pap::TYPE_HARD_STOP;
     if (xQueueSend((&z_dummy_axes_get_instance())->queue, &msg_z, portMAX_DELAY) == pdPASS) {
             lDebug(Debug, "Command sent");
@@ -174,15 +172,13 @@ static JSON_Value* axes_hard_stop_all_cmd(JSON_Value const *pars) {
 }
 
 static JSON_Value* axes_soft_stop_all_cmd(JSON_Value const *pars) {
-    struct bresenham_msg *msg_xy = (struct bresenham_msg*) pvPortMalloc(
-            sizeof(struct bresenham_msg));
+    bresenham_msg *msg_xy = new bresenham_msg;
     msg_xy->type = mot_pap::TYPE_SOFT_STOP;
     if (xQueueSend((&x_y_axes_get_instance())->queue, &msg_xy, portMAX_DELAY) == pdPASS) {
         lDebug(Debug, "Command sent");
     }
 
-    struct bresenham_msg *msg_z = (struct bresenham_msg*) pvPortMalloc(
-            sizeof(struct bresenham_msg));
+    bresenham_msg *msg_z = new bresenham_msg;
     msg_z->type = mot_pap::TYPE_SOFT_STOP;
     if (xQueueSend((&z_dummy_axes_get_instance())->queue, &msg_z, portMAX_DELAY) == pdPASS) {
             lDebug(Debug, "Command sent");
@@ -271,8 +267,7 @@ static JSON_Value* move_closed_loop_cmd(JSON_Value const *pars) {
 
         double second_axis_setpoint = json_object_get_number(pars_object, "second_axis_setpoint");
 
-        struct bresenham_msg *msg = (struct bresenham_msg*) pvPortMalloc(
-                sizeof(struct bresenham_msg));
+        bresenham_msg *msg = new bresenham_msg;
         msg->type = mot_pap::TYPE_BRESENHAM;
         msg->first_axis_setpoint = static_cast<int>(first_axis_setpoint
                 * axes_->first_axis->inches_to_counts_factor);
@@ -314,8 +309,7 @@ static JSON_Value* move_free_run_cmd(JSON_Value const *pars) {
             second_axis_setpoint = axes_->second_axis->current_counts();
         }
 
-        struct bresenham_msg *msg = (struct bresenham_msg*) pvPortMalloc(
-                sizeof(struct bresenham_msg));
+        bresenham_msg *msg = new bresenham_msg;
         msg->type = mot_pap::TYPE_BRESENHAM;
         msg->first_axis_setpoint = first_axis_setpoint;
         msg->second_axis_setpoint = second_axis_setpoint;
@@ -353,8 +347,7 @@ static JSON_Value* move_incremental_cmd(JSON_Value const *pars) {
             second_axis_delta = 0;
         }
 
-        struct bresenham_msg *msg = (struct bresenham_msg*) pvPortMalloc(
-                sizeof(struct bresenham_msg));
+        bresenham_msg *msg = new bresenham_msg;
         msg->type = mot_pap::TYPE_BRESENHAM;
         msg->first_axis_setpoint = axes_->first_axis->current_counts() + (first_axis_delta * axes_->first_axis->inches_to_counts_factor);
         msg->second_axis_setpoint = axes_->second_axis->current_counts() + (second_axis_delta * axes_->first_axis->inches_to_counts_factor);
