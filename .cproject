@@ -142,7 +142,7 @@
 						</toolChain>
 					</folderInfo>
 					<sourceEntries>
-						<entry excluding="nfc/src|src" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="Debug/CMakeFiles|build|nfc/src|src" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 						<entry excluding="hard_limits.cpp|pole.cpp|pole.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name="nfc/src"/>
 					</sourceEntries>
 				</configuration>
