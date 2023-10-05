@@ -31,11 +31,11 @@ message(STATUS "Started CMake for ${PROJECT_NAME} v${PROJECT_VERSION}...\n")
 
 set(C_FLAGS
     "-std=gnu17"
-    "-mfpu=fpv4-sp-d16"
+    #"-mfpu=fpv4-sp-d16"
     "-mcpu=cortex-m4"
     "-mthumb"
-    "-specs=nano.specs"
-    "-mfloat-abi=softfp"
+    "-specs=rdimon.specs"       # this made it compile but binary is big
+    "-mfloat-abi=hard"
     "-ffunction-sections -fdata-sections -fno-strict-aliasing"
     "-fsingle-precision-constant"
     "-fmessage-length=0"
@@ -49,9 +49,9 @@ set(CXX_FLAGS
     "-fno-rtti -fno-exceptions"
 )
 
-set(ASM_FLAGS "-g3 -mcpu=cortex-m4 -mthumb -mfloat-abi=soft -mfpu=fpv4-sp-d16 --specs=nano.specs")
+set(ASM_FLAGS "-g3 -mcpu=cortex-m4 -mthumb -mfloat-abi=hard --specs=nano.specs") #-mfpu=fpv4-sp-d16
 
-set(LINKER_FILES
+set(LINKER_FILES    
     #-T${CMAKE_SOURCE_DIR}/device/lpc4337_library.ld
     -T${CMAKE_SOURCE_DIR}/device/lpc4337_memory.ld
     -T${CMAKE_SOURCE_DIR}/device/lpc4337.ld
@@ -92,6 +92,7 @@ file(GLOB_RECURSE SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/freertos/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/lwip/*.c"
     "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/src/*.c"
+    "../CIAA_NXP_board/src/*.c"
 )
 
 set(HEADERS_DIR
@@ -163,16 +164,16 @@ set(MAIN_TARGET ${EXECUTABLE})
 
 # Linker options
 target_link_options(${EXECUTABLE} PRIVATE
-        ${LINKER_FILES}
+        ${LINKER_FILES}        
         -mcpu=cortex-m4
         -mthumb
         -mfpu=fpv4-sp-d16
-        -mfloat-abi=softfp
-        -nostdlib        
-        #-specs=nosys.specs        
+        -mfloat-abi=hard
+        #-nostdlib        
         #-lc
-        #-lm
+        #-lm        
         #-lnosys
+        -lgcc
         -Wl,-Map=${PROJECT_NAME}.map,--cref
         -Wl,--gc-sections
         -Xlinker -print-memory-usage -Xlinker

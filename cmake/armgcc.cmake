@@ -1,7 +1,5 @@
 include("${CMAKE_CURRENT_LIST_DIR}/../toolchain.cmake" OPTIONAL)
 
-message(STATUS " - - - - - -- - - - ${CMAKE_CXX_COMPILER}  - - - - - - - -  ")
-
 if(EXISTS "$ENV{TOOLCHAIN_FILE}")
     include("$ENV{TOOLCHAIN_FILE}")
 endif()
