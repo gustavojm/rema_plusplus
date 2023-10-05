@@ -1,15 +1,17 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.15)
+
+set(CMAKE_TOOLCHAIN_FILE "cmake/armgcc.cmake")
 
 # This template attempts to be "fetch_content"-able
 # so that it works well with tools like CPM or other
 # manual dependency management
 
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
+
 # Only set the cxx_standard if it is not set by someone else
 if (NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
 endif()
-
-set(CMAKE_TOOLCHAIN_FILE "cmake/armgcc.cmake")
 
 # specifiy project name
 project(
@@ -17,8 +19,6 @@ project(
   VERSION 0.1.0
   LANGUAGES C CXX
 )
-
-set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake")
 
 include(cmake/StandardSettings.cmake)
 include(cmake/Utils.cmake)
@@ -30,10 +30,11 @@ endif()
 message(STATUS "Started CMake for ${PROJECT_NAME} v${PROJECT_VERSION}...\n")
 
 set(C_FLAGS
-    "-std=gnu11"
+    "-std=gnu17"
     "-mfpu=fpv4-sp-d16"
     "-mcpu=cortex-m4"
     "-mthumb"
+    "-specs=nano.specs"
     "-mfloat-abi=softfp"
     "-ffunction-sections -fdata-sections -fno-strict-aliasing"
     "-fsingle-precision-constant"
@@ -167,12 +168,11 @@ target_link_options(${EXECUTABLE} PRIVATE
         -mthumb
         -mfpu=fpv4-sp-d16
         -mfloat-abi=softfp
-        -nostdlib
-        #-specs=nano.specs 
-        -specs=nosys.specs        
+        -nostdlib        
+        #-specs=nosys.specs        
         #-lc
         #-lm
-        -lnosys
+        #-lnosys
         -Wl,-Map=${PROJECT_NAME}.map,--cref
         -Wl,--gc-sections
         -Xlinker -print-memory-usage -Xlinker

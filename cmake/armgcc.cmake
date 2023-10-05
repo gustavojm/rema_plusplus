@@ -1,5 +1,7 @@
 include("${CMAKE_CURRENT_LIST_DIR}/../toolchain.cmake" OPTIONAL)
 
+message(STATUS " - - - - - -- - - - ${CMAKE_CXX_COMPILER}  - - - - - - - -  ")
+
 if(EXISTS "$ENV{TOOLCHAIN_FILE}")
     include("$ENV{TOOLCHAIN_FILE}")
 endif()
@@ -51,6 +53,9 @@ else()
     SET(CMAKE_C_COMPILER ${TOOLCHAIN_BIN_DIR}/${TARGET_TRIPLET}-gcc${TOOLCHAIN_EXT})
     SET(CMAKE_CXX_COMPILER ${TOOLCHAIN_BIN_DIR}/${TARGET_TRIPLET}-g++${TOOLCHAIN_EXT})
 endif()
+
+message(STATUS " - - - - - -- - - - ${CMAKE_CXX_COMPILER}  - - - - - - - -  ")
+
 SET(CMAKE_ASM_COMPILER ${TOOLCHAIN_BIN_DIR}/${TARGET_TRIPLET}-gcc${TOOLCHAIN_EXT})
 
 SET(CMAKE_OBJCOPY ${TOOLCHAIN_BIN_DIR}/${TARGET_TRIPLET}-objcopy CACHE INTERNAL "objcopy tool")
@@ -76,6 +81,3 @@ SET(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 
 SET(CMAKE_DEPFILE_FLAGS_C "-MMD -MF <DEPFILE>")
 SET(CMAKE_DEPFILE_FLAGS_CXX "-MMD -MF <DEPFILE>")
-
-
-message(STATUS "----------------------------------------${CMAKE_CXX_COMPILER} -------------------------------------------")
