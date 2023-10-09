@@ -30,7 +30,6 @@ endif()
 message(STATUS "Started CMake for ${PROJECT_NAME} v${PROJECT_VERSION}...\n")
 
 set(C_FLAGS
-    "-std=gnu17"
     "-mfpu=fpv4-sp-d16"
     "-mcpu=cortex-m4"
     "-mthumb"
@@ -40,8 +39,7 @@ set(C_FLAGS
     "-fsingle-precision-constant"
     "-fmessage-length=0"
     "-fno-builtin -fshort-enums"
-    "-fno-common -fmerge-constants"
-    "-Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers -Wno-main"    
+    "-fno-common -fmerge-constants"    
 )
 
 set(CXX_FLAGS
@@ -84,15 +82,42 @@ add_compile_definitions(
 # compile option only for Debug build
 add_compile_options("$<$<CONFIG:Debug>:-finstrument-functions>")
 
+
+file(GLOB_RECURSE CHIP_SOURCES
+    "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/src/*.c"
+)
+
+add_library(chip STATIC ${CHIP_SOURCES})
+target_include_directories(chip SYSTEM PUBLIC "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/")
+target_include_directories(chip PRIVATE
+  "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc"
+  "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc/config_43xx"
+)
+target_compile_options(chip PRIVATE
+  -w
+)
+
+file(GLOB_RECURSE BOARD_SOURCES
+      "../CIAA_NXP_board/src/*.c"
+)
+add_library(board STATIC ${BOARD_SOURCES})
+target_compile_options(board PRIVATE
+  -w
+)
+
+target_include_directories(board PRIVATE
+  "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc"
+  "../CIAA_NXP_board/inc"
+  "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc/config_43xx"
+)
+
+
 file(GLOB_RECURSE SOURCES
-    "../CIAA_NXP_board/src/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/newlib/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/nfc/src/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/nfc/src/sysinit.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/freertos/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/lwip/*.c"
-    "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/src/*.c"
-    "../CIAA_NXP_board/src/*.c"
 )
 
 set(HEADERS_DIR
@@ -106,65 +131,68 @@ set(HEADERS_DIR
     "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc/config_43xx"
 )
 
+if(${PROJECT_NAME}_BUILD_EXECUTABLE)
+  add_executable(${PROJECT_NAME} ${SOURCES})
+  
+  if(${PROJECT_NAME}_VERBOSE_OUTPUT)
+    verbose_message("Found the following SOURCES:")
+    foreach(SOURCE IN LISTS SOURCES)
+      verbose_message("* ${SOURCE}")
+    endforeach()
+  endif()
 
-    if(${PROJECT_NAME}_BUILD_EXECUTABLE)
-    set(EXECUTABLE ${PROJECT_NAME}.${CMAKE_EXECUTABLE_SUFFIX})
-    add_executable(${EXECUTABLE} ${SOURCES})
-  
+  if(${PROJECT_NAME}_ENABLE_UNIT_TESTING)
+    add_library(${PROJECT_NAME}_LIB ${HEADERS} ${SOURCES})
+
     if(${PROJECT_NAME}_VERBOSE_OUTPUT)
-      verbose_message("Found the following SOURCES:")
-      foreach(SOURCE IN LISTS SOURCES)
-        verbose_message("* ${SOURCE}")
-      endforeach()
-    endif()
-  
-    if(${PROJECT_NAME}_ENABLE_UNIT_TESTING)
-      add_library(${PROJECT_NAME}_LIB ${HEADERS} ${SOURCES})
-  
-      if(${PROJECT_NAME}_VERBOSE_OUTPUT)
-        verbose_message("Found the following HEADERS:")
-        foreach(HEADER IN LISTS HEADERS)
-          verbose_message("* ${HEADER}")
-        endforeach()
-      endif()
-    endif()
-  elseif(${PROJECT_NAME}_BUILD_HEADERS_ONLY)
-    add_library(${PROJECT_NAME} INTERFACE)
-  
-    if(${PROJECT_NAME}_VERBOSE_OUTPUT)
-      verbose_message("Found the following HEADERS:")
-      foreach(HEADER IN LIST HEADERS)
-        verbose_message("* ${HEADER}")
-      endforeach()
-    endif()
-  else()
-    add_library(
-      ${PROJECT_NAME}
-      ${HEADERS}
-      ${SOURCES}
-    )
-  
-    if(${PROJECT_NAME}_VERBOSE_OUTPUT)
-      verbose_message("Found the following SOURCES:")
-      foreach(SOURCE IN LISTS SOURCES)
-        verbose_message("* ${SOURCE}")
-      endforeach()
       verbose_message("Found the following HEADERS:")
       foreach(HEADER IN LISTS HEADERS)
         verbose_message("* ${HEADER}")
       endforeach()
     endif()
   endif()
+elseif(${PROJECT_NAME}_BUILD_HEADERS_ONLY)
+  add_library(${PROJECT_NAME} INTERFACE)
+
+  if(${PROJECT_NAME}_VERBOSE_OUTPUT)
+    verbose_message("Found the following HEADERS:")
+    foreach(HEADER IN LIST HEADERS)
+      verbose_message("* ${HEADER}")
+    endforeach()
+  endif()
+else()
+  add_library(
+    ${PROJECT_NAME}
+    ${HEADERS}
+    ${SOURCES}
+  )
+
+  if(${PROJECT_NAME}_VERBOSE_OUTPUT)
+    verbose_message("Found the following SOURCES:")
+    foreach(SOURCE IN LISTS SOURCES)
+      verbose_message("* ${SOURCE}")
+    endforeach()
+    verbose_message("Found the following HEADERS:")
+    foreach(HEADER IN LISTS HEADERS)
+      verbose_message("* ${HEADER}")
+    endforeach()
+  endif()
+endif()
   
-target_include_directories(${EXECUTABLE} PRIVATE
+target_include_directories(${PROJECT_NAME} PRIVATE
   ${HEADERS_DIR}
 )
 
-#include_directories(${incl})
-set(MAIN_TARGET ${EXECUTABLE})
+target_link_libraries(
+  ${PROJECT_NAME}
+  board
+  chip
+)
+
+set(MAIN_TARGET ${PROJECT_NAME})
 
 # Linker options
-target_link_options(${EXECUTABLE} PRIVATE
+target_link_options(${PROJECT_NAME} PRIVATE
         ${LINKER_FILES}        
         -mcpu=cortex-m4
         -mthumb
@@ -179,15 +207,29 @@ target_link_options(${EXECUTABLE} PRIVATE
         -u _printf_float        
 )
 
+#
+# Set the project standard and warnings
+#
+
+include(cmake/CompilerWarnings.cmake)
+set_project_warnings(${PROJECT_NAME})
+
+verbose_message("Applied compiler warnings. Using standard ${CMAKE_CXX_STANDARD}.\n")
+
+#
+# Enable Doxygen
+#
+
+include(cmake/Doxygen.cmake)
 
 # Optional: Print executable size as part of the post build process
-add_custom_command(TARGET ${EXECUTABLE}
+add_custom_command(TARGET ${PROJECT_NAME}
         POST_BUILD
-        COMMAND ${CMAKE_SIZE_UTIL} ${EXECUTABLE})
+        COMMAND ${CMAKE_SIZE} ${PROJECT_NAME})
 
 # Optional: Create hex, bin and S-Record files after the build
-add_custom_command(TARGET ${EXECUTABLE}
+add_custom_command(TARGET ${PROJECT_NAME}
         POST_BUILD
-        COMMAND ${CMAKE_OBJCOPY} -O srec --srec-len=64 ${EXECUTABLE} ${PROJECT_NAME}.s19
-        COMMAND ${CMAKE_OBJCOPY} -O ihex ${EXECUTABLE} ${PROJECT_NAME}.hex
-        COMMAND ${CMAKE_OBJCOPY} -O binary ${EXECUTABLE} ${PROJECT_NAME}.bin)
+        COMMAND ${CMAKE_OBJCOPY} -O srec --srec-len=64 ${PROJECT_NAME} ${PROJECT_NAME}.s19
+        COMMAND ${CMAKE_OBJCOPY} -O ihex ${PROJECT_NAME} ${PROJECT_NAME}.hex
+        COMMAND ${CMAKE_OBJCOPY} -O binary ${PROJECT_NAME} ${PROJECT_NAME}.bin)

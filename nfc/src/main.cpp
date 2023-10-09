@@ -109,7 +109,7 @@ int main(void) {
     /* Start the scheduler itself. */
     vTaskStartScheduler();
 
-    return 0;
+    return 1;
 }
 
 #if (configCHECK_FOR_STACK_OVERFLOW > 0)

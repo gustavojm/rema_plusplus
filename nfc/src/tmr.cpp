@@ -44,7 +44,7 @@ int32_t tmr::set_freq(uint32_t tick_rate_hz) {
 
     Chip_TIMER_Reset(lpc_timer);
 
-    if ((tick_rate_hz < 0) || (tick_rate_hz > MOT_PAP_COMPUMOTOR_MAX_FREQ)) {
+    if ((tick_rate_hz > MOT_PAP_COMPUMOTOR_MAX_FREQ)) {
         return -1;
     }
 
