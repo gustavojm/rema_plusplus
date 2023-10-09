@@ -34,7 +34,7 @@ set(C_FLAGS
     "-mfpu=fpv4-sp-d16"
     "-mcpu=cortex-m4"
     "-mthumb"
-    "-specs=rdimon.specs"       # this made it compile but binary is big
+    "-specs=nano.specs"
     "-mfloat-abi=softfp"
     "-ffunction-sections -fdata-sections -fno-strict-aliasing"
     "-fsingle-precision-constant"
@@ -49,7 +49,7 @@ set(CXX_FLAGS
     "-fno-rtti -fno-exceptions"
 )
 
-set(ASM_FLAGS "-g3 -mcpu=cortex-m4 -mthumb -mfloat-abi=softfp --specs=rdimon.specs -mfpu=fpv4-sp-d16")
+set(ASM_FLAGS "-g3 -mcpu=cortex-m4 -mthumb -mfloat-abi=softfp --specs=nano.specs -mfpu=fpv4-sp-d16")
 
 set(LINKER_FILES    
     -T${CMAKE_SOURCE_DIR}/device/lpc4337_memory.ld
@@ -86,6 +86,7 @@ add_compile_options("$<$<CONFIG:Debug>:-finstrument-functions>")
 
 file(GLOB_RECURSE SOURCES
     "../CIAA_NXP_board/src/*.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/newlib/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/nfc/src/*.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/nfc/src/sysinit.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/freertos/*.c"
@@ -100,6 +101,7 @@ set(HEADERS_DIR
     "lwip/inc/ipv4"
     "freertos/inc"
     "nfc/inc"
+    "/usr/local/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/arm-none-eabi/include"
     "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc"
     "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc/config_43xx"
 )
