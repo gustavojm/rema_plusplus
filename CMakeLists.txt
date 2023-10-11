@@ -32,8 +32,8 @@ message(STATUS "Started CMake for ${PROJECT_NAME} v${PROJECT_VERSION}...\n")
 set(C_FLAGS
     "-mfpu=fpv4-sp-d16"
     "-mcpu=cortex-m4"
-    "-mthumb"
     "-specs=nano.specs"
+    "-mthumb"
     "-mfloat-abi=softfp"
     "-ffunction-sections -fdata-sections -fno-strict-aliasing"
     "-fsingle-precision-constant"
@@ -49,9 +49,9 @@ set(CXX_FLAGS
 
 set(ASM_FLAGS "-g3 -mcpu=cortex-m4 -mthumb -mfloat-abi=softfp --specs=nano.specs -mfpu=fpv4-sp-d16")
 
-set(LINKER_FILES    
-    -T${CMAKE_SOURCE_DIR}/device/lpc4337_memory.ld
-    -T${CMAKE_SOURCE_DIR}/device/lpc4337.ld
+set(LINKER_FILES        
+  -T${CMAKE_SOURCE_DIR}/device/lpc4337_memory.ld      # Provided by mcuxpresso ide 
+  -T${CMAKE_SOURCE_DIR}/device/lpc4337.ld             # Provided by mcuxpresso ide 
 )
 
 list(JOIN C_FLAGS " " C_FLAGS)
@@ -62,8 +62,8 @@ set(CMAKE_ASM_FLAGS_DEBUG "${ASM_FLAGS}")
 set(CMAKE_ASM_FLAGS_RELEASE "${ASM_FLAGS}")
 set(CMAKE_C_FLAGS_DEBUG "${C_FLAGS} -DDEBUG -g -Og")
 set(CMAKE_CXX_FLAGS_DEBUG "${CXX_FLAGS} -DDEBUG -g -Og")
-set(CMAKE_C_FLAGS_RELEASE "${C_FLAGS} -DNDEBUG -O3 -g3")    # -flto
-set(CMAKE_CXX_FLAGS_RELEASE "${CXX_FLAGS} -DNDEBUG -O3 -g3")  # -flto
+set(CMAKE_C_FLAGS_RELEASE "${C_FLAGS} -DNDEBUG -O3 -g3 -flto")    # -flto
+set(CMAKE_CXX_FLAGS_RELEASE "${CXX_FLAGS} -DNDEBUG -O3 -g3 -flto")  # -flto
 set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${LD_FLAGS} -g -Og")
 set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${LD_FLAGS} -O3 -g3 -flto")
 
@@ -73,14 +73,14 @@ add_compile_definitions(
     SIMULATE_ENCODER 
     __CODE_RED 
     __NEWLIB__ 
-    CORE_M4 
+    CORE_M4     
     __USE_LPCOPEN 
     CPP_USE_HEAP 
     __LPC43XX__
 )
 
 # compile option only for Debug build
-add_compile_options("$<$<CONFIG:Debug>:-finstrument-functions>")
+#add_compile_options("$<$<CONFIG:Debug>:-finstrument-functions>")
 
 
 file(GLOB_RECURSE CHIP_SOURCES
@@ -88,7 +88,7 @@ file(GLOB_RECURSE CHIP_SOURCES
 )
 
 add_library(chip STATIC ${CHIP_SOURCES})
-target_include_directories(chip SYSTEM PUBLIC "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/")
+#target_include_directories(chip SYSTEM PUBLIC "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/")
 target_include_directories(chip PRIVATE
   "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc"
   "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc/config_43xx"
@@ -197,9 +197,6 @@ target_link_options(${PROJECT_NAME} PRIVATE
         -mcpu=cortex-m4
         -mthumb
         #-nostdlib        
-        #-lc
-        #-lm        
-        #-lnosys
         -Wl,-Map=${PROJECT_NAME}.map,--cref
         -Wl,--gc-sections
         -Xlinker -print-memory-usage -Xlinker

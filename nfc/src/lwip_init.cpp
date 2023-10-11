@@ -144,7 +144,7 @@ extern "C" void vStackIpSetup(void *pvParameters) {
             if (lpc_netif.ip_addr.addr) {
                 static char tmp_buff[16];
                 DEBUGOUT(
-                        "\n\n\r - NASA GSPC - \n SM-13 New Fixture Controller Remote Terminal Unit. \n Attempting to open interface.\n\n\r");
+                        "\n\n\r - NASA GSPC - \n REMA Remote Terminal Unit. \n Attempting to open interface.\n\n\r");
                 DEBUGOUT("IP_ADDR    : %s\r\n",
                         ipaddr_ntoa_r((const ip_addr_t*) &lpc_netif.ip_addr,
                                 tmp_buff, 16));

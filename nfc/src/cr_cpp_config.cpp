@@ -52,6 +52,15 @@ void operator delete[](void *p) {
     vPortFree(p);
 }
 
+void operator delete(void *p, unsigned int) {
+    vPortFree(p);
+}
+
+void operator delete [](void *p, unsigned int) {
+    vPortFree(p);
+}
+
+
 extern "C" int __aeabi_atexit(void *object, void (*destructor)(void*),
         void *dso_handle) {
     return 0;
