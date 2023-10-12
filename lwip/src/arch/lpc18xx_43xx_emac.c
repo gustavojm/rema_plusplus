@@ -48,7 +48,7 @@
 #include "lpc_phy.h"
 
 #include <string.h>
-#include "../../../nfc/inc/lpc_18xx43xx_emac_config.h"
+#include "../../../inc/lpc_18xx43xx_emac_config.h"
 
 extern void msDelay(uint32_t ms);
 

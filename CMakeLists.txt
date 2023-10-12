@@ -114,8 +114,8 @@ target_include_directories(board PRIVATE
 
 file(GLOB_RECURSE SOURCES
     "${CMAKE_CURRENT_SOURCE_DIR}/newlib/*.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/nfc/src/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/nfc/src/sysinit.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/sysinit.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/freertos/*.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/lwip/*.c"
 )
@@ -125,7 +125,7 @@ set(HEADERS_DIR
     "lwip/inc"
     "lwip/inc/ipv4"
     "freertos/inc"
-    "nfc/inc"
+    "inc"
     "/usr/local/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/arm-none-eabi/include"
     "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc"
     "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc/config_43xx"

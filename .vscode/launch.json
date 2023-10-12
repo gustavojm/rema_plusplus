@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [    
+        {
+            "cwd": "${workspaceRoot}",
+            "executable": "${workspaceRoot}/build/REMA_plusplus",
+            "name": "Debug REMA_plusplus OpenOCD",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "configFiles": ["/home/gustavo/CIAA/openOCD/lpc4337.cfg"],
+            "searchDir": [],
+            "runToEntryPoint": "main",
+            "showDevDebugOutput": "raw",
+            "interface": "jtag",
+            "preLaunchTask": "CMake: build"
+        },
+    ]
+}

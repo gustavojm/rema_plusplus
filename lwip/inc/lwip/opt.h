@@ -43,7 +43,7 @@
  * will be set to standard values. Override anything you dont like!
  */
 #include "lwip/debug.h"
-#include "../../../nfc/inc/lwipopts.h"
+#include "../../../inc/lwipopts.h"
 
 /*
    -----------------------------------------------
