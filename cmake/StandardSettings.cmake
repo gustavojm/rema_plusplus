@@ -12,6 +12,12 @@ option(${PROJECT_NAME}_USE_ALT_NAMES "Use alternative names for the project, suc
 option(${PROJECT_NAME}_WARNINGS_AS_ERRORS "Treat compiler warnings as errors." ON)
 
 #
+# Doxygen
+#
+
+option(${PROJECT_NAME}_ENABLE_DOXYGEN "Enable Doxygen documentation builds of source." OFF)
+
+#
 # Miscelanious options
 #
 
