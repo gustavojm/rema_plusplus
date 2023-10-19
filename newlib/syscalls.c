@@ -47,6 +47,8 @@ USED int _getpid() {
    return -1;
 }
 
+struct stat {};
+
 USED int _fstat(int fd, struct stat *st) {
    UNUSED(fd);
    UNUSED(st);

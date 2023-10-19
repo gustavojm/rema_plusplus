@@ -127,7 +127,7 @@ struct lpc_slowmem_array_t {
 	u32_t end;
 };
 
-const static struct lpc_slowmem_array_t slmem[] = LPC_SLOWMEM_ARRAY;
+static const struct lpc_slowmem_array_t slmem[] = LPC_SLOWMEM_ARRAY;
 #endif
 
 /*****************************************************************************

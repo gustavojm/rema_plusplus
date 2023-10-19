@@ -30,24 +30,24 @@ endif()
 message(STATUS "Started CMake for ${PROJECT_NAME} v${PROJECT_VERSION}...\n")
 
 set(C_FLAGS
-    "-mfpu=fpv4-sp-d16"
-    "-mcpu=cortex-m4"
-    "-specs=nano.specs"
-    "-mthumb"
-    "-mfloat-abi=softfp"
-    "-ffunction-sections -fdata-sections -fno-strict-aliasing"
-    "-fsingle-precision-constant"
-    "-fmessage-length=0"
-    "-fno-builtin -fshort-enums"
-    "-fno-common -fmerge-constants"    
+    -mfpu=fpv4-sp-d16
+    -mcpu=cortex-m4
+    -specs=nano.specs
+    -mthumb
+    -mfloat-abi=softfp
+    -ffunction-sections -fdata-sections -fno-strict-aliasing
+    -fsingle-precision-constant
+    -fmessage-length=0
+    -fno-builtin -fshort-enums
+    -fno-common -fmerge-constants
 )
 
 set(CXX_FLAGS
     ${C_FLAGS}    
-    "-fno-rtti -fno-exceptions"
+    -fno-rtti -fno-exceptions
 )
 
-set(ASM_FLAGS "-g3 -mcpu=cortex-m4 -mthumb -mfloat-abi=softfp --specs=nano.specs -mfpu=fpv4-sp-d16")
+set(ASM_FLAGS -g3 -mcpu=cortex-m4 -mthumb -mfloat-abi=softfp --specs=nano.specs -mfpu=fpv4-sp-d16)
 
 set(LINKER_FILES        
   -T${CMAKE_SOURCE_DIR}/device/lpc4337_memory.ld      # Provided by mcuxpresso ide 
@@ -84,14 +84,14 @@ add_compile_definitions(
 
 
 file(GLOB_RECURSE CHIP_SOURCES
-    "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/src/*.c"
+    /usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/src/*.c
 )
 
 add_library(chip STATIC ${CHIP_SOURCES})
-#target_include_directories(chip SYSTEM PUBLIC "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/")
+#target_include_directories(chip SYSTEM PUBLIC /usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/)
 target_include_directories(chip PRIVATE
-  "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc"
-  "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc/config_43xx"
+  /usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc
+  /usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc/config_43xx
 )
 target_compile_options(chip PRIVATE
   -w
@@ -106,29 +106,29 @@ target_compile_options(board PRIVATE
 )
 
 target_include_directories(board PRIVATE
-  "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc"
-  "../CIAA_NXP_board/inc"
-  "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc/config_43xx"
+  /usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc
+  ../CIAA_NXP_board/inc
+  /usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc/config_43xx
 )
 
 
 file(GLOB_RECURSE SOURCES
-    "${CMAKE_CURRENT_SOURCE_DIR}/newlib/*.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/sysinit.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/freertos/*.c"
-    "${CMAKE_CURRENT_SOURCE_DIR}/lwip/*.c"
+    ${CMAKE_CURRENT_SOURCE_DIR}/newlib/*.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/sysinit.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/freertos/*.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/lwip/*.c
 )
 
 set(HEADERS_DIR
-    "../CIAA_NXP_board/inc"
-    "lwip/inc"
-    "lwip/inc/ipv4"
-    "freertos/inc"
-    "inc"
-    "/usr/local/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/arm-none-eabi/include"
-    "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc"
-    "/usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc/config_43xx"
+    ../CIAA_NXP_board/inc
+    lwip/inc
+    lwip/inc/ipv4
+    freertos/inc
+    inc
+    /usr/local/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/arm-none-eabi/include
+    /usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc
+    /usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc/config_43xx
 )
 
 if(${PROJECT_NAME}_BUILD_EXECUTABLE)
