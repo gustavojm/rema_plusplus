@@ -1,7 +1,7 @@
 #ifndef BRESENHAM_H_
 #define BRESENHAM_H_
 
-#include <stdint.h>
+#include <cstdint>
 #include <chrono>
 
 #include "mot_pap.h"

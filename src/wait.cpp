@@ -1,6 +1,6 @@
 #include "wait.h"
 
-#include <stdint.h>
+#include <cstdint>
 
 /**
  * @brief    Wait for 10 cpu cycles.

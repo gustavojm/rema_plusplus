@@ -1,7 +1,7 @@
 #include "mot_pap.h"
 
-#include <stdint.h>
-#include <stdlib.h>
+#include <cstdint>
+#include <cstdlib>
 
 #include "board.h"
 #include "task.h"

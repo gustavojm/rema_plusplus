@@ -1,7 +1,7 @@
 #ifndef TCP_SERVER_COMM_H_
 #define TCP_SERVER_COMM_H_
 
-#include <stdint.h>
+#include <cstdint>
 
 void stackIp_ThreadInit(uint16_t port);
 

@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include <cstdint>
 #include "board.h"
 #include "mot_pap.h"
 #include "encoders.h"

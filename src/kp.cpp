@@ -1,5 +1,5 @@
-#include <stdint.h>
-#include <stdlib.h>
+#include <cstdint>
+#include <cstdlib>
 #include <chrono>
 
 #include "board.h"
@@ -25,7 +25,7 @@ void kp::restart() {
 int kp::run(int setpoint, int input) {
 #define RAMP_RATE	0.05		//Change the setpoint by at most 0.1 per iteration
 
-	int error = abs(setpoint - input);
+	int error = std::abs(setpoint - input);
 
 	// PROPORTIONAL CALCS
 	p_term = kp_ * error;

@@ -1,7 +1,7 @@
 #include "mot_pap.h"
 
-#include <stdint.h>
-#include <stdlib.h>
+#include <cstdint>
+#include <cstdlib>
 
 #include "board.h"
 #include "task.h"
@@ -41,7 +41,7 @@ bool mot_pap::check_for_stall() {
     }
 
     const int expected_counts = ((half_pulses_stall >> 1) * encoder_resolution / motor_resolution) - MOT_PAP_STALL_THRESHOLD;
-    const int pos_diff = abs((int) (current_counts() - last_pos));
+    const int pos_diff = std::abs((int) (current_counts() - last_pos));
 
     if (pos_diff < expected_counts) {
         stalled_counter++;

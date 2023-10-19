@@ -1,5 +1,4 @@
-#include <string.h>
-#include <stdint.h>
+#include <cstdint>
 #include "FreeRTOS.h"
 #include "task.h"
 

@@ -1,5 +1,5 @@
-#include <stdlib.h>
-#include <stdint.h>
+//#include <stdlib.h>
+#include <cstdint>
 #include <chrono>
 
 #include "z_axis.h"

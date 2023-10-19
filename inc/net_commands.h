@@ -1,7 +1,7 @@
 #ifndef NET_COMMANDS_H_
 #define NET_COMMANDS_H_
 
-#include <stdint.h>
+#include <cstdint>
 
 #include "parson.h"
 

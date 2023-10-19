@@ -1,4 +1,4 @@
-#include <stdint.h>
+#include <cstdint>
 
 #include "FreeRTOS.h"
 #include "semphr.h"

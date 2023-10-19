@@ -1,7 +1,7 @@
 #ifndef WAIT_H_
 #define WAIT_H_
 
-#include <stdint.h>
+#include <cstdint>
 #include "board.h"
 
 #define INSTR_CLOCK_HZ    SystemCoreClock  /* core clock frequency in Hz */

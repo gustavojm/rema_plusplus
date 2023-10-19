@@ -1,7 +1,7 @@
 #ifndef MOT_PAP_H_
 #define MOT_PAP_H_
 
-#include <stdint.h>
+#include <cstdint>
 #include <chrono>
 
 #include "gpio.h"

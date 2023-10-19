@@ -1,7 +1,7 @@
 #ifndef TMR_H_
 #define TMR_H_
 
-#include <stdint.h>
+#include <cstdint>
 
 #include "board.h"
 

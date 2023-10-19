@@ -1,7 +1,7 @@
 #ifndef EEPROM_H_
 #define EEPROM_H_
 
-#include <stdint.h>
+#include <cstdint>
 
 /* Init EEPROM */
 void EEPROM_init(void);
