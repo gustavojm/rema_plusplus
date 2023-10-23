@@ -132,8 +132,8 @@ extern "C" void vStackIpSetup(void *pvParameters) {
                         reinterpret_cast<void*>(&lpc_netif), 1);
             }
 
-            DEBUGOUT("Link connect status: %d\r\n",
-                    ((physts & PHY_LINK_CONNECTED) != 0));
+            DEBUGOUT("Link connection status: %s\n",
+                    ((physts & PHY_LINK_CONNECTED) != 0) ? "CONNECTED" : "DISCONNECTED");
 
             /* Delay for link detection (250mS) */
             vTaskDelay(configTICK_RATE_HZ / 4);
@@ -143,15 +143,13 @@ extern "C" void vStackIpSetup(void *pvParameters) {
         if (!prt_ip) {
             if (lpc_netif.ip_addr.addr) {
                 static char tmp_buff[16];
-                DEBUGOUT(
-                        "\n\n\r - NASA GSPC - \n REMA Remote Terminal Unit. \n Attempting to open interface.\n\n\r");
-                DEBUGOUT("IP_ADDR    : %s\r\n",
+                DEBUGOUT("IP_ADDR    : %s\n",
                         ipaddr_ntoa_r((const ip_addr_t*) &lpc_netif.ip_addr,
                                 tmp_buff, 16));
-                DEBUGOUT("NET_MASK   : %s\r\n",
+                DEBUGOUT("NET_MASK   : %s\n",
                         ipaddr_ntoa_r((const ip_addr_t*) &lpc_netif.netmask,
                                 tmp_buff, 16));
-                DEBUGOUT("GATEWAY_IP : %s\r\n",
+                DEBUGOUT("GATEWAY_IP : %s\n",
                         ipaddr_ntoa_r((const ip_addr_t*) &lpc_netif.gw,
                                 tmp_buff, 16));
                 prt_ip = 1;

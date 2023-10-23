@@ -62,6 +62,9 @@ static void prvSetupHardware(void) {
 
     Board_Init();
 
+    printf("    --- NASA GSPC ---\n"); 
+    printf("REMA Remote Terminal Unit.\n"); 
+    
     settings::init();
     //settings_erase();
 
@@ -73,7 +76,7 @@ static void prvSetupHardware(void) {
     temperature_ds18b20_init();
     encoders_init();
     rema::hard_limits_init();
-    mem_check_init();
+    //mem_check_init();
 }
 
 /*****************************************************************************
@@ -99,7 +102,6 @@ int main(void) {
     debugNetSetLevel(Info);
 
     prvSetupHardware();
-
 
     /* Task - Ethernet PHY Initialization  */
     xTaskCreate(vStackIpSetup, "StackIpSetup",

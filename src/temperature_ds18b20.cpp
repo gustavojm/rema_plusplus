@@ -10,7 +10,7 @@
 
 using gpio_ow = gpio_templ<2, 5, SCU_MODE_FUNC4 | SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP, 5, 5>;          // TODO asignar el pin correcto según arquitectura
 using OneWireMaster = one_wire::BitBangOneWireMaster<gpio_ow>;
-constexpr int reading_interval = 1000;
+constexpr int reading_interval = 5000;
 constexpr int max_sensors = 3;
 
 struct sensor {
