@@ -16,7 +16,7 @@
 #include "lwip/sys.h"
 #include <lwip/netdb.h>
 #include "json_wp.h"
-#include "tcp_server_comm.h"
+#include "tcp_server_command.h"
 #include "debug.h"
 #include "xy_axes.h"
 #include "z_axis.h"
@@ -41,14 +41,14 @@ static void do_retransmit(const int sock) {
         len = lwip_recv(sock, rx_buffer, sizeof(rx_buffer) - 1, 0);
         if (len < 0) {
             stop_all();
-            lDebug(Error, "Error occurred during receiving: errno %d", errno);
+            lDebug(Error, "Error occurred during receiving command: errno %d", errno);
         } else if (len == 0) {
             stop_all();
-            lDebug(Warn, "Connection closed");
+            lDebug(Warn, "Command connection closed");
         } else {
             //rema::update_watchdog_timer();
             rx_buffer[len] = 0;  // Null-terminate whatever is received and treat it like a string
-            lDebug(InfoLocal, "Received %s", rx_buffer);
+            lDebug(InfoLocal, "Command received %s", rx_buffer);
 
             char *tx_buffer;
 
@@ -66,7 +66,7 @@ static void do_retransmit(const int sock) {
                             to_write, 0);
                     if (written < 0) {
                         stop_all();
-                        lDebug(Error, "Error occurred during sending: errno %d",
+                        lDebug(Error, "Error occurred during sending command: errno %d",
                                 errno);
                         goto free_buffer;
                     }
@@ -83,7 +83,7 @@ free_buffer:
     } while (len > 0);
 }
 
-static void tcp_server_task(void *pvParameters) {
+static void tcp_server_command_task(void *pvParameters) {
     uint16_t port = reinterpret_cast<uintptr_t>(pvParameters);
 
     char addr_str[128];
@@ -102,39 +102,39 @@ static void tcp_server_task(void *pvParameters) {
 
     int listen_sock = lwip_socket(AF_INET, SOCK_STREAM, ip_protocol);
     if (listen_sock < 0) {
-        lDebug(Error, "Unable to create socket: errno %d", errno);
+        lDebug(Error, "Unable to create command socket: errno %d", errno);
         vTaskDelete(NULL);
         return;
     }
     int opt = 1;
     lwip_setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
-    lDebug(Info, "Socket created");
+    lDebug(Info, "Command socket created");
 
     int err = lwip_bind(listen_sock, (struct sockaddr*) &dest_addr,
             sizeof(dest_addr));
     if (err != 0) {
-        lDebug(Error, "Socket unable to bind: errno %d", errno);
+        lDebug(Error, "Command socket unable to bind: errno %d", errno);
         lDebug(Error, "IPPROTO: %d", AF_INET);
         goto CLEAN_UP;
     }
-    lDebug(Info, "Socket bound, port %d", port);
+    lDebug(Info, "Command socket bound, port %d", port);
 
     err = lwip_listen(listen_sock, 1);
     if (err != 0) {
-        lDebug(Error, "Error occurred during listen: errno %d", errno);
+        lDebug(Error, "Error occurred during command listen: errno %d", errno);
         goto CLEAN_UP;
     }
 
     while (1) {
-        lDebug(Info, "Socket listening");
+        lDebug(Info, "Command socket listening");
 
         struct sockaddr source_addr;
         socklen_t addr_len = sizeof(source_addr);
         int sock = lwip_accept(listen_sock, (struct sockaddr*) &source_addr,
                 &addr_len);
         if (sock < 0) {
-            lDebug(Error, "Unable to accept connection: errno %d", errno);
+            lDebug(Error, "Unable to accept command connection: errno %d", errno);
             break;
         }
 
@@ -149,7 +149,7 @@ static void tcp_server_task(void *pvParameters) {
             inet_ntoa_r(((struct sockaddr_in*)&source_addr)->sin_addr,
                     addr_str, sizeof(addr_str) - 1);
         }
-        lDebug(Info, "Socket accepted ip address: %s", addr_str);
+        lDebug(Info, "Command socket accepted ip address: %s", addr_str);
 
         do_retransmit(sock);
 
@@ -164,7 +164,7 @@ CLEAN_UP:
 
 /*---------------------------------------------------------------------------*/
 void stackIp_ThreadInit(uint16_t port) {
-    sys_thread_new("tcp_thread", tcp_server_task, (void*) (uintptr_t) port,
+    sys_thread_new("tcp_command_thread", tcp_server_command_task, (void*) (uintptr_t) port,
     // DEFAULT_THREAD_STACKSIZE,
             1024,
             configMAX_PRIORITIES);

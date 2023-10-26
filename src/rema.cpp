@@ -115,3 +115,11 @@ extern "C" void GINT1_IRQHandler(void) {
     hard_limits_reached();
     Chip_GPIOGP_ClearIntStatus(LPC_GPIOGROUP, 1);
 }
+
+extern "C" void GPIO3_IRQHandler(void)
+{
+    Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(3));
+//    x_axis.save_probe_pos_and_stop();
+//    y_axis.save_probe_pos_and_stop();
+//    z_axis.save_probe_pos_and_stop();
+}

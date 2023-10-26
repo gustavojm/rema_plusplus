@@ -84,14 +84,14 @@ add_compile_definitions(
 
 
 file(GLOB_RECURSE CHIP_SOURCES
-    /usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/src/*.c
+    ../lpc_chip_43xx/src/*.c
 )
 
 add_library(chip STATIC ${CHIP_SOURCES})
-#target_include_directories(chip SYSTEM PUBLIC /usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/)
+
 target_include_directories(chip PRIVATE
-  /usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc
-  /usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc/config_43xx
+  ../lpc_chip_43xx/inc
+  ../lpc_chip_43xx/inc/config_43xx
 )
 target_compile_options(chip PRIVATE
   -w
@@ -106,9 +106,9 @@ target_compile_options(board PRIVATE
 )
 
 target_include_directories(board PRIVATE
-  /usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc
+  ../lpc_chip_43xx/inc
   ../CIAA_NXP_board/inc
-  /usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc/config_43xx
+  ../lpc_chip_43xx/inc/config_43xx
 )
 
 
@@ -127,8 +127,8 @@ set(HEADERS_DIR
     freertos/inc
     inc
     /usr/local/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/arm-none-eabi/include
-    /usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc
-    /usr/local/lpcopen_3_02_lpcxpresso_xpresso4337/lpc_chip_43xx/inc/config_43xx
+    ../lpc_chip_43xx/inc
+    ../lpc_chip_43xx/inc/config_43xx
 )
 
 if(${PROJECT_NAME}_BUILD_EXECUTABLE)
@@ -222,11 +222,28 @@ include(cmake/Doxygen.cmake)
 # Optional: Print executable size as part of the post build process
 add_custom_command(TARGET ${PROJECT_NAME}
         POST_BUILD
-        COMMAND ${CMAKE_SIZE} ${PROJECT_NAME})
+        COMMAND ${CMAKE_SIZE} ${PROJECT_NAME}
+)
 
 # Optional: Create hex, bin and S-Record files after the build
 add_custom_command(TARGET ${PROJECT_NAME}
         POST_BUILD
         COMMAND ${CMAKE_OBJCOPY} -O srec --srec-len=64 ${PROJECT_NAME} ${PROJECT_NAME}.s19
         COMMAND ${CMAKE_OBJCOPY} -O ihex ${PROJECT_NAME} ${PROJECT_NAME}.hex
-        COMMAND ${CMAKE_OBJCOPY} -O binary ${PROJECT_NAME} ${PROJECT_NAME}.bin)
+        COMMAND ${CMAKE_OBJCOPY} -O binary ${PROJECT_NAME} ${PROJECT_NAME}.bin
+)
+
+# Specify OpenOCD flash command
+add_custom_target(flash
+    COMMAND openocd -f ${PROJECT_SOURCE_DIR}/openOCD/lpc4337.cfg 
+    -c "program ${PROJECT_NAME}"
+    -c "init"
+    -c "halt 0"
+    -c "flash write_image erase ${PROJECT_NAME}"
+    -c "reset run"
+    -c "shutdown"
+    DEPENDS ${PROJECT_NAME}
+    COMMENT "Flashing the device with OpenOCD"
+)        
+
+

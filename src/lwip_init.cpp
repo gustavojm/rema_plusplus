@@ -19,7 +19,7 @@
 #include "arch/sys_arch.h"
 #include "lpc_phy.h" /* For the PHY monitor support */
 #include "settings.h"
-#include "tcp_server_comm.h"
+#include "tcp_server_command.h"
 #include "tcp_server_telemetry.h"
 #include "debug.h"
 
@@ -132,7 +132,7 @@ extern "C" void vStackIpSetup(void *pvParameters) {
                         reinterpret_cast<void*>(&lpc_netif), 1);
             }
 
-            DEBUGOUT("Link connection status: %s\n",
+            printf("Link connection status: %s\n",
                     ((physts & PHY_LINK_CONNECTED) != 0) ? "CONNECTED" : "DISCONNECTED");
 
             /* Delay for link detection (250mS) */
@@ -143,13 +143,13 @@ extern "C" void vStackIpSetup(void *pvParameters) {
         if (!prt_ip) {
             if (lpc_netif.ip_addr.addr) {
                 static char tmp_buff[16];
-                DEBUGOUT("IP_ADDR    : %s\n",
+                printf("IP_ADDR    : %s\n",
                         ipaddr_ntoa_r((const ip_addr_t*) &lpc_netif.ip_addr,
                                 tmp_buff, 16));
-                DEBUGOUT("NET_MASK   : %s\n",
+                printf("NET_MASK   : %s\n",
                         ipaddr_ntoa_r((const ip_addr_t*) &lpc_netif.netmask,
                                 tmp_buff, 16));
-                DEBUGOUT("GATEWAY_IP : %s\n",
+                printf("GATEWAY_IP : %s\n",
                         ipaddr_ntoa_r((const ip_addr_t*) &lpc_netif.gw,
                                 tmp_buff, 16));
                 prt_ip = 1;

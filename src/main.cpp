@@ -33,14 +33,6 @@ extern mot_pap x_axis;
 extern mot_pap y_axis;
 extern mot_pap z_axis;
 
-extern "C" void GPIO3_IRQHandler(void)
-{
-    Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(3));
-//    x_axis.save_probe_pos_and_stop();
-//    y_axis.save_probe_pos_and_stop();
-//    z_axis.save_probe_pos_and_stop();
-}
-
 /* GPa 201117 1850 Iss2: agregado de Heap_4.c*/
 uint8_t __attribute__((section("." "data" ".$" "RamLoc40"))) ucHeap[configTOTAL_HEAP_SIZE];
 

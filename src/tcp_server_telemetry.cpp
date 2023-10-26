@@ -105,7 +105,7 @@ err_send:
     json_value_free(ans);
 }
 
-static void tcp_telemetry_server_task(void *pvParameters) {
+static void tcp_server_telemetry_task(void *pvParameters) {
     uint16_t port = reinterpret_cast<uintptr_t>(pvParameters);
 
     char addr_str[128];
@@ -188,7 +188,7 @@ static void tcp_telemetry_server_task(void *pvParameters) {
 
 /*---------------------------------------------------------------------------*/
 void stackIp_Telemetry_ThreadInit(uint16_t port) {
-    sys_thread_new("tcp_telemetry_thread", tcp_telemetry_server_task,
+    sys_thread_new("tcp_telemetry_thread", tcp_server_telemetry_task,
             (void*) (uintptr_t) port,
             // DEFAULT_THREAD_STACKSIZE,
             1024,
