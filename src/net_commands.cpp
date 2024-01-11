@@ -192,34 +192,44 @@ static JSON_Value* axes_soft_stop_all_cmd(JSON_Value const *pars) {
 static JSON_Value* network_settings_cmd(JSON_Value const *pars) {
     if (pars && json_value_get_type(pars) == JSONObject) {
         JSON_Object *pars_object = json_value_get_object(pars);
-        char const *gw = json_object_get_string(pars_object, "gw");
         char const *ipaddr = json_object_get_string(pars_object, "ipaddr");
         char const *netmask = json_object_get_string(pars_object, "netmask");
+        char const *gw = json_object_get_string(pars_object, "gw");
         uint16_t port = static_cast<uint16_t>(json_object_get_number(pars_object, "port"));
+
 
         if (gw && ipaddr && netmask && port != 0) {
             lDebug(Info,
-                    "Received network settings: gw:%s, ipaddr:%s, netmask:%s, port:%d",
-                    gw, ipaddr, netmask, port);
+                    "Received network settings: ipaddr:%s, netmask:%s, gw:%s, port:%d",
+                    ipaddr, netmask, gw, port);
 
-            unsigned char *gw_bytes =
-                    reinterpret_cast<unsigned char*>(&(settings::network.gw.addr));
-            if (sscanf(gw, "%hhu.%hhu.%hhu.%hhu", &gw_bytes[0], &gw_bytes[1],
-                    &gw_bytes[2], &gw_bytes[3]) == 4) {
-            }
-
+            int octet1, octet2, octet3, octet4;
             unsigned char *ipaddr_bytes =
                     reinterpret_cast<unsigned char*>(&(settings::network.ipaddr.addr));
-            if (sscanf(ipaddr, "%hhu.%hhu.%hhu.%hhu", &ipaddr_bytes[0],
-                    &ipaddr_bytes[1], &ipaddr_bytes[2], &ipaddr_bytes[3])
-                    == 4) {
+
+            if (sscanf(ipaddr, "%d.%d.%d.%d", &octet1, &octet2, &octet3, &octet4) == 4) {
+                ipaddr_bytes[0] = static_cast<unsigned char>(octet1);
+                ipaddr_bytes[1] = static_cast<unsigned char>(octet2);
+                ipaddr_bytes[2] = static_cast<unsigned char>(octet3);
+                ipaddr_bytes[3] = static_cast<unsigned char>(octet4);
             }
 
             unsigned char *netmask_bytes =
                     reinterpret_cast<unsigned char*>(&(settings::network.netmask.addr));
-            if (sscanf(netmask, "%hhu.%hhu.%hhu.%hhu", &netmask_bytes[0],
-                    &netmask_bytes[1], &netmask_bytes[2], &netmask_bytes[3])
-                    == 4) {
+            if (sscanf(netmask, "%d.%d.%d.%d", &octet1, &octet2, &octet3, &octet4) == 4) {
+                netmask_bytes[0] = static_cast<unsigned char>(octet1);
+                netmask_bytes[1] = static_cast<unsigned char>(octet2);
+                netmask_bytes[2] = static_cast<unsigned char>(octet3);
+                netmask_bytes[3] = static_cast<unsigned char>(octet4);
+            }
+
+            unsigned char *gw_bytes =
+                    reinterpret_cast<unsigned char*>(&(settings::network.gw.addr));
+            if (sscanf(gw, "%d.%d.%d.%d", &octet1, &octet2, &octet3, &octet4) == 4) {
+                gw_bytes[0] = static_cast<unsigned char>(octet1);
+                gw_bytes[1] = static_cast<unsigned char>(octet2);
+                gw_bytes[2] = static_cast<unsigned char>(octet3);
+                gw_bytes[3] = static_cast<unsigned char>(octet4);
             }
 
             settings::network.port = port;

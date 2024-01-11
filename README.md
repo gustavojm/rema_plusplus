@@ -21,6 +21,7 @@ git clone git@github.com:gustavojm/lpc_chip_43xx.git
 git clone https://github.com/gustavojm/CIAA_NXP_board.git  
 git clone https://github.com/gustavojm/rema_plusplus.git
 ```
+
 Configure the project  
 ```bash
 cd rema_plusplus
@@ -46,6 +47,7 @@ Clean the project
 ```bash
 cmake --build ./build --target clean
 ```
+
 In order to generate documentation for the project, you need to configure the build
 to use Doxygen. This is easily done, by modifying the workflow shown above as follows:
 

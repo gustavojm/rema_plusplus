@@ -58,7 +58,7 @@ static void prvSetupHardware(void) {
     printf("REMA Remote Terminal Unit.\n"); 
     
     settings::init();
-    //settings_erase();
+    //settings::erase();
 
     xy_axes_init();
     z_axis_init();
