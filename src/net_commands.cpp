@@ -15,6 +15,7 @@
 #include "z_axis.h"
 #include "xy_axes.h"
 #include "temperature_ds18b20.h"
+#include "encoders_pico.h"
 
 #define PROTOCOL_VERSION  	"JSON_1.0"
 
@@ -374,6 +375,15 @@ static JSON_Value* move_incremental_cmd(JSON_Value const *pars) {
     return root_value;
 }
 
+JSON_Value* read_encoders_cmd(JSON_Value const *pars) {
+	encoders_pico raspi;
+
+    JSON_Value *root_value = json_value_init_object();
+    json_object_set_number(json_value_get_object(root_value), "ACK", raspi.read_register(ENCODERS_PICO_READ_COUNTER_Z));
+    return root_value;
+}
+
+
 // @formatter:off
 const cmd_entry cmds_table[] = {
         {
@@ -431,6 +441,10 @@ const cmd_entry cmds_table[] = {
         {
                 "MOVE_INCREMENTAL",
                 move_incremental_cmd,
+        },
+       {
+                "READ_ENCODERS",
+                read_encoders_cmd,
         },
 
 
