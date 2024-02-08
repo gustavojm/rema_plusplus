@@ -6,7 +6,6 @@
 #include "board.h"
 
 #include "FreeRTOS.h"
-#include "task.h"
 #include "semphr.h"
 
 #ifdef __cplusplus
@@ -63,15 +62,18 @@ static inline int32_t spi_sync_transfer(Chip_SSP_DATA_SETUP_T *xfer_setup, void 
             if (cs != NULL) {
                 cs(0);
             }
-            udelay(5);            // Si RPI PICO está haciendo printf para debug poner udelay(500)            
-            Chip_SSP_RWFrames_Blocking(LPC_SSP, xfer_setup);
+            udelay(50);              // Si RPI PICO está haciendo printf para debug poner udelay(500)
+            Chip_SSP_Int_FlushData(LPC_SSP);
+            Chip_SSP_RWFrames_Blocking(LPC_SSP, xfer_setup);            
+            Chip_SSP_Int_FlushData(LPC_SSP);
             udelay(5);              // Si RPI PICO está haciendo printf para debug poner udelay(500)            
             if (cs != NULL) {
                 cs(1);
             }
             udelay(5);              // Si RPI PICO está haciendo printf para debug poner udelay(500)            
+            xSemaphoreGive(spi_mutex);
         }
-        xSemaphoreGive(spi_mutex);    
+        
     }
     return 0;
 }
@@ -83,8 +85,7 @@ static inline int32_t spi_sync_transfer(Chip_SSP_DATA_SETUP_T *xfer_setup, void 
  * @return    0 on success
  * @note     This function writes the buffer buf.
  */
-static inline int spi_write(void *buf, size_t len,
-        void (*cs)(bool)) {
+static inline int spi_write(void *buf, size_t len, void (*cs)(bool)) {
     /* @formatter:off */
     Chip_SSP_DATA_SETUP_T t = {
              .tx_data = buf,
