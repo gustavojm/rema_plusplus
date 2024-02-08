@@ -376,7 +376,7 @@ static JSON_Value* move_incremental_cmd(JSON_Value const *pars) {
 }
 
 JSON_Value* read_encoders_cmd(JSON_Value const *pars) {
-	encoders_pico raspi;
+	static encoders_pico raspi;
 
     JSON_Value *root_value = json_value_init_object();
     json_object_set_number(json_value_get_object(root_value), "ACK", raspi.read_register(ENCODERS_PICO_READ_COUNTER_Z));

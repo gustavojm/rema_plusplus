@@ -64,8 +64,6 @@ public:
 
     int32_t read_register(uint8_t address) const;
 
-    int32_t write(int32_t data) const;
-
     int32_t write_register(uint8_t address, int32_t data) const;
 
     int32_t soft_reset() const;
