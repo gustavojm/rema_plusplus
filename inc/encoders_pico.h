@@ -14,20 +14,19 @@
 #define ENCODERS_PICO_CLEAR_COUNTER_Z    ENCODERS_PICO_CLEAR_COUNTERS + 3
 #define ENCODERS_PICO_CLEAR_COUNTER_W    ENCODERS_PICO_CLEAR_COUNTERS + 4
 
-#define ENCODERS_PICO_READ_COUNTERS      0x60
-#define ENCODERS_PICO_READ_COUNTER_X     ENCODERS_PICO_READ_COUNTERS + 1
-#define ENCODERS_PICO_READ_COUNTER_Y     ENCODERS_PICO_READ_COUNTERS + 2
-#define ENCODERS_PICO_READ_COUNTER_Z     ENCODERS_PICO_READ_COUNTERS + 3
-#define ENCODERS_PICO_READ_COUNTER_W     ENCODERS_PICO_READ_COUNTERS + 4
+#define ENCODERS_PICO_COUNTERS          0x30
+#define ENCODERS_PICO_COUNTER_X         ENCODERS_PICO_COUNTERS + 1
+#define ENCODERS_PICO_COUNTER_Y         ENCODERS_PICO_COUNTERS + 2
+#define ENCODERS_PICO_COUNTER_Z         ENCODERS_PICO_COUNTERS + 3
+#define ENCODERS_PICO_COUNTER_W         ENCODERS_PICO_COUNTERS + 4
 
+#define ENCODERS_PICO_TARGETS           0x40
+#define ENCODERS_PICO_TARGET_X          ENCODERS_PICO_TARGETS + 1
+#define ENCODERS_PICO_TARGET_Y          ENCODERS_PICO_TARGETS + 2
+#define ENCODERS_PICO_TARGET_Z          ENCODERS_PICO_TARGETS + 3
+#define ENCODERS_PICO_TARGET_W          ENCODERS_PICO_TARGETS + 4
 
-#define ENCODERS_PICO_LOAD_COUNTERS      0xE0
-#define ENCODERS_PICO_LOAD_COUNTER_X     ENCODERS_PICO_LOAD_COUNTERS + 1
-#define ENCODERS_PICO_LOAD_COUNTER_Y     ENCODERS_PICO_LOAD_COUNTERS + 2
-#define ENCODERS_PICO_LOAD_COUNTER_Z     ENCODERS_PICO_LOAD_COUNTERS + 3
-#define ENCODERS_PICO_LOAD_COUNTER_W     ENCODERS_PICO_LOAD_COUNTERS + 4
-
-#define ENCODERS_PICO_SOFT_RESET         0XFF
+#define ENCODERS_PICO_SOFT_RESET    0XFF
 
 
 /**
@@ -64,11 +63,17 @@ public:
 
     int32_t read_register(uint8_t address) const;
 
+    void read_3_registers(uint8_t address, uint8_t *rx) const;
+
     int32_t write_register(uint8_t address, int32_t data) const;
 
     int32_t soft_reset() const;
 
-private:
+    uint8_t read_hard_limits() const;
+
+    void ack_hard_limits() const;
+
+public:
     void (*cs)(bool) = cs_function;             ///< pointer to CS line function handler
 };
 

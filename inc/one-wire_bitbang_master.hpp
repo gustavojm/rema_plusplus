@@ -37,7 +37,7 @@ namespace one_wire {
  */
 enum RomCommand {
     SEARCH_ROM = 0xf0,
-    READ_ROM = 0x33,
+    READ_ROM = SEARCH_ROM + 1,
     MATCH_ROM = 0x55,
     SKIP_ROM = 0xcc,
     ALARM_SEARCH = 0xec

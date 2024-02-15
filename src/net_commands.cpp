@@ -377,9 +377,44 @@ static JSON_Value* move_incremental_cmd(JSON_Value const *pars) {
 
 JSON_Value* read_encoders_cmd(JSON_Value const *pars) {
 	static encoders_pico raspi;
+    uint8_t rx[4 * 3] = {0x00};
+    
+    raspi.read_3_registers(ENCODERS_PICO_COUNTERS, rx);
+    int32_t x = (rx[0] << 24 | rx[1] << 16 | rx[2] << 8 | rx[3] << 0);
+    int32_t y = (rx[4] << 24 | rx[5] << 16 | rx[6] << 8 | rx[7] << 0);
+    int32_t z = (rx[8] << 24 | rx[9] << 16 | rx[10] << 8 | rx[11] << 0);
+
+
 
     JSON_Value *root_value = json_value_init_object();
-    json_object_set_number(json_value_get_object(root_value), "ACK", raspi.read_register(ENCODERS_PICO_READ_COUNTER_Z));
+    json_object_set_number(json_value_get_object(root_value), "X", x);
+    json_object_set_number(json_value_get_object(root_value), "Y", y);
+    json_object_set_number(json_value_get_object(root_value), "Z", z);
+    return root_value;
+}
+
+JSON_Value* read_encoders_z_cmd(JSON_Value const *pars) {
+	static encoders_pico raspi;
+
+    JSON_Value *root_value = json_value_init_object();
+    json_object_set_number(json_value_get_object(root_value), "Z", raspi.read_register(ENCODERS_PICO_COUNTER_Z));
+    return root_value;
+}
+
+JSON_Value* read_hard_limits_cmd(JSON_Value const *pars) {
+	static encoders_pico raspi;
+
+    JSON_Value *root_value = json_value_init_object();
+    json_object_set_number(json_value_get_object(root_value), "ACK", raspi.read_hard_limits());
+    return root_value;
+}
+
+JSON_Value* ack_hard_limits_cmd(JSON_Value const *pars) {
+	static encoders_pico raspi;
+    
+    raspi.ack_hard_limits();
+
+    JSON_Value *root_value = json_value_init_object();
     return root_value;
 }
 
@@ -442,12 +477,22 @@ const cmd_entry cmds_table[] = {
                 "MOVE_INCREMENTAL",
                 move_incremental_cmd,
         },
-       {
+        {
                 "READ_ENCODERS",
                 read_encoders_cmd,
         },
-
-
+        {
+                "READ_ENCODERS_Z",
+                read_encoders_z_cmd,
+        },
+        {
+                "READ_HARD_LIMITS",
+                read_hard_limits_cmd,
+        },
+        {
+                "ACK_HARD_LIMITS",
+                ack_hard_limits_cmd,
+        },
 };
 // @formatter:on
 
