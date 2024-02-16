@@ -14,8 +14,8 @@
 #include "tmr.h"
 #include "gpio.h"
 
-mot_pap x_axis("X");
-mot_pap y_axis("Y");
+mot_pap x_axis('X');
+mot_pap y_axis('Y');
 
 tmr xy_axes_tmr = tmr(LPC_TIMER0, RGU_TIMER0_RST, CLK_MX_TIMER0, TIMER0_IRQn);
 

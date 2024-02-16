@@ -8,6 +8,7 @@
 
 #include "debug.h"
 #include "rema.h"
+#include "encoders_pico.h"
 
 using namespace std::chrono_literals;
 
@@ -48,7 +49,7 @@ bool mot_pap::check_for_stall() {
         if (stalled_counter >= MOT_PAP_STALL_MAX_COUNT) {
             stalled_counter = 0;
             stalled = true;
-            lDebug(Warn, "%s: stalled", name);
+            lDebug(Warn, "%c: stalled", name);
             return true;
         }
     } else {
@@ -60,13 +61,22 @@ bool mot_pap::check_for_stall() {
     return false;
 }
 
+void mot_pap::read_pos_from_encoder() {
+    if (is_dummy) {
+        return;
+    }
+
+    auto &encoders = encoders_pico::get_instance();
+    current_counts() = encoders.read_register(ENCODERS_PICO_COUNTERS + (name - 'X') + 1);
+}
+
 bool mot_pap::check_already_there() {
     if (is_dummy) {
         return true;
     }
 
-    int error = destination_counts() - current_counts();
-    already_there = (abs((int) error) < MOT_PAP_POS_THRESHOLD);
+    // int error = destination_counts() - current_counts();
+    // already_there = (abs((int) error) < MOT_PAP_POS_THRESHOLD);
     return already_there;
 }
 

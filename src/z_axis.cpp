@@ -14,8 +14,8 @@
 #include "tmr.h"
 #include "gpio.h"
 
-mot_pap z_axis("Z");
-mot_pap dummy_axis("DUMMY", true);
+mot_pap z_axis('Z');
+mot_pap dummy_axis('D', true);
 
 tmr z_dummy_axes_tmr = tmr(LPC_TIMER1, RGU_TIMER1_RST, CLK_MX_TIMER1, TIMER1_IRQn);
 

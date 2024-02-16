@@ -337,7 +337,6 @@ static JSON_Value* move_free_run_cmd(JSON_Value const *pars) {
     return root_value;
 }
 
-
 static JSON_Value* move_incremental_cmd(JSON_Value const *pars) {
     if (pars && json_value_get_type(pars) == JSONObject) {
         JSON_Object *pars_object = json_value_get_object(pars);
@@ -376,15 +375,12 @@ static JSON_Value* move_incremental_cmd(JSON_Value const *pars) {
 }
 
 JSON_Value* read_encoders_cmd(JSON_Value const *pars) {
-	static encoders_pico raspi;
     uint8_t rx[4 * 3] = {0x00};
-    
-    raspi.read_3_registers(ENCODERS_PICO_COUNTERS, rx);
+    auto &encoders = encoders_pico::get_instance();
+    encoders.read_3_registers(ENCODERS_PICO_COUNTERS, rx);
     int32_t x = (rx[0] << 24 | rx[1] << 16 | rx[2] << 8 | rx[3] << 0);
     int32_t y = (rx[4] << 24 | rx[5] << 16 | rx[6] << 8 | rx[7] << 0);
     int32_t z = (rx[8] << 24 | rx[9] << 16 | rx[10] << 8 | rx[11] << 0);
-
-
 
     JSON_Value *root_value = json_value_init_object();
     json_object_set_number(json_value_get_object(root_value), "X", x);
@@ -394,25 +390,22 @@ JSON_Value* read_encoders_cmd(JSON_Value const *pars) {
 }
 
 JSON_Value* read_encoders_z_cmd(JSON_Value const *pars) {
-	static encoders_pico raspi;
-
+    auto &encoders = encoders_pico::get_instance();
     JSON_Value *root_value = json_value_init_object();
-    json_object_set_number(json_value_get_object(root_value), "Z", raspi.read_register(ENCODERS_PICO_COUNTER_Z));
+    json_object_set_number(json_value_get_object(root_value), "Z", encoders.read_register(ENCODERS_PICO_COUNTER_Z));
     return root_value;
 }
 
 JSON_Value* read_hard_limits_cmd(JSON_Value const *pars) {
-	static encoders_pico raspi;
-
+    auto &encoders = encoders_pico::get_instance();
     JSON_Value *root_value = json_value_init_object();
-    json_object_set_number(json_value_get_object(root_value), "ACK", raspi.read_hard_limits());
+    json_object_set_number(json_value_get_object(root_value), "ACK", encoders.read_hard_limits());
     return root_value;
 }
 
 JSON_Value* ack_hard_limits_cmd(JSON_Value const *pars) {
-	static encoders_pico raspi;
-    
-    raspi.ack_hard_limits();
+    auto &encoders = encoders_pico::get_instance();
+    encoders.ack_hard_limits();
 
     JSON_Value *root_value = json_value_init_object();
     return root_value;

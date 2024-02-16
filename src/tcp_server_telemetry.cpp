@@ -28,6 +28,9 @@ static void send_telemetry(const int sock) {
     int times = 0;
 
     while (true) {
+        x_axis.read_pos_from_encoder();
+        y_axis.read_pos_from_encoder();
+        z_axis.read_pos_from_encoder();
         JSON_Value *coords = json_value_init_object();
         json_object_set_number(json_value_get_object(coords), "x",
                 x_axis.current_counts()

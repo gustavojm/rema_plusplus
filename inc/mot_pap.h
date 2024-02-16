@@ -47,7 +47,7 @@ public:
 
 	mot_pap() = delete;
 
-	explicit mot_pap(const char *name, bool is_dummy = false) :
+	explicit mot_pap(const char name, bool is_dummy = false) :
 	        name(name), is_dummy(is_dummy){
 	}
 
@@ -57,6 +57,8 @@ public:
 	{
 	    current_counts() = static_cast<int>(pos * inches_to_counts_factor);
 	}
+
+	void read_pos_from_encoder();
 
 	void set_gpios(struct gpios gpios) {
 		this->gpios = gpios;
@@ -81,7 +83,7 @@ public:
 	JSON_Value* json() const;
 
 public:
-	const char *name;
+	const char name;
 	enum type type = TYPE_HARD_STOP;
 	enum direction dir = DIRECTION_NONE;
     bool probe_triggered = false;

@@ -101,7 +101,7 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
     already_there = false;
     first_axis->destination_counts() = first_axis_setpoint;
     second_axis->destination_counts() = second_axis_setpoint;
-    lDebug(Info, "MOVE, %s: %i, %s: %i", first_axis->name, first_axis_setpoint, second_axis->name, second_axis_setpoint);
+    lDebug(Info, "MOVE, %c: %i, %c: %i", first_axis->name, first_axis_setpoint, second_axis->name, second_axis_setpoint);
 
     calculate();
 
@@ -146,6 +146,8 @@ void bresenham::supervise() {
     while (true) {
         if (xSemaphoreTake(supervisor_semaphore,
                 portMAX_DELAY) == pdPASS) {
+
+
             if (already_there) {
                 lDebug(Info, "%s: position reached", name);
                 stop();

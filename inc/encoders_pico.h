@@ -46,7 +46,7 @@ static void cs_function(bool state) {
 
 /**
  * @struct     encoders_pico
- * @brief    RDC device instance specific state.
+ * @brief    Raspberry-pi Pico device instance specific state.
  */
 class encoders_pico {
 public:
@@ -59,6 +59,11 @@ public:
 
     ~encoders_pico() {
         spi_de_init();
+    }
+
+    static encoders_pico& get_instance() {
+        static encoders_pico instance;
+        return instance;
     }
 
     int32_t read_register(uint8_t address) const;

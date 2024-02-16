@@ -25,6 +25,7 @@
 #include "encoders.h"
 #include "mot_pap.h"
 #include "z_axis.h"
+#include "encoders_pico.h"
 
 #include "xy_axes.h"
 #include "rema.h"
