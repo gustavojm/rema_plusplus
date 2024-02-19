@@ -1,6 +1,7 @@
 //#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <cctype>
 #include "debug.h"
 #include "FreeRTOS.h"
     int len;
@@ -375,42 +376,37 @@ static JSON_Value* move_incremental_cmd(JSON_Value const *pars) {
 }
 
 JSON_Value* read_encoders_cmd(JSON_Value const *pars) {
-    uint8_t rx[4 * 3] = {0x00};
-    auto &encoders = encoders_pico::get_instance();
-    encoders.read_3_registers(ENCODERS_PICO_COUNTERS, rx);
-    int32_t x = (rx[0] << 24 | rx[1] << 16 | rx[2] << 8 | rx[3] << 0);
-    int32_t y = (rx[4] << 24 | rx[5] << 16 | rx[6] << 8 | rx[7] << 0);
-    int32_t z = (rx[8] << 24 | rx[9] << 16 | rx[10] << 8 | rx[11] << 0);
-
     JSON_Value *root_value = json_value_init_object();
-    json_object_set_number(json_value_get_object(root_value), "X", x);
-    json_object_set_number(json_value_get_object(root_value), "Y", y);
-    json_object_set_number(json_value_get_object(root_value), "Z", z);
-    return root_value;
+
+    JSON_Object *pars_object = json_value_get_object(pars);
+    if (json_object_has_value_of_type(pars_object, "axis", JSONString)) {
+        char const *axis = json_object_get_string(pars_object, "axis");
+        auto &encoders = encoders_pico::get_instance();
+        json_object_set_number(json_value_get_object(root_value), "Z", encoders.read_register(ENCODERS_PICO_COUNTERS + (std::toupper(axis[0]) - 'X') + 1  ));
+        return root_value;
+    } else {
+
+        uint8_t rx[4 * 3] = {0x00};
+        auto &encoders = encoders_pico::get_instance();
+        encoders.read_4_registers(ENCODERS_PICO_COUNTERS, rx);
+        int32_t x = (rx[0] << 24 | rx[1] << 16 | rx[2] << 8 | rx[3] << 0);
+        int32_t y = (rx[4] << 24 | rx[5] << 16 | rx[6] << 8 | rx[7] << 0);
+        int32_t z = (rx[8] << 24 | rx[9] << 16 | rx[10] << 8 | rx[11] << 0);
+        int32_t w[[maybe_unused]] = (rx[12] << 24 | rx[13] << 16 | rx[14] << 8 | rx[15] << 0);
+
+        json_object_set_number(json_value_get_object(root_value), "X", x);
+        json_object_set_number(json_value_get_object(root_value), "Y", y);
+        json_object_set_number(json_value_get_object(root_value), "Z", z);
+        return root_value;
+    }
 }
 
-JSON_Value* read_encoders_z_cmd(JSON_Value const *pars) {
+JSON_Value* read_limits_cmd(JSON_Value const *pars) {
     auto &encoders = encoders_pico::get_instance();
     JSON_Value *root_value = json_value_init_object();
-    json_object_set_number(json_value_get_object(root_value), "Z", encoders.read_register(ENCODERS_PICO_COUNTER_Z));
+    json_object_set_number(json_value_get_object(root_value), "ACK", encoders.read_limits().hard);
     return root_value;
 }
-
-JSON_Value* read_hard_limits_cmd(JSON_Value const *pars) {
-    auto &encoders = encoders_pico::get_instance();
-    JSON_Value *root_value = json_value_init_object();
-    json_object_set_number(json_value_get_object(root_value), "ACK", encoders.read_hard_limits());
-    return root_value;
-}
-
-JSON_Value* ack_hard_limits_cmd(JSON_Value const *pars) {
-    auto &encoders = encoders_pico::get_instance();
-    encoders.ack_hard_limits();
-
-    JSON_Value *root_value = json_value_init_object();
-    return root_value;
-}
-
 
 // @formatter:off
 const cmd_entry cmds_table[] = {
@@ -475,16 +471,8 @@ const cmd_entry cmds_table[] = {
                 read_encoders_cmd,
         },
         {
-                "READ_ENCODERS_Z",
-                read_encoders_z_cmd,
-        },
-        {
-                "READ_HARD_LIMITS",
-                read_hard_limits_cmd,
-        },
-        {
-                "ACK_HARD_LIMITS",
-                ack_hard_limits_cmd,
+                "READ_LIMITS",
+                read_limits_cmd,
         },
 };
 // @formatter:on

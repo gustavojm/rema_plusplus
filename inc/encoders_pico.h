@@ -38,10 +38,9 @@
 #define ENCODERS_POS_THRESHOLD_Z        ENCODERS_POS_THRESHOLDS + 3
 #define ENCODERS_POS_THRESHOLD_W        ENCODERS_POS_THRESHOLDS + 4
 
-#define ENCODERS_HARD_LIMITS            0X60
-#define ENCODERS_SOFT_LIMITS            0X70
+#define ENCODERS_LIMITS            0x60
 
-#define ENCODERS_PICO_SOFT_RESET        0XFF
+#define ENCODERS_PICO_SOFT_RESET        0xFF
 
 #define ENCODERS_PICO_TASK_PRIORITY     ( configMAX_PRIORITIES - 1)
 #define ENCODERS_PICO_INTERRUPT_PRIORITY  (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1)   //Has to have higher priority than timers ( now +2 )
@@ -49,6 +48,11 @@
 extern SemaphoreHandle_t encoders_pico_semaphore;
 
 extern gpio_templ< 4, 4, SCU_MODE_FUNC0, 2, 4 > click;      // DOUT3 P4_4    PIN9    GPIO2[4]>
+
+struct limits {
+    uint8_t hard;
+    uint8_t targets;
+};
 
 /**
  * @brief   handles the CS line for the ENCODERS RASPBERRY PI PICO
@@ -81,13 +85,12 @@ public:
         spi_de_init();
     }
 
-    static void task(void *pars) {    
+    static void task(void *pars) {
         while (true) {
             if (xSemaphoreTake(encoders_pico_semaphore, portMAX_DELAY) == pdPASS) {
-                auto &encoders = encoders_pico::get_instance();                
-                lDebug(Info, "hard_limits: %d \n", encoders.read_hard_limits());
+                auto &encoders = encoders_pico::get_instance();
+                lDebug(Info, "hard_limits: %d \n", encoders.read_limits().hard);
                 vTaskDelay(pdMS_TO_TICKS(1000));
-                encoders.ack_hard_limits();                
             }
         }
     }
@@ -121,15 +124,11 @@ public:
 
     int32_t read_register(uint8_t address) const;
 
-    void read_3_registers(uint8_t address, uint8_t *rx) const;
+    void read_4_registers(uint8_t address, uint8_t *rx) const;
 
     int32_t write_register(uint8_t address, int32_t data) const;
 
-    int32_t soft_reset() const;
-
-    uint8_t read_hard_limits() const;
-
-    void ack_hard_limits() const;
+    struct limits read_limits() const;
 
 public:
     void (*cs)(bool) = cs_function;             ///< pointer to CS line function handler

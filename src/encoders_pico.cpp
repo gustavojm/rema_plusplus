@@ -12,6 +12,7 @@
 #include "spi.h"
 
 gpio_templ< 4, 4, SCU_MODE_FUNC0, 2, 4 > click;      // DOUT3 P4_4    PIN9    GPIO2[4]>
+SemaphoreHandle_t encoders_pico_semaphore;
 
 /**
  * @brief 	writes 1 byte (address or data) to the chip
@@ -56,45 +57,23 @@ int32_t encoders_pico::read_register(uint8_t address) const {
  * @note	one extra register should be read because values come one transfer after the
  * 			address was put on the bus
  */
-void encoders_pico::read_3_registers(uint8_t address, uint8_t *rx) const {
+void encoders_pico::read_4_registers(uint8_t address, uint8_t *rx) const {
     spi_write(&address, 1, cs);
-    spi_read(rx, 4 * 3, cs);
-}
-
-
-/**
- * @brief 	soft resets the chip.
- * @returns	0 on success
- * @note	
- */
-int32_t encoders_pico::soft_reset() const {
-    int32_t ret;
-    uint8_t tx = ENCODERS_PICO_SOFT_RESET;
-    ret = spi_write(&tx, 1, cs);
-    return ret;
+    spi_read(rx, 4 * 4, cs);
 }
 
 /**
- * @brief 	reads hard limits.
+ * @brief 	reads limits.
  * @returns	status of the limits
  * @note	
  */
-uint8_t encoders_pico::read_hard_limits() const {
-    uint8_t address = ENCODERS_HARD_LIMITS;
+struct limits encoders_pico::read_limits() const {
+    uint8_t address = ENCODERS_LIMITS | 1 << 7;         // will ACK the IRQ
     spi_write(&address, 1, cs);
-    uint8_t rx;
-    spi_read(&rx, 1, cs);
-    return rx;
-}
 
-/**
- * @brief 	reads hard limits.
- * @returns	0 on success
- * @note	
- */
-void encoders_pico::ack_hard_limits() const {
-    uint8_t address = ENCODERS_HARD_LIMITS | 1 << 7;
-    spi_write(&address, 1, cs);
+    uint8_t rx[4] = {0x00};
+    spi_read(rx, 4, cs);     
+    return {rx[0], rx[1]};
 }
 
 // IRQ Handler for Raspberry Pi Pico Encoders Reader...

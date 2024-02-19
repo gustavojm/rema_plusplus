@@ -30,7 +30,6 @@
 #include "rema.h"
 
 SemaphoreHandle_t spi_mutex;
-SemaphoreHandle_t encoders_pico_semaphore;
 
 extern mot_pap x_axis;
 extern mot_pap y_axis;
@@ -90,7 +89,7 @@ void msDelay(uint32_t ms) {
 }
 
 /**
- * @brief    main routine for example_lwip_tcpec+ho_freertos_18xx43xx
+ * @brief    main routine for example_lwip_tcpecho_freertos_18xx43xx
  * @returns    function should not exit
  */
 int main(void) {
