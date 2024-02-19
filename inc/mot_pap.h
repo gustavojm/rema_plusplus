@@ -10,6 +10,7 @@
 #include "tmr.h"
 #include "parson.h"
 #include "gpio.h"
+#include "encoders_pico.h"
 
 
 #define MOT_PAP_MAX_FREQ                        500000
@@ -68,6 +69,12 @@ public:
 
 	void set_direction();
 
+	void set_destination_counts(int target) {
+		destination_counts_ = target;
+		auto &encoders = encoders_pico::get_instance();		
+		encoders.write_register(ENCODERS_PICO_TARGETS + (name - 'X') + 1, target);
+	}
+
 	void step();
 
 	void update_position();
@@ -106,8 +113,10 @@ public:
     volatile int&  current_counts() { return current_counts_; }             // setter
     volatile const int& current_counts() const { return current_counts_; }  // getter
 
-    int&  destination_counts()        { return destination_counts_; }
+    //int&  destination_counts() { return destination_counts_; }
     const int& destination_counts() const  { return destination_counts_; }
+
+
 
 private:
     volatile int current_counts_ = 0;

@@ -22,7 +22,6 @@
 #include "settings.h"
 #include "lwip/ip_addr.h"
 #include "mem_check.h"
-#include "encoders.h"
 #include "mot_pap.h"
 #include "z_axis.h"
 #include "encoders_pico.h"
@@ -31,6 +30,7 @@
 #include "rema.h"
 
 SemaphoreHandle_t spi_mutex;
+SemaphoreHandle_t encoders_pico_semaphore;
 
 extern mot_pap x_axis;
 extern mot_pap y_axis;
@@ -65,11 +65,12 @@ static void prvSetupHardware(void) {
 
     xy_axes_init();
     z_axis_init();
+
+    encoders_pico::init();
     //hard_limits_init();
 
     // temperature_init();
     temperature_ds18b20_init();
-    encoders_init();
     rema::hard_limits_init();
     //mem_check_init();
 }

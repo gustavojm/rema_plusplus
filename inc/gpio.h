@@ -50,6 +50,12 @@ public:
         return *this;
     }
 
+    gpio_pinint& int_high() {
+        int irq = static_cast<int>(IRQn) - PIN_INT0_IRQn;
+        Chip_PININT_EnableIntHigh(LPC_GPIO_PIN_INT, PININTCH(irq));
+        return *this;
+    }
+
     gpio_pinint& mode_edge() {
         int irq = static_cast<int>(IRQn) - PIN_INT0_IRQn;
         Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(irq));

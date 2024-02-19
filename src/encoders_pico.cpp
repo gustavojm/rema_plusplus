@@ -11,6 +11,8 @@
 #include "debug.h"
 #include "spi.h"
 
+gpio_templ< 4, 4, SCU_MODE_FUNC0, 2, 4 > click;      // DOUT3 P4_4    PIN9    GPIO2[4]>
+
 /**
  * @brief 	writes 1 byte (address or data) to the chip
  * @param 	data	: address or data to write through SPI
@@ -78,7 +80,7 @@ int32_t encoders_pico::soft_reset() const {
  * @note	
  */
 uint8_t encoders_pico::read_hard_limits() const {
-    uint8_t address = 0x40;
+    uint8_t address = ENCODERS_HARD_LIMITS;
     spi_write(&address, 1, cs);
     uint8_t rx;
     spi_read(&rx, 1, cs);
@@ -91,6 +93,19 @@ uint8_t encoders_pico::read_hard_limits() const {
  * @note	
  */
 void encoders_pico::ack_hard_limits() const {
-    uint8_t address = 0x40 | 1 << 7;
+    uint8_t address = ENCODERS_HARD_LIMITS | 1 << 7;
     spi_write(&address, 1, cs);
+}
+
+// IRQ Handler for Raspberry Pi Pico Encoders Reader...
+extern "C" void GPIO0_IRQHandler(void) {
+    Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
+    static bool status = false;
+    status = !status;
+    click.init_output();
+    click.set(status);
+
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    xSemaphoreGiveFromISR(encoders_pico_semaphore, &xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }

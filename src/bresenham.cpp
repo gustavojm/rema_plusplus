@@ -99,8 +99,8 @@ void bresenham::calculate() {
 void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
     is_moving = true;
     already_there = false;
-    first_axis->destination_counts() = first_axis_setpoint;
-    second_axis->destination_counts() = second_axis_setpoint;
+    first_axis->set_destination_counts(first_axis_setpoint);
+    second_axis->set_destination_counts(second_axis_setpoint);
     lDebug(Info, "MOVE, %c: %i, %c: %i", first_axis->name, first_axis_setpoint, second_axis->name, second_axis_setpoint);
 
     calculate();
