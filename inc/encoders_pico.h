@@ -12,6 +12,7 @@
 #include "gpio_templ.h"
 #include "gpio.h"
 #include "debug.h"
+#include "quadrature_encoder_constants.h"
 
 #define ENCODERS_PICO_TASK_PRIORITY       ( configMAX_PRIORITIES - 1)
 #define ENCODERS_PICO_INTERRUPT_PRIORITY  (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1)   //Has to have higher priority than timers ( now +2 )
@@ -93,6 +94,22 @@ public:
 
     struct limits read_limits() const;
 
+    void set_target(char name, int target) {
+        write_register(quadrature_encoder_constants::TARGETS + (name - 'X') + 1, target);
+    }
+
+    int read_counter(char name) {
+        return read_register(quadrature_encoder_constants::COUNTERS + (name - 'X') + 1);
+    }
+
+    void read_counters(uint8_t *rx) {
+        read_4_registers(quadrature_encoder_constants::COUNTERS, rx);
+    }
+
+    void set_thresholds(int threshold) {
+        write_register(quadrature_encoder_constants::POS_THRESHOLDS, threshold);
+    }
+    
 public:
     void (*cs)(bool) = cs_function;             ///< pointer to CS line function handler
 };

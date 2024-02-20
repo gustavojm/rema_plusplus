@@ -25,7 +25,6 @@
 #include "mot_pap.h"
 #include "z_axis.h"
 #include "encoders_pico.h"
-#include "quadrature_encoder_constants.h"
 
 #include "xy_axes.h"
 #include "rema.h"
@@ -68,7 +67,7 @@ static void prvSetupHardware(void) {
 
     encoders_pico::init();
     encoders_pico &encoders = encoders_pico::get_instance();
-    encoders.write_register(quadrature_encoder_constants::POS_THRESHOLDS, MOT_PAP_POS_THRESHOLD);
+    encoders.set_thresholds(MOT_PAP_POS_THRESHOLD);    
     //hard_limits_init();
 
     // temperature_init();
