@@ -2,6 +2,7 @@
 #define MOT_PAP_H_
 
 #include <cstdint>
+#include <cstdlib>
 #include <chrono>
 
 #include "gpio.h"
@@ -17,7 +18,7 @@
 #define MOT_PAP_COMPUMOTOR_MAX_FREQ             500000 //300000
 #define MOT_PAP_DIRECTION_CHANGE_DELAY_MS       500
 
-#define MOT_PAP_POS_THRESHOLD                   1
+#define MOT_PAP_POS_THRESHOLD                   10
 #define MOT_PAP_STALL_THRESHOLD                 3
 #define MOT_PAP_STALL_MAX_COUNT                 5
 
@@ -70,7 +71,10 @@ public:
 	void set_direction();
 
 	void set_destination_counts(int target) {
-		destination_counts_ = target;
+        int error = target - current_counts();
+        already_there = (std::abs(error) < MOT_PAP_POS_THRESHOLD);        
+
+		destination_counts_ = target;		
 		auto &encoders = encoders_pico::get_instance();		
 		encoders.write_register(quadrature_encoder_constants::TARGETS + (name - 'X') + 1, target);
 	}

@@ -223,4 +223,3 @@ void bresenham::stop() {
     tmr.stop();
     current_freq = 0;
 }
-

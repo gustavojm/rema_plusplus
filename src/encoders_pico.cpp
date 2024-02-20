@@ -11,9 +11,11 @@
 #include "debug.h"
 #include "spi.h"
 #include "quadrature_encoder_constants.h"
+#include "mot_pap.h"
+#include "rema.h"
 
-gpio_templ< 4, 4, SCU_MODE_FUNC0, 2, 4 > click;      // DOUT3 P4_4    PIN9    GPIO2[4]>
 SemaphoreHandle_t encoders_pico_semaphore;
+extern mot_pap x_axis, y_axis, z_axis;
 
 /**
  * @brief 	writes 1 byte (address or data) to the chip
@@ -34,7 +36,6 @@ int32_t encoders_pico::write_register(uint8_t address, int32_t data) const {
 
     return ret;
 }
-
 
 /**
  * @brief 	reads value from one of the RASPBERRY PI PICO ENCODERS
@@ -77,14 +78,27 @@ struct limits encoders_pico::read_limits() const {
     return {rx[0], rx[1]};
 }
 
+void encoders_pico::task(void *pars) {
+    while (true) {
+        if (xSemaphoreTake(encoders_pico_semaphore, portMAX_DELAY) == pdPASS) {
+            auto &encoders = encoders_pico::get_instance();
+            struct limits limits = encoders.read_limits();
+            if (limits.hard) {
+                rema::hard_limits_reached();
+            }
+
+            x_axis.already_there = limits.targets & 1 << 0;
+            y_axis.already_there = limits.targets & 1 << 1;
+            z_axis.already_there = limits.targets & 1 << 2;
+
+            vTaskDelay(pdMS_TO_TICKS(1000));
+        }
+    }
+}
+
 // IRQ Handler for Raspberry Pi Pico Encoders Reader...
 extern "C" void GPIO0_IRQHandler(void) {
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
-    static bool status = false;
-    status = !status;
-    click.init_output();
-    click.set(status);
-
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     xSemaphoreGiveFromISR(encoders_pico_semaphore, &xHigherPriorityTaskWoken);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);

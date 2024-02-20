@@ -13,7 +13,7 @@
 #include "gpio.h"
 #include "debug.h"
 
-#define ENCODERS_PICO_TASK_PRIORITY     ( configMAX_PRIORITIES - 1)
+#define ENCODERS_PICO_TASK_PRIORITY       ( configMAX_PRIORITIES - 1)
 #define ENCODERS_PICO_INTERRUPT_PRIORITY  (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1)   //Has to have higher priority than timers ( now +2 )
 
 extern SemaphoreHandle_t encoders_pico_semaphore;
@@ -56,16 +56,7 @@ public:
         spi_de_init();
     }
 
-    static void task(void *pars) {
-        while (true) {
-            if (xSemaphoreTake(encoders_pico_semaphore, portMAX_DELAY) == pdPASS) {
-                auto &encoders = encoders_pico::get_instance();
-                struct limits limits = encoders.read_limits();
-                lDebug(Info, "hard_limits: %d targets: %d\n", limits.hard, limits.targets );
-                vTaskDelay(pdMS_TO_TICKS(1000));
-            }
-        }
-    }
+    static void task(void *pars);
 
     static void init() {
         gpio_pinint encoders_irq_pin = {6, 1, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLDOWN | SCU_MODE_FUNC0), 3, 0, PIN_INT0_IRQn};   //GPIO5 P6_1     PIN74   GPIO3[0]    

@@ -44,15 +44,18 @@ static void send_telemetry(const int sock) {
 
         json_object_set_value(json_value_get_object(telemetry), "coords", coords);
 
-        JSON_Value *limits = json_value_init_object();
-        json_object_set_boolean(json_value_get_object(limits), "left", rema::hard_limits.x_left.read());
-        json_object_set_boolean(json_value_get_object(limits), "right", rema::hard_limits.x_right.read());
-        json_object_set_boolean(json_value_get_object(limits), "up", rema::hard_limits.y_up.read());
-        json_object_set_boolean(json_value_get_object(limits), "down", rema::hard_limits.y_down.read());
-        json_object_set_boolean(json_value_get_object(limits), "in", rema::hard_limits.z_in.read());
-        json_object_set_boolean(json_value_get_object(limits), "out", rema::hard_limits.z_out.read());
-        json_object_set_boolean(json_value_get_object(limits), "probe", rema::palper.read());
-        json_object_set_value(json_value_get_object(telemetry), "limits", limits);
+        encoders_pico &encoders = encoders_pico::get_instance();
+        struct limits limits = encoders.read_limits();
+
+        JSON_Value *limits_json = json_value_init_object();
+        json_object_set_boolean(json_value_get_object(limits_json), "left", (limits.hard & 1 << 0));
+        json_object_set_boolean(json_value_get_object(limits_json), "right", (limits.hard & 1 << 1));
+        json_object_set_boolean(json_value_get_object(limits_json), "up", (limits.hard & 1 << 2));
+        json_object_set_boolean(json_value_get_object(limits_json), "down", (limits.hard & 1 << 3));
+        json_object_set_boolean(json_value_get_object(limits_json), "in", (limits.hard & 1 << 4));
+        json_object_set_boolean(json_value_get_object(limits_json), "out", (limits.hard & 1 << 5));
+        json_object_set_boolean(json_value_get_object(limits_json), "probe", (limits.hard & 1 << 6));
+        json_object_set_value(json_value_get_object(telemetry), "limits", limits_json);
 
         JSON_Value *stalled = json_value_init_object();
         json_object_set_boolean(json_value_get_object(stalled), "x", x_axis.stalled );
