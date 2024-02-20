@@ -10,6 +10,7 @@
 
 #include "debug.h"
 #include "spi.h"
+#include "quadrature_encoder_constants.h"
 
 gpio_templ< 4, 4, SCU_MODE_FUNC0, 2, 4 > click;      // DOUT3 P4_4    PIN9    GPIO2[4]>
 SemaphoreHandle_t encoders_pico_semaphore;
@@ -21,7 +22,7 @@ SemaphoreHandle_t encoders_pico_semaphore;
  */
 int32_t encoders_pico::write_register(uint8_t address, int32_t data) const {
     int32_t ret = 0;
-    uint8_t write_address = address | 1 << 7;
+    uint8_t write_address = address | quadrature_encoder_constants::WRITE_MASK;
     ret = spi_write(&write_address, 1, cs);
 
     uint8_t tx[5] = {static_cast<uint8_t>((data >> 24) & 0xFF), 
@@ -68,7 +69,7 @@ void encoders_pico::read_4_registers(uint8_t address, uint8_t *rx) const {
  * @note	
  */
 struct limits encoders_pico::read_limits() const {
-    uint8_t address = ENCODERS_LIMITS | 1 << 7;         // will ACK the IRQ
+    uint8_t address = quadrature_encoder_constants::LIMITS | quadrature_encoder_constants::WRITE_MASK;         // will ACK the IRQ
     spi_write(&address, 1, cs);
 
     uint8_t rx[4] = {0x00};

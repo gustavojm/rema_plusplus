@@ -11,7 +11,7 @@
 #include "parson.h"
 #include "gpio.h"
 #include "encoders_pico.h"
-
+#include "quadrature_encoder_constants.h"
 
 #define MOT_PAP_MAX_FREQ                        500000
 #define MOT_PAP_COMPUMOTOR_MAX_FREQ             500000 //300000
@@ -72,7 +72,7 @@ public:
 	void set_destination_counts(int target) {
 		destination_counts_ = target;
 		auto &encoders = encoders_pico::get_instance();		
-		encoders.write_register(ENCODERS_PICO_TARGETS + (name - 'X') + 1, target);
+		encoders.write_register(quadrature_encoder_constants::TARGETS + (name - 'X') + 1, target);
 	}
 
 	void step();

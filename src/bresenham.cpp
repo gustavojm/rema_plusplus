@@ -103,6 +103,8 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
     second_axis->set_destination_counts(second_axis_setpoint);
     lDebug(Info, "MOVE, %c: %i, %c: %i", first_axis->name, first_axis_setpoint, second_axis->name, second_axis_setpoint);
 
+    first_axis->read_pos_from_encoder();
+    second_axis->read_pos_from_encoder();
     calculate();
 
     if (first_axis->check_already_there() && second_axis->check_already_there()) {
@@ -147,6 +149,8 @@ void bresenham::supervise() {
         if (xSemaphoreTake(supervisor_semaphore,
                 portMAX_DELAY) == pdPASS) {
 
+            first_axis->read_pos_from_encoder();
+            second_axis->read_pos_from_encoder();
 
             if (already_there) {
                 lDebug(Info, "%s: position reached", name);

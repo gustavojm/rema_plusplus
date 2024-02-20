@@ -126,6 +126,7 @@ set(HEADERS_DIR
     lwip/inc/ipv4
     freertos/inc
     inc
+    ../../pico/encoders/inc
     /usr/local/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/arm-none-eabi/include
     ../lpc_chip_43xx/inc
     ../lpc_chip_43xx/inc/config_43xx

@@ -13,35 +13,6 @@
 #include "gpio.h"
 #include "debug.h"
 
-/* Control register bits description */
-#define ENCODERS_PICO_CLEAR_COUNTERS     0x20
-#define ENCODERS_PICO_CLEAR_COUNTER_X    ENCODERS_PICO_CLEAR_COUNTERS + 1
-#define ENCODERS_PICO_CLEAR_COUNTER_Y    ENCODERS_PICO_CLEAR_COUNTERS + 2
-#define ENCODERS_PICO_CLEAR_COUNTER_Z    ENCODERS_PICO_CLEAR_COUNTERS + 3
-#define ENCODERS_PICO_CLEAR_COUNTER_W    ENCODERS_PICO_CLEAR_COUNTERS + 4
-
-#define ENCODERS_PICO_COUNTERS          0x30
-#define ENCODERS_PICO_COUNTER_X         ENCODERS_PICO_COUNTERS + 1
-#define ENCODERS_PICO_COUNTER_Y         ENCODERS_PICO_COUNTERS + 2
-#define ENCODERS_PICO_COUNTER_Z         ENCODERS_PICO_COUNTERS + 3
-#define ENCODERS_PICO_COUNTER_W         ENCODERS_PICO_COUNTERS + 4
-
-#define ENCODERS_PICO_TARGETS           0x40
-#define ENCODERS_PICO_TARGET_X          ENCODERS_PICO_TARGETS + 1
-#define ENCODERS_PICO_TARGET_Y          ENCODERS_PICO_TARGETS + 2
-#define ENCODERS_PICO_TARGET_Z          ENCODERS_PICO_TARGETS + 3
-#define ENCODERS_PICO_TARGET_W          ENCODERS_PICO_TARGETS + 4
-
-#define ENCODERS_POS_THRESHOLDS         0x50
-#define ENCODERS_POS_THRESHOLD_X        ENCODERS_POS_THRESHOLDS + 1
-#define ENCODERS_POS_THRESHOLD_Y        ENCODERS_POS_THRESHOLDS + 2
-#define ENCODERS_POS_THRESHOLD_Z        ENCODERS_POS_THRESHOLDS + 3
-#define ENCODERS_POS_THRESHOLD_W        ENCODERS_POS_THRESHOLDS + 4
-
-#define ENCODERS_LIMITS            0x60
-
-#define ENCODERS_PICO_SOFT_RESET        0xFF
-
 #define ENCODERS_PICO_TASK_PRIORITY     ( configMAX_PRIORITIES - 1)
 #define ENCODERS_PICO_INTERRUPT_PRIORITY  (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1)   //Has to have higher priority than timers ( now +2 )
 
@@ -89,7 +60,8 @@ public:
         while (true) {
             if (xSemaphoreTake(encoders_pico_semaphore, portMAX_DELAY) == pdPASS) {
                 auto &encoders = encoders_pico::get_instance();
-                lDebug(Info, "hard_limits: %d \n", encoders.read_limits().hard);
+                struct limits limits = encoders.read_limits();
+                lDebug(Info, "hard_limits: %d targets: %d\n", limits.hard, limits.targets );
                 vTaskDelay(pdMS_TO_TICKS(1000));
             }
         }

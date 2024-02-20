@@ -67,7 +67,7 @@ void mot_pap::read_pos_from_encoder() {
     }
 
     auto &encoders = encoders_pico::get_instance();
-    current_counts() = encoders.read_register(ENCODERS_PICO_COUNTERS + (name - 'X') + 1);
+    current_counts() = encoders.read_register(quadrature_encoder_constants::COUNTERS + (name - 'X') + 1);
 }
 
 bool mot_pap::check_already_there() {

@@ -17,6 +17,7 @@
 #include "xy_axes.h"
 #include "temperature_ds18b20.h"
 #include "encoders_pico.h"
+#include "quadrature_encoder_constants.h"
 
 #define PROTOCOL_VERSION  	"JSON_1.0"
 
@@ -382,13 +383,13 @@ JSON_Value* read_encoders_cmd(JSON_Value const *pars) {
     if (json_object_has_value_of_type(pars_object, "axis", JSONString)) {
         char const *axis = json_object_get_string(pars_object, "axis");
         auto &encoders = encoders_pico::get_instance();
-        json_object_set_number(json_value_get_object(root_value), "Z", encoders.read_register(ENCODERS_PICO_COUNTERS + (std::toupper(axis[0]) - 'X') + 1  ));
+        json_object_set_number(json_value_get_object(root_value), axis, encoders.read_register(quadrature_encoder_constants::COUNTERS + (std::toupper(axis[0]) - 'X') + 1  ));
         return root_value;
     } else {
 
         uint8_t rx[4 * 3] = {0x00};
         auto &encoders = encoders_pico::get_instance();
-        encoders.read_4_registers(ENCODERS_PICO_COUNTERS, rx);
+        encoders.read_4_registers(quadrature_encoder_constants::COUNTERS, rx);
         int32_t x = (rx[0] << 24 | rx[1] << 16 | rx[2] << 8 | rx[3] << 0);
         int32_t y = (rx[4] << 24 | rx[5] << 16 | rx[6] << 8 | rx[7] << 0);
         int32_t z = (rx[8] << 24 | rx[9] << 16 | rx[10] << 8 | rx[11] << 0);
