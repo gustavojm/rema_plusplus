@@ -100,6 +100,8 @@ void encoders_pico::task(void *pars) {
             .int_high()
             .clear_pending();
 
+    Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
+
     NVIC_SetPriority(PIN_INT0_IRQn, ENCODERS_PICO_INTERRUPT_PRIORITY);
     NVIC_EnableIRQ(PIN_INT0_IRQn);
 
@@ -129,4 +131,5 @@ extern "C" void GPIO0_IRQHandler(void) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     xSemaphoreGiveFromISR(encoders_pico_semaphore, &xHigherPriorityTaskWoken);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    while(true);
 }

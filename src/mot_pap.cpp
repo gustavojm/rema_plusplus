@@ -72,8 +72,8 @@ void mot_pap::read_pos_from_encoder() {
         return;
     }
 
-    // auto &encoders = encoders_pico::get_instance();
-    // current_counts() = encoders.read_counter(name);
+    auto &encoders = encoders_pico::get_instance();
+    current_counts() = encoders.read_counter(name);
 }
 
 bool mot_pap::check_already_there() {
@@ -125,13 +125,13 @@ void mot_pap::step() {
 }
 
 void mot_pap::soft_stop(int counts) {
-    if (destination_counts() > current_counts()) {
-        set_destination_counts(current_counts() + counts);
-    }
-    // DO NOT use "else". If destination_counts() == current_counts nothing must be done
-    if (destination_counts() < current_counts()) {
-        set_destination_counts(current_counts() - counts);
-    }
+    // if (destination_counts() > current_counts()) {
+    //     set_destination_counts(current_counts() + counts);
+    // }
+    // // DO NOT use "else". If destination_counts() == current_counts nothing must be done
+    // if (destination_counts() < current_counts()) {
+    //     set_destination_counts(current_counts() - counts);
+    // }
 }
 
 JSON_Value* mot_pap::json() const {
