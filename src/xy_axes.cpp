@@ -55,8 +55,10 @@ void xy_axes_init() {
     bresenham& x_y_axes = x_y_axes_get_instance();
     x_y_axes.kp = {100,                             //!< Kp
             x_y_axes.step_time,                     //!< Update rate (ms)
-            10000,                                  //!< Min output
-            100000                                  //!< Max output
+            // 10000,                                  //!< Min output
+            // 100000                                  //!< Max output
+            500,                                    //!< Min output             LOWER TIMER SETTINGS FOR ENCODER-MOTOR SIMULATOR
+            5000                                    //!< Max output
     };
 
 }

@@ -74,6 +74,10 @@ public:
 
 	void stop();
 
+    void pause();
+
+    void resume();
+
 	JSON_Value* json() const;
 
 public:

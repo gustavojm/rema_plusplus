@@ -99,12 +99,12 @@ void bresenham::calculate() {
 void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
     is_moving = true;
     already_there = false;
+    first_axis->read_pos_from_encoder();
+    second_axis->read_pos_from_encoder();
     first_axis->set_destination_counts(first_axis_setpoint);
     second_axis->set_destination_counts(second_axis_setpoint);
     lDebug(Info, "MOVE, %c: %i, %c: %i", first_axis->name, first_axis_setpoint, second_axis->name, second_axis_setpoint);
 
-    first_axis->read_pos_from_encoder();
-    second_axis->read_pos_from_encoder();
     calculate();
 
     if (first_axis->check_already_there() && second_axis->check_already_there()) {
@@ -176,8 +176,8 @@ void bresenham::supervise() {
 //            }
 
             calculate();                // recalculate to compensate for encoder errors
-            first_axis->set_direction();     // if didn't stop for proximity to set point, avoid going to infinity
-            second_axis->set_direction();     // keeps dancing around the setpoint...
+            //first_axis->set_direction();     // if didn't stop for proximity to set point, avoid going to infinity
+            //second_axis->set_direction();    // keeps dancing around the setpoint...
 
             current_freq = kp.run(leader_axis->destination_counts(), leader_axis->current_counts());
             lDebug(Debug, "Control output = %i: ", current_freq);
@@ -222,4 +222,24 @@ void bresenham::stop() {
     is_moving = false;
     tmr.stop();
     current_freq = 0;
+}
+
+/**
+ * @brief   if there is a movement in process, stops it
+ * @returns nothing
+ */
+void bresenham::pause() {
+    if (is_moving) {
+        tmr.stop();
+    }
+}
+
+/**
+ * @brief   if there is a movement in process, stops it
+ * @returns nothing
+ */
+void bresenham::resume() {
+    if (is_moving) {
+        tmr.start();
+    }
 }

@@ -132,7 +132,8 @@ void encoders_pico::task(void *pars) {
             y_axis.already_there = limits.targets & 1 << 1;
             z_axis.already_there = limits.targets & 1 << 2;
 
-            vTaskDelay(pdMS_TO_TICKS(1000));
+            x_y_axes_get_instance().resume();
+            z_dummy_axes_get_instance().resume();
         }
     }
 }
@@ -141,7 +142,9 @@ void encoders_pico::task(void *pars) {
 extern "C" void GPIO0_IRQHandler(void) {
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    x_y_axes_get_instance().pause();
+    z_dummy_axes_get_instance().pause();
     xSemaphoreGiveFromISR(encoders_pico_semaphore, &xHigherPriorityTaskWoken);
-    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    portYIELD_FROM_ISR(xHigherPriorityTaskWoken);    
     
 }
