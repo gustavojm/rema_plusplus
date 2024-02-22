@@ -60,15 +60,6 @@ public:
     static void task(void *pars);
 
     static void init() {
-        gpio_pinint encoders_irq_pin = {6, 1, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLDOWN | SCU_MODE_FUNC0), 3, 0, PIN_INT0_IRQn};   //GPIO5 P6_1     PIN74   GPIO3[0]    
-        encoders_irq_pin.init_input()
-                .mode_edge()
-                .int_high()
-                .clear_pending()
-                .enable();
-    
-        NVIC_SetPriority(PIN_INT0_IRQn, ENCODERS_PICO_INTERRUPT_PRIORITY);
-
         encoders_pico_semaphore = xSemaphoreCreateBinary();
 
         if (encoders_pico_semaphore != NULL) {
@@ -94,12 +85,14 @@ public:
 
     struct limits read_limits() const;
 
-    void set_target(char name, int target) {
-        write_register(quadrature_encoder_constants::TARGETS + (name - 'X') + 1, target);
+    struct limits read_limits_and_ack() const;
+
+    void set_target(char axis, int target) {
+        write_register(quadrature_encoder_constants::TARGETS + (axis - 'X') + 1, target);
     }
 
-    int read_counter(char name) {
-        return read_register(quadrature_encoder_constants::COUNTERS + (name - 'X') + 1);
+    int read_counter(char axis) {
+        return read_register(quadrature_encoder_constants::COUNTERS + (axis - 'X') + 1);
     }
 
     void read_counters(uint8_t *rx) {
@@ -109,7 +102,12 @@ public:
     void set_thresholds(int threshold) {
         write_register(quadrature_encoder_constants::POS_THRESHOLDS, threshold);
     }
-    
+
+    void set_direction(char axis, bool dir) {
+        write_register(quadrature_encoder_constants::DIRECTIONS + (axis - 'X') + 1, dir);
+    }
+
+
 public:
     void (*cs)(bool) = cs_function;             ///< pointer to CS line function handler
 };

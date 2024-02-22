@@ -28,7 +28,13 @@ enum mot_pap::direction mot_pap::direction_calculate(int error) {
 
 void mot_pap::set_direction(enum direction direction) {
     dir = direction;
-    gpios.direction.set(dir == DIRECTION_CW ? 0 : 1);
+    if (is_dummy) {
+        return;
+    }
+    //gpios.direction.set(dir == DIRECTION_CW ? 0 : 1);
+    encoders_pico &encoders = encoders_pico::get_instance();
+    encoders.set_direction(name, dir == DIRECTION_CW ? 0 : 1);    
+
 }
 
 void mot_pap::set_direction() {
@@ -66,8 +72,8 @@ void mot_pap::read_pos_from_encoder() {
         return;
     }
 
-    auto &encoders = encoders_pico::get_instance();
-    current_counts() = encoders.read_counter(name);
+    // auto &encoders = encoders_pico::get_instance();
+    // current_counts() = encoders.read_counter(name);
 }
 
 bool mot_pap::check_already_there() {
@@ -114,7 +120,7 @@ void mot_pap::step() {
 #ifdef SIMULATE_ENCODER
     update_position_simulated();
 #else
-    gpios.step.toggle();
+    //gpios.step.toggle();
 #endif
 }
 

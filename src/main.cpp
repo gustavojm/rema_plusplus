@@ -66,12 +66,10 @@ static void prvSetupHardware(void) {
     z_axis_init();
 
     encoders_pico::init();
-    encoders_pico &encoders = encoders_pico::get_instance();
-    encoders.set_thresholds(MOT_PAP_POS_THRESHOLD);    
     //hard_limits_init();
 
     // temperature_init();
-    temperature_ds18b20_init();
+    // temperature_ds18b20_init();
     //mem_check_init();
 }
 

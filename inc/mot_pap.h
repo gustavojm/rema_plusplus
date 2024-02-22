@@ -73,7 +73,10 @@ public:
         int error = target - current_counts();
         already_there = (std::abs(error) < MOT_PAP_POS_THRESHOLD);        
 
-		destination_counts_ = target;		
+		destination_counts_ = target;
+		if (is_dummy)  {
+			return;
+		}
 		auto &encoders = encoders_pico::get_instance();		
 		encoders.set_target(name, target);
 	}

@@ -34,15 +34,23 @@ void xy_axes_init() {
     x_axis.inches_to_counts_factor = 5000;
     x_axis.reversed = true;
 
-    x_axis.gpios.step = gpio { 2, 1, SCU_MODE_FUNC4, 5, 1 }.init_output();      //DOUT0 P2_1    PIN81   GPIO5[1]
-    x_axis.gpios.direction = gpio { 4, 5, SCU_MODE_FUNC0, 2, 6 }.init_output(); //DOUT1 P4_5    PIN10   GPIO2[6]
+    // As in arquitecture 
+    // x_axis.gpios.step = gpio { 2, 1, SCU_MODE_FUNC4, 5, 1 }.init_output();      //DOUT0 P2_1    PIN81   GPIO5[1]
+    // x_axis.gpios.direction = gpio { 4, 5, SCU_MODE_FUNC0, 2, 6 }.init_output(); //DOUT1 P4_5    PIN10   GPIO2[6]
+
+    x_axis.gpios.step = gpio {4, 8, SCU_MODE_FUNC4, 5, 12}.init_output();           //DOUT4 P4_8    PIN15   GPIO5[12]
+    x_axis.gpios.direction = gpio { 2, 1, SCU_MODE_FUNC4, 5, 1 }.init_output();     //DOUT0 P2_1    PIN81   GPIO5[1]
+
 
     y_axis.motor_resolution = 25000;
     y_axis.encoder_resolution = 500;
     y_axis.inches_to_counts_factor = 5000;
 
-    y_axis.gpios.step = gpio {4, 6, SCU_MODE_FUNC0, 2, 5}.init_output();        //DOUT2 P4_6    PIN11   GPIO2[6]
-    y_axis.gpios.direction = gpio {4, 8, SCU_MODE_FUNC4, 5, 12}.init_output();  //DOUT4 P4_8    PIN15   GPIO5[12]
+    // y_axis.gpios.step = gpio {4, 6, SCU_MODE_FUNC0, 2, 5}.init_output();        //DOUT2 P4_6    PIN11   GPIO2[6]
+    // y_axis.gpios.direction = gpio {4, 8, SCU_MODE_FUNC4, 5, 12}.init_output();  //DOUT4 P4_8    PIN15   GPIO5[12]
+
+    y_axis.gpios.step = gpio {4, 9, SCU_MODE_FUNC4, 5, 13}.init_output();          //DOUT5 P4_9    PIN33   GPIO5[13]
+    y_axis.gpios.direction = gpio { 4, 5, SCU_MODE_FUNC0, 2, 6 }.init_output();    //DOUT1 P4_5    PIN10   GPIO2[6]
 
     bresenham& x_y_axes = x_y_axes_get_instance();
     x_y_axes.kp = {100,                             //!< Kp

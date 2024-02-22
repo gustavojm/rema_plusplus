@@ -112,7 +112,7 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
         stop();
         lDebug(Info, "%s: already there", name);
     } else {
-        rema::update_watchdog_timer();
+        //rema::update_watchdog_timer();
         kp.restart();
 
         current_freq = kp.run(leader_axis->destination_counts(), leader_axis->current_counts());

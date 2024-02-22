@@ -27,7 +27,7 @@ int32_t encoders_pico::write_register(uint8_t address, int32_t data) const {
     uint8_t write_address = address | quadrature_encoder_constants::WRITE_MASK;
     ret = spi_write(&write_address, 1, cs);
 
-    uint8_t tx[5] = {static_cast<uint8_t>((data >> 24) & 0xFF), 
+    uint8_t tx[4] = {static_cast<uint8_t>((data >> 24) & 0xFF), 
                      static_cast<uint8_t>((data >> 16) & 0xFF), 
                      static_cast<uint8_t>((data >> 8) & 0xFF), 
                      static_cast<uint8_t>((data >> 0) & 0xFF)
@@ -65,11 +65,25 @@ void encoders_pico::read_4_registers(uint8_t address, uint8_t *rx) const {
 }
 
 /**
- * @brief 	reads limits.
+ * @brief 	reads limits. (Used in telemetry)
  * @returns	status of the limits
  * @note	
  */
 struct limits encoders_pico::read_limits() const {
+    uint8_t address = quadrature_encoder_constants::LIMITS;
+    spi_write(&address, 1, cs);
+
+    uint8_t rx[4] = {0x00};
+    spi_read(rx, 4, cs);     
+    return {rx[0], rx[1]};
+}
+
+/**
+ * @brief 	reads limits. (Used in IRQ)
+ * @returns	status of the limits
+ * @note	
+ */
+struct limits encoders_pico::read_limits_and_ack() const {
     uint8_t address = quadrature_encoder_constants::LIMITS | quadrature_encoder_constants::WRITE_MASK;         // will ACK the IRQ
     spi_write(&address, 1, cs);
 
@@ -78,11 +92,24 @@ struct limits encoders_pico::read_limits() const {
     return {rx[0], rx[1]};
 }
 
+
 void encoders_pico::task(void *pars) {
+    gpio_pinint encoders_irq_pin = {6, 1, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLDOWN | SCU_MODE_FUNC0), 3, 0, PIN_INT0_IRQn};   //GPIO5 P6_1     PIN74   GPIO3[0]    
+    encoders_irq_pin.init_input()
+            .mode_edge()
+            .int_high()
+            .clear_pending();
+
+    NVIC_SetPriority(PIN_INT0_IRQn, ENCODERS_PICO_INTERRUPT_PRIORITY);
+    NVIC_EnableIRQ(PIN_INT0_IRQn);
+
+    encoders_pico &encoders = encoders_pico::get_instance();
+    encoders.set_thresholds(MOT_PAP_POS_THRESHOLD);
+
     while (true) {
         if (xSemaphoreTake(encoders_pico_semaphore, portMAX_DELAY) == pdPASS) {
             auto &encoders = encoders_pico::get_instance();
-            struct limits limits = encoders.read_limits();
+            struct limits limits = encoders.read_limits_and_ack();
             if (limits.hard) {
                 rema::hard_limits_reached();
             }
