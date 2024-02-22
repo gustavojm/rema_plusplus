@@ -408,44 +408,6 @@ JSON_Value* read_limits_cmd(JSON_Value const *pars) {
     return root_value;
 }
 
-JSON_Value* set_targets_cmd(JSON_Value const *pars) {
-    JSON_Value *root_value = json_value_init_object();
-        auto &encoders = encoders_pico::get_instance();
-        encoders.set_target('X', -2147383648);
-        encoders.set_target('Y', +2147383648);
-        encoders.set_direction('X', false);
-        encoders.set_direction('Y', true);
-        encoders.set_target('X', -2147383648);
-        encoders.read_limits();
-        encoders.read_counter('X');
-        encoders.read_counter('Y');
-        encoders.set_direction('X', false);
-        encoders.read_limits();
-        encoders.read_limits();
-        encoders.set_target('Z', -2147383648);
-        encoders.read_limits();
-        encoders.set_direction('Z', false);
-        encoders.set_direction('X', false);
-        encoders.read_limits();
-        encoders.read_limits();
-        encoders.set_target('X', -2147383648);
-        encoders.read_counter('X');
-        encoders.read_limits();
-        encoders.set_target('Y', +2147383648);
-        encoders.read_limits();
-        encoders.read_limits();
-        encoders.read_counter('Y');
-        encoders.read_limits();
-        encoders.set_direction('X', false);
-        encoders.set_target('Z', -2147383648);
-        encoders.read_limits();
-        encoders.set_direction('Z', false);
-        encoders.read_limits();
-        encoders.set_direction('X', false);
-        return root_value;
-}
-
-
 // @formatter:off
 const cmd_entry cmds_table[] = {
         {
@@ -511,10 +473,6 @@ const cmd_entry cmds_table[] = {
         {
                 "READ_LIMITS",
                 read_limits_cmd,
-        },
-        {
-                "SET_TARGETS",
-                set_targets_cmd,
         },
 };
 // @formatter:on

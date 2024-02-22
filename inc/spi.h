@@ -15,7 +15,7 @@ extern "C" {
 #define LPC_SSP         LPC_SSP1
 #define SSP_DATA_BITS   (SSP_BITS_8)
 
-extern SemaphoreHandle_t spi_mutex;
+extern SemaphoreHandle_t encoders_mutex;
 
 /**
  * \brief 	initializes SSP bus to transfer SPI frames as a MASTER.
@@ -23,7 +23,7 @@ extern SemaphoreHandle_t spi_mutex;
  * @note 	sets SPI bitrate to 1Mhz SEE IF WE CAN IMPROVE THAT.
  */
 static inline void spi_init(void) {
-    spi_mutex = xSemaphoreCreateMutex();
+    encoders_mutex = xSemaphoreCreateMutex();
 
     Board_SSP_Init(LPC_SSP);
     Chip_SSP_Init(LPC_SSP);
@@ -41,7 +41,7 @@ static inline void spi_init(void) {
 }
 
 static inline void spi_de_init(void) {
-    vSemaphoreDelete(spi_mutex);
+    vSemaphoreDelete(encoders_mutex);
 
     Chip_SSP_DeInit(LPC_SSP);
 }    
@@ -57,22 +57,16 @@ static inline void spi_de_init(void) {
  * 			could work without mutex but debugging with a logic analyzer would be more confusing.
  */
 static inline int32_t spi_sync_transfer(Chip_SSP_DATA_SETUP_T *xfer_setup, void (*cs)(bool) = nullptr) {
-    if (spi_mutex != NULL) {
-        if (xSemaphoreTake(spi_mutex, portMAX_DELAY) == pdTRUE) {
-            if (cs != NULL) {
-                cs(0);
-            }
-            udelay(5);              // Si RPI PICO está haciendo printf para debug poner udelay(500)
-            //Chip_SSP_Int_FlushData(LPC_SSP);
-            Chip_SSP_RWFrames_Blocking(LPC_SSP, xfer_setup);            
-            //Chip_SSP_Int_FlushData(LPC_SSP);
-            udelay(5);              // Si RPI PICO está haciendo printf para debug poner udelay(500)            
-            if (cs != NULL) {
-                cs(1);
-            }
-            xSemaphoreGive(spi_mutex);
-        }
-        
+    if (cs != NULL) {
+        cs(0);
+    }
+    udelay(5);              // Si RPI PICO está haciendo printf para debug poner udelay(500)
+    //Chip_SSP_Int_FlushData(LPC_SSP);
+    Chip_SSP_RWFrames_Blocking(LPC_SSP, xfer_setup);            
+    //Chip_SSP_Int_FlushData(LPC_SSP);
+    udelay(5);              // Si RPI PICO está haciendo printf para debug poner udelay(500)            
+    if (cs != NULL) {
+        cs(1);
     }
     return 0;
 }
@@ -91,13 +85,6 @@ static inline int spi_write(void *buf, size_t len, void (*cs)(bool)) {
              .length = len
     };
     /* @formatter:on */
-
-    printf("W");
-    for (int x = 0; x < len; x++) {
-        printf("%d", *(reinterpret_cast<uint8_t *>(buf) + x));
-    }
-    printf("W\n");
-
     return spi_sync_transfer(&t, cs);
 }
 
@@ -115,7 +102,6 @@ static inline int spi_read(void *buf, size_t len, void (*cs)(bool)) {
              .length = len
     };
     /* @formatter:on */
-    printf("R");
     return spi_sync_transfer(&t, cs);
 }
 

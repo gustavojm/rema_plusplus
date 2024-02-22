@@ -29,7 +29,7 @@
 #include "xy_axes.h"
 #include "rema.h"
 
-SemaphoreHandle_t spi_mutex;
+SemaphoreHandle_t encoders_mutex;
 
 extern mot_pap x_axis;
 extern mot_pap y_axis;
@@ -69,7 +69,7 @@ static void prvSetupHardware(void) {
     //hard_limits_init();
 
     // temperature_init();
-    // temperature_ds18b20_init();
+    temperature_ds18b20_init();
     //mem_check_init();
 }
 

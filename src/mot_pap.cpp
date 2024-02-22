@@ -120,7 +120,7 @@ void mot_pap::step() {
 #ifdef SIMULATE_ENCODER
     update_position_simulated();
 #else
-    //gpios.step.toggle();
+    gpios.step.toggle();
 #endif
 }
 
