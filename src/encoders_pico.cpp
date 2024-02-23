@@ -15,6 +15,7 @@
 #include "rema.h"
 
 SemaphoreHandle_t encoders_pico_semaphore;
+SemaphoreHandle_t encoders_mutex;
 extern mot_pap x_axis, y_axis, z_axis;
 
 /**
@@ -115,8 +116,6 @@ void encoders_pico::task(void *pars) {
             .enable();
 
     
-    //NVIC_EnableIRQ(PIN_INT0_IRQn);
-
     encoders_pico &encoders = encoders_pico::get_instance();
     encoders.set_thresholds(MOT_PAP_POS_THRESHOLD);
 

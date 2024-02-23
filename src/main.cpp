@@ -29,8 +29,6 @@
 #include "xy_axes.h"
 #include "rema.h"
 
-SemaphoreHandle_t encoders_mutex;
-
 extern mot_pap x_axis;
 extern mot_pap y_axis;
 extern mot_pap z_axis;

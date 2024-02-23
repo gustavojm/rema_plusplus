@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <cstdlib>
+#include <algorithm>
 
 #include "board.h"
 #include "task.h"
@@ -97,6 +98,10 @@ void bresenham::calculate() {
 }
 
 void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
+    // Bresenham error calculation needs to multiply by 2 for the error calculation, thus clamp setpoints to half INT32 min and max
+    first_axis_setpoint = std::clamp(first_axis_setpoint, (static_cast<int>(INT32_MIN) / 2), (static_cast<int>(INT32_MAX) / 2));
+    second_axis_setpoint = std::clamp(second_axis_setpoint, (static_cast<int>(INT32_MIN) / 2) , (static_cast<int>(INT32_MAX) / 2));
+
     is_moving = true;
     already_there = false;
     first_axis->read_pos_from_encoder();
@@ -176,8 +181,8 @@ void bresenham::supervise() {
 //            }
 
             calculate();                // recalculate to compensate for encoder errors
-            //first_axis->set_direction();     // if didn't stop for proximity to set point, avoid going to infinity
-            //second_axis->set_direction();    // keeps dancing around the setpoint...
+                                        // if didn't stop for proximity to set point, avoid going to infinity
+                                        // keeps dancing around the setpoint...
 
             current_freq = kp.run(leader_axis->destination_counts(), leader_axis->current_counts());
             lDebug(Debug, "Control output = %i: ", current_freq);
