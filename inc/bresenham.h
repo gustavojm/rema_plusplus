@@ -20,10 +20,17 @@
 
 
 using namespace std::chrono_literals;
+
 /**
- * @struct 	mot_pap
- * @brief	axis structure.
+ * @struct  bresenham_msg
+ * @brief   messages to axis tasks.
  */
+struct bresenham_msg {
+    enum mot_pap::type type;
+    int first_axis_setpoint;
+    int second_axis_setpoint;
+};
+
 class bresenham {
 public:
 
@@ -70,6 +77,8 @@ public:
 
 	void step();
 
+    void send(bresenham_msg msg);
+
 	void isr();
 
 	void stop();
@@ -109,16 +118,6 @@ private:
     //       due to the compilers behavior to check accessibility
     //       before deleted status
 
-};
-
-/**
- * @struct  bresenham_msg
- * @brief   messages to axis tasks.
- */
-struct bresenham_msg {
-    enum mot_pap::type type;
-    int first_axis_setpoint;
-    int second_axis_setpoint;
 };
 
 #endif /* BRESENHAM_H_ */

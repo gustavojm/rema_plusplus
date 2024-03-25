@@ -157,35 +157,16 @@ static JSON_Value* kp_set_tunings_cmd(JSON_Value const *pars) {
 }
 
 static JSON_Value* axes_hard_stop_all_cmd(JSON_Value const *pars) {
-    bresenham_msg *msg_xy = new bresenham_msg;
-    msg_xy->type = mot_pap::TYPE_HARD_STOP;
-    if (xQueueSend((&x_y_axes_get_instance())->queue, &msg_xy, portMAX_DELAY) == pdPASS) {
-        lDebug(Debug, "Command sent");
-    }
-
-    bresenham_msg *msg_z = new bresenham_msg;
-    msg_z->type = mot_pap::TYPE_HARD_STOP;
-    if (xQueueSend((&z_dummy_axes_get_instance())->queue, &msg_z, portMAX_DELAY) == pdPASS) {
-            lDebug(Debug, "Command sent");
-    }
+    (&x_y_axes_get_instance())->send({mot_pap::TYPE_HARD_STOP});
+    (&z_dummy_axes_get_instance())->send({mot_pap::TYPE_HARD_STOP});
     JSON_Value *root_value = json_value_init_object();
     json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
     return root_value;
 }
 
 static JSON_Value* axes_soft_stop_all_cmd(JSON_Value const *pars) {
-    bresenham_msg *msg_xy = new bresenham_msg;
-    msg_xy->type = mot_pap::TYPE_SOFT_STOP;
-    if (xQueueSend((&x_y_axes_get_instance())->queue, &msg_xy, portMAX_DELAY) == pdPASS) {
-        lDebug(Debug, "Command sent");
-    }
-
-    bresenham_msg *msg_z = new bresenham_msg;
-    msg_z->type = mot_pap::TYPE_SOFT_STOP;
-    if (xQueueSend((&z_dummy_axes_get_instance())->queue, &msg_z, portMAX_DELAY) == pdPASS) {
-            lDebug(Debug, "Command sent");
-    }
-
+    (&x_y_axes_get_instance())->send({mot_pap::TYPE_SOFT_STOP});
+    (&z_dummy_axes_get_instance())->send({mot_pap::TYPE_SOFT_STOP});
     JSON_Value *root_value = json_value_init_object();
     json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
     return root_value;
@@ -279,16 +260,14 @@ static JSON_Value* move_closed_loop_cmd(JSON_Value const *pars) {
 
         double second_axis_setpoint = json_object_get_number(pars_object, "second_axis_setpoint");
 
-        bresenham_msg *msg = new bresenham_msg;
-        msg->type = mot_pap::TYPE_BRESENHAM;
-        msg->first_axis_setpoint = static_cast<int>(first_axis_setpoint
+        bresenham_msg msg;
+        msg.type = mot_pap::TYPE_BRESENHAM;
+        msg.first_axis_setpoint = static_cast<int>(first_axis_setpoint
                 * axes_->first_axis->inches_to_counts_factor);
-        msg->second_axis_setpoint = static_cast<int>(second_axis_setpoint
+        msg.second_axis_setpoint = static_cast<int>(second_axis_setpoint
                 * axes_->second_axis->inches_to_counts_factor);
 
-        if (xQueueSend(axes_->queue, &msg, portMAX_DELAY) == pdPASS) {
-            lDebug(Debug, "Command sent");
-        }
+        axes_->send(msg);
 
         lDebug(Info, "AXIS_BRESENHAM SETPOINT X= %f, SETPOINT Y=%f",
                 first_axis_setpoint, second_axis_setpoint);
@@ -321,15 +300,11 @@ static JSON_Value* move_free_run_cmd(JSON_Value const *pars) {
             second_axis_setpoint = axes_->second_axis->current_counts();
         }
 
-        bresenham_msg *msg = new bresenham_msg;
-        msg->type = mot_pap::TYPE_BRESENHAM;
-        msg->first_axis_setpoint = first_axis_setpoint;
-        msg->second_axis_setpoint = second_axis_setpoint;
-
-        if (xQueueSend(axes_->queue, &msg, portMAX_DELAY) == pdPASS) {
-            lDebug(Debug, "Command sent");
-        }
-
+        bresenham_msg msg;
+        msg.type = mot_pap::TYPE_BRESENHAM;
+        msg.first_axis_setpoint = first_axis_setpoint;
+        msg.second_axis_setpoint = second_axis_setpoint;
+        axes_->send(msg);
         lDebug(Info, "AXIS_BRESENHAM SETPOINT X= %i, SETPOINT Y=%i",
                 first_axis_setpoint, second_axis_setpoint);
     }
@@ -358,17 +333,13 @@ static JSON_Value* move_incremental_cmd(JSON_Value const *pars) {
             second_axis_delta = 0;
         }
 
-        bresenham_msg *msg = new bresenham_msg;
-        msg->type = mot_pap::TYPE_BRESENHAM;
-        msg->first_axis_setpoint = axes_->first_axis->current_counts() + (first_axis_delta * axes_->first_axis->inches_to_counts_factor);
-        msg->second_axis_setpoint = axes_->second_axis->current_counts() + (second_axis_delta * axes_->first_axis->inches_to_counts_factor);
-
-        if (xQueueSend(axes_->queue, &msg, portMAX_DELAY) == pdPASS) {
-            lDebug(Debug, "Command sent");
-        }
-
+        bresenham_msg msg;
+        msg.type = mot_pap::TYPE_BRESENHAM;
+        msg.first_axis_setpoint = axes_->first_axis->current_counts() + (first_axis_delta * axes_->first_axis->inches_to_counts_factor);
+        msg.second_axis_setpoint = axes_->second_axis->current_counts() + (second_axis_delta * axes_->first_axis->inches_to_counts_factor);
+        axes_->send(msg);
         lDebug(Info, "AXIS_BRESENHAM SETPOINT X=%i, SETPOINT Y=%i",
-                msg->first_axis_setpoint, msg->second_axis_setpoint);
+                msg.first_axis_setpoint, msg.second_axis_setpoint);
     }
     JSON_Value *root_value = json_value_init_object();
     json_object_set_boolean(json_value_get_object(root_value), "ACK", true);

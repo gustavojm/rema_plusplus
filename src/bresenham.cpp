@@ -6,6 +6,7 @@
 
 #include "board.h"
 #include "task.h"
+#include "queue.h"
 
 #include "debug.h"
 #include "rema.h"
@@ -247,4 +248,12 @@ void bresenham::resume() {
     if (is_moving) {
         tmr.start();
     }
+}
+
+void bresenham::send(bresenham_msg msg) {
+    bresenham_msg *msg_ptr = new bresenham_msg(msg);
+    if (xQueueSend(queue, &msg_ptr, portMAX_DELAY) == pdPASS) {
+        lDebug(Debug, "Command sent");
+    }
+
 }
