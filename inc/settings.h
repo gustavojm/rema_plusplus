@@ -3,6 +3,7 @@
 
 #include "eeprom.h"
 #include "lwip/ip_addr.h"
+#include "gpio_templ.h"
 
 struct network_settings {
     ip_addr_t gw;
@@ -19,9 +20,7 @@ public:
      * @brief   initializes EEPROM
      * @returns nothing
      */
-    static void init() {
-        EEPROM_init();
-    }
+    static void init();
 
     static void erase(void);
 

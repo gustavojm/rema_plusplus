@@ -19,8 +19,6 @@
 
 extern SemaphoreHandle_t encoders_pico_semaphore;
 
-extern gpio_templ< 4, 4, SCU_MODE_FUNC0, 2, 4 > click;      // DOUT3 P4_4    PIN9    GPIO2[4]>
-
 struct limits {
     uint8_t hard;
     uint8_t targets;

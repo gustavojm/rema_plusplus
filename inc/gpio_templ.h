@@ -20,7 +20,7 @@ public:
 
     static void init_input() {
         Chip_SCU_PinMuxSet(scu_port, scu_pin, scu_mode);
-        Chip_GPIO_SetPinDIRInput(LPC_GPIO_PORT, gpio_port, gpio_bit);
+        Chip_GPIO_SetPinDIRInput(LPC_GPIO_PORT, gpio_port, gpio_bit);        
     }
 
     static void set() {

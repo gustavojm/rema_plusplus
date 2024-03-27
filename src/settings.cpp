@@ -19,6 +19,17 @@ void settings::defaults() {
     network.port = 5020;
 }
 
+void settings::init() {
+    EEPROM_init();
+
+    gpio_templ< 6, 3, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLUP | SCU_MODE_FUNC0), 3, 2 > settings_erase_btn;      // GPIO7 P6_3    PIN79    GPIO3[2]>
+    settings_erase_btn.init_input();
+    if (!settings_erase_btn.read()) {
+        settings::erase();
+    }
+}
+
+
 /**
  * @brief 	erases EEPROM page containing settings
  * @returns	nothing
@@ -33,8 +44,7 @@ void settings::erase() {
  * @returns	nothing
  */
 void settings::save() {
-    lDebug(Info, "EEPROM Erase...");
-    EEPROM_Erase(PAGE_ADDR);
+    settings::erase();
 
     lDebug(Info, "EEPROM write...");
     EEPROM_Write(0, PAGE_ADDR, &(network), sizeof network);
