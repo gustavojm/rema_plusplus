@@ -20,15 +20,6 @@
 
 #define PROTOCOL_VERSION  	"JSON_1.0"
 
-// FredMemFn points to a member of Fred that takes (char,float)
-typedef  JSON_Value* (tcp_server_command::*cmd_function_ptr)(JSON_Value const *pars);
-
-
-typedef struct {
-    const char *cmd_name;
-    cmd_function_ptr cmd_function;
-} cmd_entry;
-
 bresenham* tcp_server_command::get_axes(const char *axis) {
 
     switch (*axis) {
@@ -382,7 +373,7 @@ JSON_Value* tcp_server_command::read_limits_cmd(JSON_Value const *pars) {
 }
 
 // @formatter:off
-const cmd_entry cmds_table[] = {
+const tcp_server_command::cmd_entry tcp_server_command::cmds_table[] = {
         {
                 "PROTOCOL_VERSION",     /* Command name */
                 &tcp_server_command::protocol_version_cmd,   /* Associated function */
@@ -462,7 +453,7 @@ JSON_Value* tcp_server_command::cmd_execute(char const *cmd, JSON_Value const *p
             i++) {
         if (!strcmp(cmd, cmds_table[i].cmd_name)) {
             //return cmds_table[i].cmd_function(pars);
-            (this->*(cmds_table[i].cmd_function))(pars);
+            return (this->*(cmds_table[i].cmd_function))(pars);
         }
     }
     if (!cmd_found) {

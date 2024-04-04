@@ -24,6 +24,7 @@
 #include "debug.h"
 #include "xy_axes.h"
 #include "z_axis.h"
+#include "rema.h"
 
 #define ip_addr_print(ipaddr) \
   printf("IP ADDRESS FROM EEPROM = %hhu.%hhu.%hhu.%hhu",         \
@@ -96,9 +97,11 @@ extern "C" void vStackIpSetup(void *pvParameters) {
     dhcp_start(&lpc_netif);
 #endif
 
+
+    dependencies *deps = reinterpret_cast<dependencies *>(pvParameters);
     /* Initialize and start application */
-    tcp_server_command cmd("command", settings::network.port, x_y_axes_get_instance(), z_dummy_axes_get_instance(), encoders_pico::get_instance());
-    tcp_server_telemetry tlmtry("telemetry", settings::network.port + 1, x_y_axes_get_instance(), z_dummy_axes_get_instance(), encoders_pico::get_instance());
+    tcp_server_command cmd("command", settings::network.port, *deps->x_y, *deps->z_dummy, encoders_pico::get_instance());
+    tcp_server_telemetry tlmtry("telemetry", settings::network.port + 1, *deps->x_y, *deps->z_dummy, encoders_pico::get_instance());
 
     /* This loop monitors the PHY link and will handle cable events
      via the PHY driver. */

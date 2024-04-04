@@ -1,6 +1,7 @@
 //#include <stdlib.h>
 #include <cstdint>
 #include <chrono>
+#include <new>
 
 #include "z_axis.h"
 #include "bresenham.h"
@@ -16,13 +17,10 @@
 
 mot_pap z_axis('Z');
 mot_pap dummy_axis('D', true);
-
 tmr z_dummy_axes_tmr = tmr(LPC_TIMER1, RGU_TIMER1_RST, CLK_MX_TIMER1, TIMER1_IRQn);
 
-bresenham& z_dummy_axes_get_instance() {
-    static bresenham z_dummy_axes("z_dummy_axes", &z_axis, &dummy_axis, z_dummy_axes_tmr);
-    return z_dummy_axes;
-}
+alignas (bresenham) char z_dummy_axes_buf[sizeof(bresenham)];
+bresenham* z_dummy_axes = nullptr;
 
 /**
  * @brief 	initializes the stepper motors for bresenham control
@@ -40,14 +38,14 @@ bresenham& z_axis_init() {
     z_axis.gpios.step = gpio {4, 10, SCU_MODE_FUNC4, 5, 14}.init_output();          //DOUT6 P4_10   PIN35   GPIO5[14]
     z_axis.gpios.direction = gpio {4, 6, SCU_MODE_FUNC0, 2, 5}.init_output();       //DOUT2 P4_6    PIN11   GPIO2[6]
 
-    bresenham& z_dummy_axes = z_dummy_axes_get_instance();
-    z_dummy_axes.kp = {100,                         //!< Kp
-            z_dummy_axes.step_time,                 //!< Update rate (ms)
+    z_dummy_axes = new(z_dummy_axes_buf) bresenham ("z_dummy_axes", &z_axis, &dummy_axis, z_dummy_axes_tmr);
+    z_dummy_axes->kp = {100,                         //!< Kp
+            z_dummy_axes->step_time,                 //!< Update rate (ms)
             10000,                                  //!< Min output
             100000                                  //!< Max output
     };
 
-    return z_dummy_axes;
+    return *z_dummy_axes;
 }
 
 /**
@@ -56,8 +54,7 @@ bresenham& z_axis_init() {
  * @note    calls the supervisor task every x number of generated steps
  */
 extern "C" void TIMER1_IRQHandler(void) {
-    bresenham& z_dummy_axes = z_dummy_axes_get_instance();
-    if (z_dummy_axes.tmr.match_pending()) {
-        z_dummy_axes.isr();
+    if (z_dummy_axes->tmr.match_pending()) {
+        z_dummy_axes->isr();
     }
 }

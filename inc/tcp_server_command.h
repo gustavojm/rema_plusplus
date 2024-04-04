@@ -112,7 +112,17 @@ JSON_Value* read_limits_cmd(JSON_Value const *pars);
 JSON_Value* cmd_execute(char const *cmd, JSON_Value const *pars); 
 
 int json_wp(char *rx_buff, char **tx_buff);
-    
+
+// FredMemFn points to a member of Fred that takes (char,float)
+typedef  JSON_Value* (tcp_server_command::*cmd_function_ptr)(JSON_Value const *pars);
+
+typedef struct {
+    const char *cmd_name;
+    cmd_function_ptr cmd_function;
+} cmd_entry;
+
+static const cmd_entry cmds_table[];
+
 };
 
 

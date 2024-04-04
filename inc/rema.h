@@ -5,10 +5,17 @@
 #include "task.h"
 #include "gpio_templ.h"
 #include "bresenham.h"
+#include "encoders_pico.h"
 #include "z_axis.h"
 #include "xy_axes.h"
 
 #define WATCHDOG_TIME_MS   1000
+
+struct dependencies {
+    bresenham *x_y;
+    bresenham *z_dummy;
+    encoders_pico *encoders;    
+};
 
 class rema {
 

@@ -2,6 +2,8 @@
 #include "board.h"
 #include "gpio.h"
 
+extern bresenham *x_y_axes, *z_dummy_axes;
+
 gpio_templ< 4, 4, SCU_MODE_FUNC0, 2, 4 >  relay_4;      // DOUT3 P4_4    PIN9    GPIO2[4]>
 
 bool rema::control_enabled = false;
@@ -48,9 +50,6 @@ bool rema::is_watchdog_expired() {
 
 void rema::hard_limits_reached() {
     /* TODO Read input pins to determine which limit has been reached and stop only one motor*/
-    z_dummy_axes_get_instance().stop();
-    x_y_axes_get_instance().stop();
+    z_dummy_axes->stop();
+    x_y_axes->stop();
 }
-
-extern bresenham x_y_axes;
-extern bresenham z_dummy_axes;

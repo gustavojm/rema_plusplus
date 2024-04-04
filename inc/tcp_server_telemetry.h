@@ -18,6 +18,8 @@
 #include "rema.h"
 #include "temperature_ds18b20.h"
 
+extern bresenham *x_y_axes, *z_dummy_axes;
+
 class tcp_server_telemetry : public tcp_server{
 public:
     tcp_server_telemetry(const char *name, int port, bresenham  &x_y, bresenham  &z_dummy, encoders_pico &encoders) :
@@ -66,12 +68,10 @@ public:
             json_object_set_boolean(json_value_get_object(stalled), "z", z_dummy.first_axis->stalled );
             json_object_set_value(json_value_get_object(telemetry), "stalled", stalled);
 
-            bresenham &x_y_axes = x_y_axes_get_instance();
-            bresenham &z_dummy_axes = z_dummy_axes_get_instance();
 
             JSON_Value *on_condition = json_value_init_object();
-            json_object_set_boolean(json_value_get_object(on_condition), "x_y", (x_y_axes.already_there && !x_y_axes.was_soft_stopped));        // Soft stops are only sent by joystick, so no ON_CONDITION reported
-            json_object_set_boolean(json_value_get_object(on_condition), "z", (z_dummy_axes.already_there && !z_dummy_axes.was_soft_stopped));
+            json_object_set_boolean(json_value_get_object(on_condition), "x_y", (x_y_axes->already_there && !x_y_axes->was_soft_stopped));        // Soft stops are only sent by joystick, so no ON_CONDITION reported
+            json_object_set_boolean(json_value_get_object(on_condition), "z", (z_dummy_axes->already_there && !z_dummy_axes->was_soft_stopped));
             json_object_set_value(json_value_get_object(telemetry), "on_condition", on_condition);
 
             if (!(times % 50)) {

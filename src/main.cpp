@@ -23,11 +23,12 @@
 #include "lwip/ip_addr.h"
 #include "mem_check.h"
 #include "mot_pap.h"
+#include "xy_axes.h"
 #include "z_axis.h"
 #include "encoders_pico.h"
-
-#include "xy_axes.h"
 #include "rema.h"
+
+extern bresenham *x_y_axes, *z_dummy_axes;
 
 /* GPa 201117 1850 Iss2: agregado de Heap_4.c*/
 uint8_t __attribute__((section("." "data" ".$" "RamLoc40"))) ucHeap[configTOTAL_HEAP_SIZE];
@@ -63,17 +64,12 @@ void msDelay(uint32_t ms) {
     vTaskDelay((configTICK_RATE_HZ * ms) / 1000);
 }
 
+struct dependencies dependencies;
+
 /**
  * @brief    main routine for example_lwip_tcpecho_freertos_18xx43xx
  * @returns    function should not exit
  */
-
-struct deps {
-    bresenham &x_y;
-    bresenham &z_dummy;
-    encoders_pico &encoders;    
-};
-
 int main(void) {
     debugInit();
     debugLocalSetLevel(Info);
@@ -94,11 +90,11 @@ int main(void) {
     temperature_ds18b20_init();
     //mem_check_init();
 
-    deps deps = {x_y_axes_get_instance(), z_dummy_axes_get_instance(), encoders_pico::get_instance()};
-
+    dependencies = {x_y_axes, z_dummy_axes, &encoders_pico::get_instance()};
+    
     /* Task - Ethernet PHY Initialization  */
     xTaskCreate(vStackIpSetup, "StackIpSetup",
-    configMINIMAL_STACK_SIZE * 4, &deps, (tskIDLE_PRIORITY + 1UL),
+    configMINIMAL_STACK_SIZE * 4, &dependencies, (tskIDLE_PRIORITY + 1UL),
             reinterpret_cast<xTaskHandle*>(NULL));
 
     /* Start the scheduler itself. */

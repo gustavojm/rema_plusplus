@@ -13,8 +13,6 @@
 #include "rema.h"
 #include "temperature_ds18b20.h"
 
-extern mot_pap x_axis, y_axis, z_axis;
-
 #define KEEPALIVE_IDLE              (5)
 #define KEEPALIVE_INTERVAL          (5)
 #define KEEPALIVE_COUNT             (3)

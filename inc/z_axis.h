@@ -5,6 +5,4 @@
 
 bresenham& z_axis_init();
 
-bresenham& z_dummy_axes_get_instance();
-
 #endif /* Z_AXIS_H_ */

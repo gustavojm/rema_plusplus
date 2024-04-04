@@ -16,7 +16,7 @@
 
 SemaphoreHandle_t encoders_pico_semaphore;
 SemaphoreHandle_t encoders_mutex;
-extern mot_pap x_axis, y_axis, z_axis;
+extern bresenham *x_y_axes, *z_dummy_axes;
 
 /**
  * @brief 	writes 1 byte (address or data) to the chip
@@ -127,12 +127,12 @@ void encoders_pico::task(void *pars) {
                 rema::hard_limits_reached();
             }
 
-            x_axis.already_there = limits.targets & 1 << 0;
-            y_axis.already_there = limits.targets & 1 << 1;
-            z_axis.already_there = limits.targets & 1 << 2;
+            x_y_axes->first_axis->already_there = limits.targets & 1 << 0;
+            x_y_axes->second_axis->already_there = limits.targets & 1 << 1;
+            z_dummy_axes->first_axis->already_there = limits.targets & 1 << 2;
 
-            x_y_axes_get_instance().resume();
-            z_dummy_axes_get_instance().resume();
+            x_y_axes->resume();
+            z_dummy_axes->resume();
         }
     }
 }
@@ -141,8 +141,8 @@ void encoders_pico::task(void *pars) {
 extern "C" void GPIO0_IRQHandler(void) {
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    x_y_axes_get_instance().pause();
-    z_dummy_axes_get_instance().pause();
+    x_y_axes->pause();
+    z_dummy_axes->pause();
     xSemaphoreGiveFromISR(encoders_pico_semaphore, &xHigherPriorityTaskWoken);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);    
     

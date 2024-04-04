@@ -14,9 +14,6 @@
 
 using namespace std::chrono_literals;
 
-extern mot_pap first_axis;
-extern mot_pap second_axis;
-
 void bresenham::task() {
     struct bresenham_msg *msg_rcv;
 

@@ -1,6 +1,7 @@
 //#include <stdlib.h>
 #include <cstdint>
 #include <chrono>
+#include <new>
 
 #include "xy_axes.h"
 #include "bresenham.h"
@@ -16,19 +17,17 @@
 
 mot_pap x_axis('X');
 mot_pap y_axis('Y');
-
 tmr xy_axes_tmr = tmr(LPC_TIMER0, RGU_TIMER0_RST, CLK_MX_TIMER0, TIMER0_IRQn);
 
-bresenham& x_y_axes_get_instance() {
-    static bresenham x_y_axes("xy_axes", &x_axis, &y_axis, xy_axes_tmr);
-    return x_y_axes;
-}
+alignas (bresenham) char xy_axes_buf[sizeof(bresenham)];
+bresenham* x_y_axes = nullptr;
 
 /**
  * @brief   initializes the stepper motors for bresenham control
  * @returns	nothing
  */
 bresenham& xy_axes_init() {
+    
     x_axis.motor_resolution = 25000;
     x_axis.encoder_resolution = 500;
     x_axis.inches_to_counts_factor = 5000;
@@ -52,16 +51,16 @@ bresenham& xy_axes_init() {
     y_axis.gpios.step = gpio {4, 9, SCU_MODE_FUNC4, 5, 13}.init_output();          //DOUT5 P4_9    PIN33   GPIO5[13]
     y_axis.gpios.direction = gpio { 4, 5, SCU_MODE_FUNC0, 2, 6 }.init_output();    //DOUT1 P4_5    PIN10   GPIO2[6]
 
-    bresenham& x_y_axes = x_y_axes_get_instance();
-    x_y_axes.kp = {100,                             //!< Kp
-            x_y_axes.step_time,                     //!< Update rate (ms)
+    x_y_axes = new(xy_axes_buf) bresenham ("xy_axes", &x_axis, &y_axis, xy_axes_tmr);
+    x_y_axes->kp = {100,                             //!< Kp
+            x_y_axes->step_time,                     //!< Update rate (ms)
             // 10000,                                  //!< Min output
             // 100000                                  //!< Max output
             500,                                    //!< Min output             LOWER TIMER SETTINGS FOR ENCODER-MOTOR SIMULATOR
             5000                                    //!< Max output
     };
 
-    return x_y_axes;
+    return *x_y_axes;
 
 }
 
@@ -71,8 +70,7 @@ bresenham& xy_axes_init() {
  * @note    calls the supervisor task every x number of generated steps
  */
 extern "C" void TIMER0_IRQHandler(void) {
-    bresenham& x_y_axes = x_y_axes_get_instance();
-    if (x_y_axes.tmr.match_pending()) {
-        x_y_axes.isr();
+    if (x_y_axes->tmr.match_pending()) {
+        x_y_axes->isr();
     }
 }
