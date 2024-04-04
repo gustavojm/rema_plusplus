@@ -79,6 +79,8 @@ public:
     }
 
 
+bresenham* get_axes(const char *axis);
+
 JSON_Value* logs_cmd(JSON_Value const *pars);
 
 JSON_Value* protocol_version_cmd(JSON_Value const *pars);

@@ -20,8 +20,6 @@
 
 #define PROTOCOL_VERSION  	"JSON_1.0"
 
-extern mot_pap x_axis, y_axis, z_axis;
-
 // FredMemFn points to a member of Fred that takes (char,float)
 typedef  JSON_Value* (tcp_server_command::*cmd_function_ptr)(JSON_Value const *pars);
 
@@ -31,15 +29,15 @@ typedef struct {
     cmd_function_ptr cmd_function;
 } cmd_entry;
 
-static bresenham* get_axes(const char *axis) {
+bresenham* tcp_server_command::get_axes(const char *axis) {
 
     switch (*axis) {
     case 'z':
     case 'Z':
-        return &z_dummy_axes_get_instance();
+        return &z_dummy;
         break;
     default:
-        return &x_y_axes_get_instance();
+        return &x_y;
         break;
     }
 }
@@ -111,17 +109,17 @@ JSON_Value* tcp_server_command::set_coords_cmd(JSON_Value const *pars) {
         JSON_Object *pars_object = json_value_get_object(pars);
         if (json_object_has_value(pars_object, "position_x")) {
             double pos_x = json_object_get_number(pars_object, "position_x");
-            x_axis.set_position(pos_x);
+            x_y.first_axis->set_position(pos_x);
         }
 
         if (json_object_has_value(pars_object, "position_y")) {
             double pos_y = json_object_get_number(pars_object, "position_y");
-            y_axis.set_position(pos_y);
+            x_y.second_axis->set_position(pos_y);
         }
 
         if (json_object_has_value(pars_object, "position_z")) {
             double pos_z = json_object_get_number(pars_object, "position_z");
-            z_axis.set_position(pos_z);
+            z_dummy.first_axis->set_position(pos_z);
         }
     }
     JSON_Value *root_value = json_value_init_object();
@@ -161,16 +159,16 @@ JSON_Value* tcp_server_command::kp_set_tunings_cmd(JSON_Value const *pars) {
 }
 
 JSON_Value* tcp_server_command::axes_hard_stop_all_cmd(JSON_Value const *pars) {
-    (&x_y_axes_get_instance())->send({mot_pap::TYPE_HARD_STOP});
-    (&z_dummy_axes_get_instance())->send({mot_pap::TYPE_HARD_STOP});
+    x_y.send({mot_pap::TYPE_HARD_STOP});
+    z_dummy.send({mot_pap::TYPE_HARD_STOP});
     JSON_Value *root_value = json_value_init_object();
     json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
     return root_value;
 }
 
 JSON_Value* tcp_server_command::axes_soft_stop_all_cmd(JSON_Value const *pars) {
-    (&x_y_axes_get_instance())->send({mot_pap::TYPE_SOFT_STOP});
-    (&z_dummy_axes_get_instance())->send({mot_pap::TYPE_SOFT_STOP});
+    x_y.send({mot_pap::TYPE_SOFT_STOP});
+    z_dummy.send({mot_pap::TYPE_SOFT_STOP});
     JSON_Value *root_value = json_value_init_object();
     json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
     return root_value;
