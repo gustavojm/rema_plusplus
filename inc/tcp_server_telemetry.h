@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
-void stackIp_Telemetry_ThreadInit(uint16_t port);
+#include "tcp_server.h"
+
+void send_telemetry(const int sock);
 
 #endif /* TCP_SERVER_TELEMETRY_H_ */

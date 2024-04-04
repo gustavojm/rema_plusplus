@@ -28,7 +28,7 @@ bresenham& z_dummy_axes_get_instance() {
  * @brief 	initializes the stepper motors for bresenham control
  * @returns	nothing
  */
-void z_axis_init() {
+bresenham& z_axis_init() {
     z_axis.motor_resolution = 25000;
     z_axis.encoder_resolution = 500;
     z_axis.inches_to_counts_factor = 5000;
@@ -47,6 +47,7 @@ void z_axis_init() {
             100000                                  //!< Max output
     };
 
+    return z_dummy_axes;
 }
 
 /**

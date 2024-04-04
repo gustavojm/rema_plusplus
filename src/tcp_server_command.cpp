@@ -22,18 +22,13 @@
 #include "z_axis.h"
 #include "rema.h"
 
-#define KEEPALIVE_IDLE              (5)
-#define KEEPALIVE_INTERVAL          (5)
-#define KEEPALIVE_COUNT             (3)
-
-
 static void stop_all() {
     x_y_axes_get_instance().stop();
     z_dummy_axes_get_instance().stop();
     lDebug(Warn, "Stopping all");
 }
 
-static void do_retransmit(const int sock) {
+void do_retransmit(const int sock) {
     int len;
     char rx_buffer[1024];
 
@@ -83,90 +78,4 @@ free_buffer:
     } while (len > 0);
 }
 
-static void tcp_server_command_task(void *pvParameters) {
-    uint16_t port = reinterpret_cast<uintptr_t>(pvParameters);
 
-    char addr_str[128];
-    int ip_protocol = 0;
-    int keepAlive = 1;
-    int keepIdle = KEEPALIVE_IDLE;
-    int keepInterval = KEEPALIVE_INTERVAL;
-    int keepCount = KEEPALIVE_COUNT;
-    struct sockaddr_in dest_addr;
-
-    struct sockaddr_in *dest_addr_ip4 = (struct sockaddr_in*) &dest_addr;
-    dest_addr_ip4->sin_addr.s_addr = htonl(INADDR_ANY);
-    dest_addr_ip4->sin_family = AF_INET;
-    dest_addr_ip4->sin_port = htons(port);
-    ip_protocol = IPPROTO_IP;
-
-    int listen_sock = lwip_socket(AF_INET, SOCK_STREAM, ip_protocol);
-    if (listen_sock < 0) {
-        lDebug(Error, "Unable to create command socket: errno %d", errno);
-        vTaskDelete(NULL);
-        return;
-    }
-    int opt = 1;
-    lwip_setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-
-    lDebug(Info, "Command socket created");
-
-    int err = lwip_bind(listen_sock, (struct sockaddr*) &dest_addr,
-            sizeof(dest_addr));
-    if (err != 0) {
-        lDebug(Error, "Command socket unable to bind: errno %d", errno);
-        lDebug(Error, "IPPROTO: %d", AF_INET);
-        goto CLEAN_UP;
-    }
-    lDebug(Info, "Command socket bound, port %d", port);
-
-    err = lwip_listen(listen_sock, 1);
-    if (err != 0) {
-        lDebug(Error, "Error occurred during command listen: errno %d", errno);
-        goto CLEAN_UP;
-    }
-
-    while (1) {
-        lDebug(Info, "Command socket listening");
-
-        struct sockaddr source_addr;
-        socklen_t addr_len = sizeof(source_addr);
-        int sock = lwip_accept(listen_sock, (struct sockaddr*) &source_addr,
-                &addr_len);
-        if (sock < 0) {
-            lDebug(Error, "Unable to accept command connection: errno %d", errno);
-            break;
-        }
-
-        // Set tcp keepalive option
-        lwip_setsockopt(sock, SOL_SOCKET, SO_KEEPALIVE, &keepAlive, sizeof(int));
-        lwip_setsockopt(sock, IPPROTO_TCP, TCP_KEEPIDLE, &keepIdle, sizeof(int));
-        lwip_setsockopt(sock, IPPROTO_TCP, TCP_KEEPINTVL, &keepInterval,
-                sizeof(int));
-        lwip_setsockopt(sock, IPPROTO_TCP, TCP_KEEPCNT, &keepCount, sizeof(int));
-        // Convert ip address to string
-        if (source_addr.sa_family == PF_INET) {
-            inet_ntoa_r(((struct sockaddr_in*)&source_addr)->sin_addr,
-                    addr_str, sizeof(addr_str) - 1);
-        }
-        lDebug(Info, "Command socket accepted ip address: %s", addr_str);
-
-        do_retransmit(sock);
-
-        lwip_shutdown(sock, 0);
-        lwip_close(sock);
-    }
-
-CLEAN_UP:
-    lwip_close(listen_sock);
-    vTaskDelete(NULL);
-}
-
-/*---------------------------------------------------------------------------*/
-void stackIp_ThreadInit(uint16_t port) {
-    sys_thread_new("tcp_command_thread", tcp_server_command_task, (void*) (uintptr_t) port,
-    // DEFAULT_THREAD_STACKSIZE,
-            1024,
-            configMAX_PRIORITIES);
-}
-/*---------------------------------------------------------------------------*/

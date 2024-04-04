@@ -3,7 +3,7 @@
 
 #include "bresenham.h"
 
-void z_axis_init();
+bresenham& z_axis_init();
 
 bresenham& z_dummy_axes_get_instance();
 

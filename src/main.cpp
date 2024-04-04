@@ -50,22 +50,7 @@ static void prvSetupHardware(void) {
     // Enable Cycle Counter, used to create precision delays in wait.c
     DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 
-    debugInit();
-
     Board_Init();
-
-    printf("    --- NASA GSPC ---\n"); 
-    printf("REMA Remote Terminal Unit.\n"); 
-    
-    settings::init();
-    
-    xy_axes_init();
-    z_axis_init();
-
-    encoders_pico::init();
-    
-    temperature_ds18b20_init();
-    //mem_check_init();
 }
 
 /*****************************************************************************
@@ -86,15 +71,38 @@ void msDelay(uint32_t ms) {
  * @brief    main routine for example_lwip_tcpecho_freertos_18xx43xx
  * @returns    function should not exit
  */
+
+struct deps {
+    bresenham &x_y;
+    bresenham &z_dummy;
+    encoders_pico &encoders;    
+};
+
 int main(void) {
+    debugInit();
     debugLocalSetLevel(Info);
     debugNetSetLevel(Info);
 
     prvSetupHardware();
 
+    printf("    --- NASA GSPC ---\n"); 
+    printf("REMA Remote Terminal Unit.\n"); 
+    
+    settings::init();
+    
+    xy_axes_init();
+    z_axis_init();
+
+    encoders_pico::init();
+    
+    temperature_ds18b20_init();
+    //mem_check_init();
+
+    deps deps = {x_y_axes_get_instance(), z_dummy_axes_get_instance(), encoders_pico::get_instance()};
+
     /* Task - Ethernet PHY Initialization  */
     xTaskCreate(vStackIpSetup, "StackIpSetup",
-    configMINIMAL_STACK_SIZE * 4, NULL, (tskIDLE_PRIORITY + 1UL),
+    configMINIMAL_STACK_SIZE * 4, &deps, (tskIDLE_PRIORITY + 1UL),
             reinterpret_cast<xTaskHandle*>(NULL));
 
     /* Start the scheduler itself. */

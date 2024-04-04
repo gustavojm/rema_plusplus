@@ -28,7 +28,7 @@ bresenham& x_y_axes_get_instance() {
  * @brief   initializes the stepper motors for bresenham control
  * @returns	nothing
  */
-void xy_axes_init() {
+bresenham& xy_axes_init() {
     x_axis.motor_resolution = 25000;
     x_axis.encoder_resolution = 500;
     x_axis.inches_to_counts_factor = 5000;
@@ -60,6 +60,8 @@ void xy_axes_init() {
             500,                                    //!< Min output             LOWER TIMER SETTINGS FOR ENCODER-MOTOR SIMULATOR
             5000                                    //!< Max output
     };
+
+    return x_y_axes;
 
 }
 
