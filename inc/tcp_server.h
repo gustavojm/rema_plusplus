@@ -9,7 +9,11 @@
 
 class tcp_server {
 public:
-    explicit tcp_server(const char *name, int port, bresenham &x_y, bresenham &z_dummy, encoders_pico &encoders, void (*reply_fn)(const int sock));
+    explicit tcp_server(const char *name, int port, bresenham &x_y, bresenham &z_dummy, encoders_pico &encoders);
+
+    virtual ~tcp_server() {} // Virtual destructor
+
+    virtual void reply_fn(int sock) = 0;
 
     void task();  
     
@@ -18,8 +22,6 @@ public:
     bresenham &x_y;
     bresenham &z_dummy;
     encoders_pico &encoders;
-
-    void (*reply_fn)(const int sock);
 };
 
 

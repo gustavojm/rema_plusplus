@@ -29,10 +29,6 @@
 #include "xy_axes.h"
 #include "rema.h"
 
-extern mot_pap x_axis;
-extern mot_pap y_axis;
-extern mot_pap z_axis;
-
 /* GPa 201117 1850 Iss2: agregado de Heap_4.c*/
 uint8_t __attribute__((section("." "data" ".$" "RamLoc40"))) ucHeap[configTOTAL_HEAP_SIZE];
 

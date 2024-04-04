@@ -6,7 +6,6 @@
 #include "lwip/sockets.h"
 #include "lwip/sys.h"
 #include <lwip/netdb.h>
-#include "json_wp.h"
 #include "tcp_server.h"
 #include "debug.h"
 #include "bresenham.h"
@@ -20,8 +19,8 @@ extern mot_pap x_axis, y_axis, z_axis;
 #define KEEPALIVE_INTERVAL          (5)
 #define KEEPALIVE_COUNT             (3)
 
-tcp_server::tcp_server(const char *name, int port, bresenham  &x_y, bresenham  &z_dummy, encoders_pico &encoders, void (*reply_fn)(int sock)) :
-        name(name), port(port), x_y(x_y), z_dummy(z_dummy), encoders(encoders), reply_fn(reply_fn) {
+tcp_server::tcp_server(const char *name, int port, bresenham  &x_y, bresenham  &z_dummy, encoders_pico &encoders) :
+        name(name), port(port), x_y(x_y), z_dummy(z_dummy), encoders(encoders) {
 
     char task_name[configMAX_TASK_NAME_LEN];
     memset(task_name, 0, sizeof(task_name));

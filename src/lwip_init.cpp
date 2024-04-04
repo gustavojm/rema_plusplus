@@ -97,11 +97,8 @@ extern "C" void vStackIpSetup(void *pvParameters) {
 #endif
 
     /* Initialize and start application */
-    tcp_server("command", settings::network.port, x_y_axes_get_instance(), z_dummy_axes_get_instance(), encoders_pico::get_instance(), do_retransmit);
-    tcp_server("telemetry", settings::network.port + 1, x_y_axes_get_instance(), z_dummy_axes_get_instance(), encoders_pico::get_instance(), send_telemetry);
-
-    //stackIp_ThreadInit();
-    //stackIp_Telemetry_ThreadInit();
+    tcp_server_command cmd("command", settings::network.port, x_y_axes_get_instance(), z_dummy_axes_get_instance(), encoders_pico::get_instance());
+    tcp_server_telemetry tlmtry("telemetry", settings::network.port + 1, x_y_axes_get_instance(), z_dummy_axes_get_instance(), encoders_pico::get_instance());
 
     /* This loop monitors the PHY link and will handle cable events
      via the PHY driver. */
