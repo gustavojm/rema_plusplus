@@ -19,11 +19,12 @@
 #include "temperature_ds18b20.h"
 
 extern bresenham *x_y_axes, *z_dummy_axes;
+extern encoders_pico *encoders;
 
 class tcp_server_telemetry : public tcp_server{
 public:
-    tcp_server_telemetry(const char *name, int port, bresenham  &x_y, bresenham  &z_dummy, encoders_pico &encoders) :
-        tcp_server(name, port, x_y, z_dummy, encoders) {}
+    tcp_server_telemetry(int port) :
+        tcp_server("telemetry", port) {}
 
     void reply_fn(int sock) override {
         char tx_buffer[512];
@@ -33,24 +34,23 @@ public:
         int times = 0;
 
         while (true) {
-            x_y.first_axis->read_pos_from_encoder();
-            x_y.second_axis->read_pos_from_encoder();
-            z_dummy.first_axis->read_pos_from_encoder();
+            x_y_axes->first_axis->read_pos_from_encoder();
+            x_y_axes->second_axis->read_pos_from_encoder();
+            z_dummy_axes->first_axis->read_pos_from_encoder();
             JSON_Value *coords = json_value_init_object();
             json_object_set_number(json_value_get_object(coords), "x",
-                    x_y.first_axis->current_counts()
-                            / static_cast<double>(x_y.first_axis->inches_to_counts_factor));
+                    x_y_axes->first_axis->current_counts()
+                            / static_cast<double>(x_y_axes->first_axis->inches_to_counts_factor));
             json_object_set_number(json_value_get_object(coords), "y",
-                    x_y.second_axis->current_counts()
-                            / static_cast<double>(x_y.second_axis->inches_to_counts_factor));
+                    x_y_axes->second_axis->current_counts()
+                            / static_cast<double>(x_y_axes->second_axis->inches_to_counts_factor));
             json_object_set_number(json_value_get_object(coords), "z",
-                    z_dummy.first_axis->current_counts()
-                            / static_cast<double>(z_dummy.first_axis->inches_to_counts_factor));
+                    z_dummy_axes->first_axis->current_counts()
+                            / static_cast<double>(z_dummy_axes->first_axis->inches_to_counts_factor));
 
             json_object_set_value(json_value_get_object(telemetry), "coords", coords);
 
-            encoders_pico &encoders = encoders_pico::get_instance();
-            struct limits limits = encoders.read_limits();
+            struct limits limits = encoders->read_limits();
 
             JSON_Value *limits_json = json_value_init_object();
             json_object_set_boolean(json_value_get_object(limits_json), "left", (limits.hard & 1 << 0));
@@ -63,9 +63,9 @@ public:
             json_object_set_value(json_value_get_object(telemetry), "limits", limits_json);
 
             JSON_Value *stalled = json_value_init_object();
-            json_object_set_boolean(json_value_get_object(stalled), "x", x_y.first_axis->stalled );
-            json_object_set_boolean(json_value_get_object(stalled), "y", x_y.second_axis->stalled );
-            json_object_set_boolean(json_value_get_object(stalled), "z", z_dummy.first_axis->stalled );
+            json_object_set_boolean(json_value_get_object(stalled), "x", x_y_axes->first_axis->stalled);
+            json_object_set_boolean(json_value_get_object(stalled), "y", x_y_axes->second_axis->stalled);
+            json_object_set_boolean(json_value_get_object(stalled), "z", z_dummy_axes->first_axis->stalled);
             json_object_set_value(json_value_get_object(telemetry), "stalled", stalled);
 
 

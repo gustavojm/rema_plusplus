@@ -20,15 +20,17 @@
 
 #define PROTOCOL_VERSION  	"JSON_1.0"
 
+extern encoders_pico *encoders;
+
 bresenham* tcp_server_command::get_axes(const char *axis) {
 
     switch (*axis) {
     case 'z':
     case 'Z':
-        return &z_dummy;
+        return z_dummy_axes;
         break;
     default:
-        return &x_y;
+        return x_y_axes;
         break;
     }
 }
@@ -100,17 +102,17 @@ JSON_Value* tcp_server_command::set_coords_cmd(JSON_Value const *pars) {
         JSON_Object *pars_object = json_value_get_object(pars);
         if (json_object_has_value(pars_object, "position_x")) {
             double pos_x = json_object_get_number(pars_object, "position_x");
-            x_y.first_axis->set_position(pos_x);
+            x_y_axes->first_axis->set_position(pos_x);
         }
 
         if (json_object_has_value(pars_object, "position_y")) {
             double pos_y = json_object_get_number(pars_object, "position_y");
-            x_y.second_axis->set_position(pos_y);
+            x_y_axes->second_axis->set_position(pos_y);
         }
 
         if (json_object_has_value(pars_object, "position_z")) {
             double pos_z = json_object_get_number(pars_object, "position_z");
-            z_dummy.first_axis->set_position(pos_z);
+            z_dummy_axes->first_axis->set_position(pos_z);
         }
     }
     JSON_Value *root_value = json_value_init_object();
@@ -150,16 +152,16 @@ JSON_Value* tcp_server_command::kp_set_tunings_cmd(JSON_Value const *pars) {
 }
 
 JSON_Value* tcp_server_command::axes_hard_stop_all_cmd(JSON_Value const *pars) {
-    x_y.send({mot_pap::TYPE_HARD_STOP});
-    z_dummy.send({mot_pap::TYPE_HARD_STOP});
+    x_y_axes->send({mot_pap::TYPE_HARD_STOP});
+    z_dummy_axes->send({mot_pap::TYPE_HARD_STOP});
     JSON_Value *root_value = json_value_init_object();
     json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
     return root_value;
 }
 
 JSON_Value* tcp_server_command::axes_soft_stop_all_cmd(JSON_Value const *pars) {
-    x_y.send({mot_pap::TYPE_SOFT_STOP});
-    z_dummy.send({mot_pap::TYPE_SOFT_STOP});
+    x_y_axes->send({mot_pap::TYPE_SOFT_STOP});
+    z_dummy_axes->send({mot_pap::TYPE_SOFT_STOP});
     JSON_Value *root_value = json_value_init_object();
     json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
     return root_value;
@@ -345,14 +347,12 @@ JSON_Value* tcp_server_command::read_encoders_cmd(JSON_Value const *pars) {
     JSON_Object *pars_object = json_value_get_object(pars);
     if (json_object_has_value_of_type(pars_object, "axis", JSONString)) {
         char const *axis = json_object_get_string(pars_object, "axis");
-        auto &encoders = encoders_pico::get_instance();
-        json_object_set_number(json_value_get_object(root_value), axis, encoders.read_counter(axis[0]));
+        json_object_set_number(json_value_get_object(root_value), axis, encoders->read_counter(axis[0]));
         return root_value;
     } else {
 
         uint8_t rx[4 * 3] = {0x00};
-        auto &encoders = encoders_pico::get_instance();
-        encoders.read_counters(rx);
+        encoders->read_counters(rx);
         int32_t x = (rx[0] << 24 | rx[1] << 16 | rx[2] << 8 | rx[3] << 0);
         int32_t y = (rx[4] << 24 | rx[5] << 16 | rx[6] << 8 | rx[7] << 0);
         int32_t z = (rx[8] << 24 | rx[9] << 16 | rx[10] << 8 | rx[11] << 0);
@@ -366,9 +366,8 @@ JSON_Value* tcp_server_command::read_encoders_cmd(JSON_Value const *pars) {
 }
 
 JSON_Value* tcp_server_command::read_limits_cmd(JSON_Value const *pars) {
-    auto &encoders = encoders_pico::get_instance();
     JSON_Value *root_value = json_value_init_object();
-    json_object_set_number(json_value_get_object(root_value), "ACK", encoders.read_limits().hard);
+    json_object_set_number(json_value_get_object(root_value), "ACK", encoders->read_limits().hard);
     return root_value;
 }
 

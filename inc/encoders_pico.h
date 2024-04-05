@@ -3,6 +3,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <new>
 
 #include "FreeRTOS.h"
 #include "semphr.h"
@@ -49,15 +50,7 @@ public:
         Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, 5, 15);
         Chip_GPIO_SetPinOutHigh(LPC_GPIO_PORT, 5, 15);
         spi_init();
-    }
 
-    ~encoders_pico() {
-        spi_de_init();
-    }
-
-    static void task(void *pars);
-
-    static void init() {
         encoders_pico_semaphore = xSemaphoreCreateBinary();
 
         if (encoders_pico_semaphore != NULL) {
@@ -70,10 +63,11 @@ public:
 
     }
 
-    static encoders_pico& get_instance() {
-        static encoders_pico instance;
-        return instance;
+    ~encoders_pico() {
+        spi_de_init();
     }
+
+    static void task(void *pars);
 
     int32_t read_register(uint8_t address) const;
 
@@ -109,6 +103,8 @@ public:
 public:
     void (*cs)(bool) = cs_function;             ///< pointer to CS line function handler
 };
+
+void encoders_pico_init();
 
 #endif /* ENCODERS_PICO_H_ */
 

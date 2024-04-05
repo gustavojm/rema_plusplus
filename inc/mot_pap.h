@@ -21,6 +21,8 @@
 #define MOT_PAP_STALL_THRESHOLD                 3
 #define MOT_PAP_STALL_MAX_COUNT                 5
 
+extern encoders_pico *encoders;
+
 using namespace std::chrono_literals;
 /**
  * @struct 	mot_pap
@@ -41,7 +43,6 @@ public:
 	 * @brief	pointers to functions to handle GPIO lines of this stepper motor.
 	 */
 	struct gpios {
-	    gpio direction;
 		gpio step;
 	};
 
@@ -77,8 +78,7 @@ public:
 		if (is_dummy)  {
 			return;
 		}
-		auto &encoders = encoders_pico::get_instance();		
-		encoders.set_target(name, target);
+		encoders->set_target(name, target);
 	}
 
 	void step();

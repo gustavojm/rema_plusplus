@@ -17,14 +17,16 @@
 #include "z_axis.h"
 #include "rema.h"
 
+extern bresenham *x_y_axes, *z_dummy_axes;
+
 class tcp_server_command : public tcp_server{
 public:
-    tcp_server_command(const char *name, int port, bresenham  &x_y, bresenham  &z_dummy, encoders_pico &encoders) :
-        tcp_server(name, port, x_y, z_dummy, encoders) {}
+    tcp_server_command(int port) :
+        tcp_server("command", port) {}
 
     void stop_all() {
-        x_y.stop();
-        z_dummy.stop();
+        x_y_axes->stop();
+        z_dummy_axes->stop();
         lDebug(Warn, "Stopping all");
     }
 

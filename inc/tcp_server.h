@@ -9,7 +9,7 @@
 
 class tcp_server {
 public:
-    explicit tcp_server(const char *name, int port, bresenham &x_y, bresenham &z_dummy, encoders_pico &encoders);
+    explicit tcp_server(const char *name, int port);
 
     virtual ~tcp_server() {} // Virtual destructor
 
@@ -19,9 +19,6 @@ public:
     
     const char *name;
     int port;
-    bresenham &x_y;
-    bresenham &z_dummy;
-    encoders_pico &encoders;
 };
 
 

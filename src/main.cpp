@@ -64,8 +64,6 @@ void msDelay(uint32_t ms) {
     vTaskDelay((configTICK_RATE_HZ * ms) / 1000);
 }
 
-struct dependencies dependencies;
-
 /**
  * @brief    main routine for example_lwip_tcpecho_freertos_18xx43xx
  * @returns    function should not exit
@@ -84,17 +82,14 @@ int main(void) {
     
     xy_axes_init();
     z_axis_init();
-
-    encoders_pico::init();
+    encoders_pico_init();
     
     temperature_ds18b20_init();
     //mem_check_init();
 
-    dependencies = {x_y_axes, z_dummy_axes, &encoders_pico::get_instance()};
-    
     /* Task - Ethernet PHY Initialization  */
     xTaskCreate(vStackIpSetup, "StackIpSetup",
-    configMINIMAL_STACK_SIZE * 4, &dependencies, (tskIDLE_PRIORITY + 1UL),
+    configMINIMAL_STACK_SIZE * 4, nullptr, (tskIDLE_PRIORITY + 1UL),
             reinterpret_cast<xTaskHandle*>(NULL));
 
     /* Start the scheduler itself. */

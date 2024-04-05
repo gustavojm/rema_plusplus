@@ -11,12 +11,6 @@
 
 #define WATCHDOG_TIME_MS   1000
 
-struct dependencies {
-    bresenham *x_y;
-    bresenham *z_dummy;
-    encoders_pico *encoders;    
-};
-
 class rema {
 
 public:

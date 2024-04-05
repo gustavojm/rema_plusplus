@@ -14,9 +14,12 @@
 #include "mot_pap.h"
 #include "rema.h"
 
+extern bresenham *x_y_axes, *z_dummy_axes;
+
 SemaphoreHandle_t encoders_pico_semaphore;
 SemaphoreHandle_t encoders_mutex;
-extern bresenham *x_y_axes, *z_dummy_axes;
+
+encoders_pico *encoders = nullptr; 
 
 /**
  * @brief 	writes 1 byte (address or data) to the chip
@@ -116,13 +119,11 @@ void encoders_pico::task(void *pars) {
             .enable();
 
     
-    encoders_pico &encoders = encoders_pico::get_instance();
-    encoders.set_thresholds(MOT_PAP_POS_THRESHOLD);
+    encoders->set_thresholds(MOT_PAP_POS_THRESHOLD);
 
     while (true) {
         if (xSemaphoreTake(encoders_pico_semaphore, portMAX_DELAY) == pdPASS) {
-            auto &encoders = encoders_pico::get_instance();
-            struct limits limits = encoders.read_limits_and_ack();
+            struct limits limits = encoders->read_limits_and_ack();
             if (limits.hard) {
                 rema::hard_limits_reached();
             }
@@ -146,4 +147,9 @@ extern "C" void GPIO0_IRQHandler(void) {
     xSemaphoreGiveFromISR(encoders_pico_semaphore, &xHigherPriorityTaskWoken);
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);    
     
+}
+
+void encoders_pico_init() {
+    alignas (encoders_pico) static char encoders_pico_buf[sizeof(encoders_pico)];
+    encoders = new(encoders_pico_buf) encoders_pico();
 }

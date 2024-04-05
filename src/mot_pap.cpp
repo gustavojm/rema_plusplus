@@ -10,6 +10,8 @@
 #include "rema.h"
 #include "encoders_pico.h"
 
+extern encoders_pico *encoders;
+
 using namespace std::chrono_literals;
 
 /**
@@ -32,8 +34,7 @@ void mot_pap::set_direction(enum direction direction) {
         return;
     }
     //gpios.direction.set(dir == DIRECTION_CW ? 0 : 1);
-    encoders_pico &encoders = encoders_pico::get_instance();
-    encoders.set_direction(name, dir == DIRECTION_CW ? 0 : 1);    
+    encoders->set_direction(name, dir == DIRECTION_CW ? 0 : 1);    
 
 }
 
@@ -72,8 +73,7 @@ void mot_pap::read_pos_from_encoder() {
         return;
     }
 
-    auto &encoders = encoders_pico::get_instance();
-    current_counts() = encoders.read_counter(name);
+    current_counts() = encoders->read_counter(name);
 }
 
 bool mot_pap::check_already_there() {

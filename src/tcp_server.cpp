@@ -17,8 +17,8 @@
 #define KEEPALIVE_INTERVAL          (5)
 #define KEEPALIVE_COUNT             (3)
 
-tcp_server::tcp_server(const char *name, int port, bresenham  &x_y, bresenham  &z_dummy, encoders_pico &encoders) :
-        name(name), port(port), x_y(x_y), z_dummy(z_dummy), encoders(encoders) {
+tcp_server::tcp_server(const char *name, int port) :
+        name(name), port(port) {
 
     char task_name[configMAX_TASK_NAME_LEN];
     memset(task_name, 0, sizeof(task_name));
