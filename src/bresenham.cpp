@@ -102,6 +102,8 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
 
     is_moving = true;
     already_there = false;
+    first_axis->stall_reset();
+    second_axis->stall_reset();
     first_axis->read_pos_from_encoder();
     second_axis->read_pos_from_encoder();
     first_axis->set_destination_counts(first_axis_setpoint);

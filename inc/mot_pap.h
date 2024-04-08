@@ -89,6 +89,8 @@ public:
 
 	bool check_for_stall();
 
+	void stall_reset();
+
 	bool check_already_there();
 
 	void soft_stop(int counts);

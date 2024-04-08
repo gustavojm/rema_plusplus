@@ -68,6 +68,11 @@ bool mot_pap::check_for_stall() {
     return false;
 }
 
+void mot_pap::stall_reset() {
+    stalled = false;
+    stalled_counter = 0;
+}
+
 void mot_pap::read_pos_from_encoder() {
     if (is_dummy) {
         return;
@@ -83,6 +88,7 @@ bool mot_pap::check_already_there() {
 
     // int error = destination_counts() - current_counts();
     // already_there = (abs((int) error) < MOT_PAP_POS_THRESHOLD);
+    // already_there set by encoders_pico
     return already_there;
 }
 
