@@ -87,10 +87,7 @@ int main(void) {
     temperature_ds18b20_init();
     //mem_check_init();
 
-    /* Task - Ethernet PHY Initialization  */
-    xTaskCreate(vStackIpSetup, "StackIpSetup",
-    configMINIMAL_STACK_SIZE * 4, nullptr, (tskIDLE_PRIORITY + 1UL),
-            reinterpret_cast<xTaskHandle*>(NULL));
+    network_init();
 
     /* Start the scheduler itself. */
     vTaskStartScheduler();

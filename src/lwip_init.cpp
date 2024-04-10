@@ -51,7 +51,7 @@ static void tcpip_init_done_signal(void *arg) {
 }
 
 /* LWIP kickoff and PHY link monitor thread */
-extern "C" void vStackIpSetup(void *pvParameters) {
+void vStackIpSetup(void *pvParameters) {
     ip_addr_t ipaddr, netmask, gw;
     volatile s32_t tcpipdone = 0;
     uint32_t physts;
@@ -158,4 +158,12 @@ extern "C" void vStackIpSetup(void *pvParameters) {
             }
         }
     }
+}
+
+
+void network_init() {
+    /* Task - Ethernet PHY Initialization  */
+    xTaskCreate(vStackIpSetup, "StackIpSetup",
+    configMINIMAL_STACK_SIZE * 4, nullptr, (tskIDLE_PRIORITY + 1UL),
+            reinterpret_cast<xTaskHandle*>(NULL));
 }
