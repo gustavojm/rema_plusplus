@@ -28,7 +28,7 @@ encoders_pico *encoders = nullptr;
  */
 int32_t encoders_pico::write_register(uint8_t address, int32_t data) const {
     int32_t ret = 0;
-    if (encoders_mutex != NULL && xSemaphoreTake(encoders_mutex, portMAX_DELAY) == pdTRUE) {            
+    if (encoders_mutex != nullptr && xSemaphoreTake(encoders_mutex, portMAX_DELAY) == pdTRUE) {            
         uint8_t write_address = address | quadrature_encoder_constants::WRITE_MASK;
         ret = spi_write(&write_address, 1, cs);
 
@@ -52,7 +52,7 @@ int32_t encoders_pico::write_register(uint8_t address, int32_t data) const {
  */
 int32_t encoders_pico::read_register(uint8_t address) const {    
     uint8_t rx[4] = {0x00};
-    if (encoders_mutex != NULL && xSemaphoreTake(encoders_mutex, portMAX_DELAY) == pdTRUE) {            
+    if (encoders_mutex != nullptr && xSemaphoreTake(encoders_mutex, portMAX_DELAY) == pdTRUE) {            
         spi_write(&address, 1, cs);
         spi_read(rx, 4, cs);
         xSemaphoreGive(encoders_mutex);
@@ -68,7 +68,7 @@ int32_t encoders_pico::read_register(uint8_t address) const {
  * 			address was put on the bus
  */
 void encoders_pico::read_4_registers(uint8_t address, uint8_t *rx) const {
-    if (encoders_mutex != NULL && xSemaphoreTake(encoders_mutex, portMAX_DELAY) == pdTRUE) {                
+    if (encoders_mutex != nullptr && xSemaphoreTake(encoders_mutex, portMAX_DELAY) == pdTRUE) {                
         spi_write(&address, 1, cs);
         spi_read(rx, 4 * 4, cs);
         xSemaphoreGive(encoders_mutex);
@@ -82,7 +82,7 @@ void encoders_pico::read_4_registers(uint8_t address, uint8_t *rx) const {
  */
 struct limits encoders_pico::read_limits() const {
     uint8_t rx[4] = {0x00};
-    if (encoders_mutex != NULL && xSemaphoreTake(encoders_mutex, portMAX_DELAY) == pdTRUE) {                    
+    if (encoders_mutex != nullptr && xSemaphoreTake(encoders_mutex, portMAX_DELAY) == pdTRUE) {                    
         uint8_t address = quadrature_encoder_constants::LIMITS;
         spi_write(&address, 1, cs);
         spi_read(rx, 4, cs);     
@@ -100,7 +100,7 @@ struct limits encoders_pico::read_limits_and_ack() const {
     uint8_t address = quadrature_encoder_constants::LIMITS | quadrature_encoder_constants::WRITE_MASK;         // will ACK the IRQ
     uint8_t rx[4] = {0x00};
 
-    if (encoders_mutex != NULL && xSemaphoreTake(encoders_mutex, portMAX_DELAY) == pdTRUE) {                    
+    if (encoders_mutex != nullptr && xSemaphoreTake(encoders_mutex, portMAX_DELAY) == pdTRUE) {                    
         spi_write(&address, 1, cs);
         spi_read(rx, 4, cs);     
         xSemaphoreGive(encoders_mutex);

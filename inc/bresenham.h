@@ -87,8 +87,6 @@ public:
 
     void resume();
 
-	JSON_Value* json() const;
-
 public:
 	const char *name;
 	bool is_moving = false;

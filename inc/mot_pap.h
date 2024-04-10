@@ -95,8 +95,6 @@ public:
 
 	void soft_stop(int counts);
 
-	JSON_Value* json() const;
-
 public:
 	const char name;
 	enum type type = TYPE_HARD_STOP;

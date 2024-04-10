@@ -4,7 +4,7 @@
 #include <cstdint>
 
 /* Init EEPROM */
-void EEPROM_init(void);
+void EEPROM_init();
 
 /* Read data from EEPROM */
 /* size must be multiple of 4 bytes */

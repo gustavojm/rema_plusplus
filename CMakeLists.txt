@@ -21,6 +21,7 @@ project(
 )
 
 include(cmake/StandardSettings.cmake)
+include(cmake/StaticAnalyzers.cmake)
 include(cmake/Utils.cmake)
 include(cmake/PreventInSourceBuilds.cmake)
 

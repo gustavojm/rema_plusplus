@@ -139,11 +139,3 @@ void mot_pap::soft_stop(int counts) {
     //     set_destination_counts(current_counts() - counts);
     // }
 }
-
-JSON_Value* mot_pap::json() const {
-    JSON_Value *ans = json_value_init_object();
-    json_object_set_number(json_value_get_object(ans), "posCmd", destination_counts());
-    json_object_set_number(json_value_get_object(ans), "posAct", current_counts());
-    json_object_set_boolean(json_value_get_object(ans), "stalled", stalled);
-    return ans;
-}

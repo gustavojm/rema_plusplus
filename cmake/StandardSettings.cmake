@@ -6,6 +6,15 @@ option(${PROJECT_NAME}_BUILD_HEADERS_ONLY "Build the project as a header-only li
 option(${PROJECT_NAME}_USE_ALT_NAMES "Use alternative names for the project, such as naming the include directory all lowercase." OFF)
 
 #
+# Static analyzers
+#
+# Currently supporting: Clang-Tidy, Cppcheck.
+
+option(${PROJECT_NAME}_ENABLE_CLANG_TIDY "Enable static analysis with Clang-Tidy." OFF)
+option(${PROJECT_NAME}_ENABLE_CPPCHECK "Enable static analysis with Cppcheck." OFF)
+
+
+#
 # Compiler options
 #
 

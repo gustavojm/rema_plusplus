@@ -250,7 +250,7 @@ void bresenham::resume() {
 }
 
 void bresenham::send(bresenham_msg msg) {
-    bresenham_msg *msg_ptr = new bresenham_msg(msg);
+    auto *msg_ptr = new bresenham_msg(msg);
     if (xQueueSend(queue, &msg_ptr, portMAX_DELAY) == pdPASS) {
         lDebug(Debug, "Command sent");
     }

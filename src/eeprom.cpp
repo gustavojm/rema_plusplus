@@ -2,7 +2,7 @@
 #include "eeprom.h"
 
 /* Init EEPROM */
-void EEPROM_init(void) {
+void EEPROM_init() {
     Chip_EEPROM_Init(LPC_EEPROM);
 
     /* Set Auto Programming mode */
@@ -13,7 +13,7 @@ void EEPROM_init(void) {
 void EEPROM_Read(uint32_t pageOffset, uint32_t pageAddr, void *ptr,
         uint32_t size) {
     size = ((size + 3) & ~0x03) / 4;
-    uint32_t *pEepromMem = reinterpret_cast<uint32_t*>(EEPROM_ADDRESS(pageAddr,
+    auto *pEepromMem = reinterpret_cast<uint32_t*>(EEPROM_ADDRESS(pageAddr,
             pageOffset));
     for (uint32_t i = 0; i < size; i++) {
         (reinterpret_cast<uint32_t*>(ptr))[i] = pEepromMem[i];
@@ -22,7 +22,7 @@ void EEPROM_Read(uint32_t pageOffset, uint32_t pageAddr, void *ptr,
 
 /* Erase a page in EEPROM */
 void EEPROM_Erase(uint32_t pageAddr) {
-    uint32_t *pEepromMem = reinterpret_cast<uint32_t*>(EEPROM_ADDRESS(pageAddr,
+    auto *pEepromMem = reinterpret_cast<uint32_t*>(EEPROM_ADDRESS(pageAddr,
             0));
     for (int i = 0; i < EEPROM_PAGE_SIZE / 4; i++) {
         pEepromMem[i] = 0;
@@ -34,7 +34,7 @@ void EEPROM_Erase(uint32_t pageAddr) {
 void EEPROM_Write(uint32_t pageOffset, uint32_t pageAddr, void *ptr,
         uint32_t size) {
     size = ((size + 3) & ~0x03) / 4;
-    uint32_t *pEepromMem = reinterpret_cast<uint32_t*>(EEPROM_ADDRESS(pageAddr,
+    auto *pEepromMem = reinterpret_cast<uint32_t*>(EEPROM_ADDRESS(pageAddr,
             pageOffset));
 
     if (size > EEPROM_PAGE_SIZE - pageOffset)

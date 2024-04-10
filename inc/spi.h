@@ -82,7 +82,7 @@ static inline int spi_write(void *buf, size_t len, void (*cs)(bool)) {
     /* @formatter:off */
     Chip_SSP_DATA_SETUP_T t = {
              .tx_data = buf,
-             .length = len
+             .length = static_cast<uint32_t>(len)
     };
     /* @formatter:on */
     return spi_sync_transfer(&t, cs);
@@ -99,7 +99,7 @@ static inline int spi_read(void *buf, size_t len, void (*cs)(bool)) {
     /* @formatter:off */
     Chip_SSP_DATA_SETUP_T t = {
              .rx_data = buf,
-             .length = len
+             .length = static_cast<uint32_t>(len)
     };
     /* @formatter:on */
     return spi_sync_transfer(&t, cs);

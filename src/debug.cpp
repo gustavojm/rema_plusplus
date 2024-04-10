@@ -5,10 +5,10 @@
 enum debugLevels debugLocalLevel = Info;
 enum debugLevels debugNetLevel = Info;
 
-QueueHandle_t debug_queue = NULL;
+QueueHandle_t debug_queue = nullptr;
 bool debug_to_network = true;
 
-FILE *debugFile = NULL;
+FILE *debugFile = nullptr;
 
 SemaphoreHandle_t uart_mutex;
 
