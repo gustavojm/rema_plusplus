@@ -6,30 +6,35 @@ enum debugLevels debugLocalLevel = Info;
 enum debugLevels debugNetLevel = Info;
 
 QueueHandle_t debug_queue = nullptr;
-bool debug_to_network = true;
+bool debug_to_uart = false;
+bool debug_to_network = false;
 
 FILE *debugFile = nullptr;
 
 SemaphoreHandle_t uart_mutex;
 
-void debugInit(void) {
+void debugInit() {
     uart_mutex = xSemaphoreCreateMutex();
     debug_queue = xQueueCreate(10, sizeof(char*));
 }
 
 /**
  * @brief 	sets local debug level.
+ * @param 	enable 	:whether or not it will be sent to UART
  * @param 	lvl 	:minimum level to print
  */
-void debugLocalSetLevel(enum debugLevels lvl) {
+void debugLocalSetLevel(bool enable, enum debugLevels lvl) {
+    debug_to_uart = enable;
     debugLocalLevel = lvl;
 }
 
 /**
  * @brief 	sets debug level to send to network.
+ * @param 	enable 	:whether or not it will be sent to network 
  * @param 	lvl 	:minimum level to print
  */
-void debugNetSetLevel(enum debugLevels lvl) {
+void debugNetSetLevel(bool enable, enum debugLevels lvl) {
+    debug_to_network = enable;
     debugNetLevel = lvl;
 }
 
@@ -40,14 +45,15 @@ void debugNetSetLevel(enum debugLevels lvl) {
 void debugToFile(const char *fileName) {
     debugClose();
 
-    FILE *f = fopen(fileName, "w");  // "w+" ?
+    FILE *file = fopen(fileName, "w");  // "w+" ?
 
-    if (f)
-        debugFile = f;
+    if (file) {
+        debugFile = file;
+    }
 }
 
 /** Close the output file if it was set in <tt>toFile()</tt> */
-void debugClose(void) {
+void debugClose() {
     if (debugFile && (debugFile != stderr)) {
         fclose(debugFile);
         debugFile = stderr;

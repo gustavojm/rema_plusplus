@@ -79,6 +79,7 @@ extern enum debugLevels debugLocalLevel;
 extern enum debugLevels debugNetLevel;
 extern SemaphoreHandle_t uart_mutex;
 extern QueueHandle_t debug_queue;
+extern bool debug_to_uart;
 extern bool debug_to_network;
 
 /**
@@ -87,15 +88,15 @@ extern bool debug_to_network;
  */
 extern FILE *debugFile;
 
-void debugInit(void);
+void debugInit();
 
-void debugLocalSetLevel(enum debugLevels lvl);
+void debugLocalSetLevel(bool enable, enum debugLevels lvl);
 
-void debugNetSetLevel(enum debugLevels lvl);
+void debugNetSetLevel(bool enable, enum debugLevels lvl);
 
 void debugToFile(const char *fileName);
 
-void debugClose(void);
+void debugClose();
 
 #ifdef DEBUG
 #define DEBUG_ENABLED 1  // debug code available at runtime
@@ -164,9 +165,10 @@ static inline char* make_message(const char *fmt, ...) {
  * @param level the level at which this information should be printed
  * @param fmt the formatting string (<b>MUST</b> be a literal
  */
+#if DEBUG_ENABLED
 #define lDebug(level, fmt, ...) \
 do { \
-        if (DEBUG_ENABLED && (debugLocalLevel <= level)) { \
+        if (debug_to_uart && debugLocalLevel <= level) { \
             if (uart_mutex != NULL) {    \
                 if (xSemaphoreTake(uart_mutex, portMAX_DELAY) == pdTRUE) { \
                     printf("%lu - %s %s[%d] %s() " fmt "\n", xTaskGetTickCount(), \
@@ -176,7 +178,7 @@ do { \
             } \
        }\
        \
-       if (DEBUG_ENABLED && debug_to_network && debug_queue!=nullptr && (debugNetLevel <= level) && (level != InfoLocal)) {\
+       if (debug_to_network && debug_queue!=nullptr && (debugNetLevel <= level) && (level != InfoLocal)) {\
                char *dbg_msg = make_message("%u - %s %s[%d] %s() " fmt, xTaskGetTickCount(), \
                 levelText(level), __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
             if (xQueueSend(debug_queue, &dbg_msg, (TickType_t) 0) != pdPASS) { \
@@ -185,5 +187,8 @@ do { \
             } \
        } \
 } while (0)
+#else
+#define lDebug(level, fmt, ...)
+#endif
 
 #endif
