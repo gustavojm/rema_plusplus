@@ -73,7 +73,7 @@ void bresenham::task() {
             }
 
             delete msg_rcv;
-            msg_rcv = NULL;
+            msg_rcv = nullptr;
         }
     }
 }
@@ -129,14 +129,14 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
 }
 
 void bresenham::step() {
-    int e2 = error << 1;
-    if (e2 >= -second_axis->delta) {
+    int error2 = error << 1;
+    if (error2 >= -second_axis->delta) {
         error -= second_axis->delta;
         if (!first_axis->check_already_there()) {
             first_axis->step();
         }
     }
-    if (e2 <= first_axis->delta) {
+    if (error2 <= first_axis->delta) {
         error += first_axis->delta;
         if (!second_axis->check_already_there()) {
             second_axis->step();

@@ -85,7 +85,7 @@ struct limits encoders_pico::read_limits() const {
     if (encoders_mutex != nullptr && xSemaphoreTake(encoders_mutex, portMAX_DELAY) == pdTRUE) {                    
         uint8_t address = quadrature_encoder_constants::LIMITS;
         spi_write(&address, 1, cs);
-        spi_read(rx, 4, cs);     
+        spi_read(rx, 4, cs);
         xSemaphoreGive(encoders_mutex);
     }
     return {rx[0], rx[1]};
@@ -102,7 +102,7 @@ struct limits encoders_pico::read_limits_and_ack() const {
 
     if (encoders_mutex != nullptr && xSemaphoreTake(encoders_mutex, portMAX_DELAY) == pdTRUE) {                    
         spi_write(&address, 1, cs);
-        spi_read(rx, 4, cs);     
+        spi_read(rx, 4, cs);
         xSemaphoreGive(encoders_mutex);
     }
     return {rx[0], rx[1]};

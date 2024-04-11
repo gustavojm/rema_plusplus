@@ -73,7 +73,7 @@ public:
 
 	void supervise();
 
-	void move(int x_setpoint, int y_setpoint);
+	void move(int first_axis_setpoint, int second_axis_setpoint);
 
 	void step();
 
@@ -92,7 +92,7 @@ public:
 	bool is_moving = false;
     int current_freq = 0;
     std::chrono::milliseconds step_time = 100ms;
-    int ticks_last_time = 0;
+    TickType_t ticks_last_time = 0;
     QueueHandle_t queue;
     SemaphoreHandle_t supervisor_semaphore;
     mot_pap* first_axis = nullptr;
