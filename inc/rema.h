@@ -26,8 +26,6 @@ public:
 
     static bool stall_control_get();
 
-    void lamp_pwr_set(bool status);
-
     static void update_watchdog_timer();
 
     static bool is_watchdog_expired();
