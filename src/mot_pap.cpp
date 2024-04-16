@@ -129,13 +129,3 @@ void mot_pap::step() {
     gpios.step.toggle();
 #endif
 }
-
-void mot_pap::soft_stop(int counts) {
-    // if (destination_counts() > current_counts()) {
-    //     set_destination_counts(current_counts() + counts);
-    // }
-    // // DO NOT use "else". If destination_counts() == current_counts nothing must be done
-    // if (destination_counts() < current_counts()) {
-    //     set_destination_counts(current_counts() - counts);
-    // }
-}

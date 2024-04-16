@@ -31,7 +31,7 @@ int32_t encoders_pico::write_register(uint8_t address, int32_t data) const {
     if (encoders_mutex != nullptr && xSemaphoreTake(encoders_mutex, portMAX_DELAY) == pdTRUE) {            
         uint8_t write_address = address | quadrature_encoder_constants::WRITE_MASK;
         ret = spi_write(&write_address, 1, cs);
-
+            
         uint8_t tx[4] = {static_cast<uint8_t>((data >> 24) & 0xFF), 
                         static_cast<uint8_t>((data >> 16) & 0xFF), 
                         static_cast<uint8_t>((data >> 8) & 0xFF), 

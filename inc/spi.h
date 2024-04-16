@@ -60,14 +60,15 @@ static inline int32_t spi_sync_transfer(Chip_SSP_DATA_SETUP_T *xfer_setup, void 
     if (cs != NULL) {
         cs(0);
     }
-    udelay(5);              // Si RPI PICO está haciendo printf para debug poner udelay(500)
-    //Chip_SSP_Int_FlushData(LPC_SSP);
+    udelay(2);              // Si RPI PICO está haciendo printf para debug poner udelay(500)
+    Chip_SSP_Int_FlushData(LPC_SSP);
     Chip_SSP_RWFrames_Blocking(LPC_SSP, xfer_setup);            
-    //Chip_SSP_Int_FlushData(LPC_SSP);
-    udelay(5);              // Si RPI PICO está haciendo printf para debug poner udelay(500)            
+    Chip_SSP_Int_FlushData(LPC_SSP);
+    udelay(2);              // Si RPI PICO está haciendo printf para debug poner udelay(500)            
     if (cs != NULL) {
         cs(1);
     }
+    udelay(2);              // Si RPI PICO está haciendo printf para debug poner udelay(500)            
     return 0;
 }
 

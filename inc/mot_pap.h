@@ -55,9 +55,10 @@ public:
 
     enum direction direction_calculate(int error);
 
-	void set_position(double pos)
-	{
-	    current_counts() = static_cast<int>(pos * inches_to_counts_factor);
+	void set_position(double pos) {			
+		int counts = static_cast<int>(pos * inches_to_counts_factor);	 	// Thread safety is important here
+		encoders->set_counter(name, counts);
+		current_counts() = counts;											// Touch current_counts in just one place
 	}
 
 	void read_pos_from_encoder();
@@ -92,8 +93,6 @@ public:
 	void stall_reset();
 
 	bool check_already_there();
-
-	void soft_stop(int counts);
 
 public:
 	const char name;

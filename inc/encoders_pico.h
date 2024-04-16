@@ -83,6 +83,10 @@ public:
         write_register(quadrature_encoder_constants::TARGETS + (axis - 'X') + 1, target);
     }
 
+    void set_counter(char axis, int32_t data) {
+        write_register(quadrature_encoder_constants::COUNTERS + (axis - 'X') + 1, data);
+    }
+
     int read_counter(char axis) {
         return read_register(quadrature_encoder_constants::COUNTERS + (axis - 'X') + 1);
     }
