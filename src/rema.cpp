@@ -4,12 +4,12 @@
 
 extern bresenham *x_y_axes, *z_dummy_axes;
 
-gpio_templ< 4, 4, SCU_MODE_FUNC0, 2, 4 >  relay_4;          // DOUT0 P4_4    PIN9    GPIO2[4]
-gpio_templ< 4, 5, SCU_MODE_FUNC0, 2, 5 >  relay_3;          // DOUT1 P4_5    PIN10   GPIO2[5]
-gpio_templ< 4, 6, SCU_MODE_FUNC0, 2, 6 >  relay_2;          // DOUT2 P4_6    PIN11   GPIO2[6]
-gpio_templ< 2, 1, SCU_MODE_FUNC4, 5, 1 >  relay_1;          // DOUT3 P2_1    PIN81   GPIO5[1]
+gpio_templ< 2, 1, SCU_MODE_FUNC4, 5, 1 >  relay_DOUT0;          // DOUT0 P2_1    PIN81   GPIO5[1] Bornes 4 y 5
+gpio_templ< 4, 6, SCU_MODE_FUNC0, 2, 6 >  relay_DOUT1;          // DOUT1 P4_6    PIN11   GPIO2[6] Bornes 6 y 7
+gpio_templ< 4, 5, SCU_MODE_FUNC0, 2, 5 >  relay_DOUT2;          // DOUT2 P4_5    PIN10   GPIO2[5] Bornes 8 y 9
+gpio_templ< 4, 4, SCU_MODE_FUNC0, 2, 4 >  relay_DOUT3;          // DOUT3 P4_4    PIN9    GPIO2[4] Bornes 10 y 11
 
-gpio_templ< 1, 5, SCU_MODE_FUNC0, 1, 8 >  control_out;      // DOUT7 P1_5    PIN48   GPIO1[8]
+gpio_templ< 1, 5, SCU_MODE_FUNC0, 1, 8 >  control_out;          // DOUT7 P1_5    PIN48   GPIO1[8]
 
 bool rema::control_enabled = false;
 bool rema::probe_enabled = false;
