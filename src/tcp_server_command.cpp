@@ -285,14 +285,14 @@ JSON_Value* tcp_server_command::move_free_run_cmd(JSON_Value const *pars) {
             first_axis_setpoint = static_cast<int>(json_object_get_number(
                     pars_object, "first_axis_setpoint"));
         } else {
-            first_axis_setpoint = axes_->first_axis->current_counts();
+            first_axis_setpoint = axes_->first_axis->current_counts;
         }
 
         if (json_object_has_value_of_type(pars_object, "second_axis_setpoint", JSONNumber)) {
             second_axis_setpoint = static_cast<int>(json_object_get_number(
                     pars_object, "second_axis_setpoint"));
         } else {
-            second_axis_setpoint = axes_->second_axis->current_counts();
+            second_axis_setpoint = axes_->second_axis->current_counts;
         }
 
         bresenham_msg msg;
@@ -330,8 +330,8 @@ JSON_Value* tcp_server_command::move_incremental_cmd(JSON_Value const *pars) {
 
         bresenham_msg msg;
         msg.type = mot_pap::TYPE_BRESENHAM;
-        msg.first_axis_setpoint = axes_->first_axis->current_counts() + (first_axis_delta * axes_->first_axis->inches_to_counts_factor);
-        msg.second_axis_setpoint = axes_->second_axis->current_counts() + (second_axis_delta * axes_->first_axis->inches_to_counts_factor);
+        msg.first_axis_setpoint = axes_->first_axis->current_counts + (first_axis_delta * axes_->first_axis->inches_to_counts_factor);
+        msg.second_axis_setpoint = axes_->second_axis->current_counts + (second_axis_delta * axes_->first_axis->inches_to_counts_factor);
         axes_->send(msg);
         lDebug(Info, "AXIS_BRESENHAM SETPOINT X=%i, SETPOINT Y=%i",
                 msg.first_axis_setpoint, msg.second_axis_setpoint);

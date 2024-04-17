@@ -58,7 +58,7 @@ public:
 	void set_position(double pos) {			
 		int counts = static_cast<int>(pos * inches_to_counts_factor);	 	// Thread safety is important here
 		encoders->set_counter(name, counts);
-		current_counts() = counts;											// Touch current_counts in just one place
+		current_counts = counts;											// Touch current_counts in just one place
 	}
 
 	void read_pos_from_encoder();
@@ -72,10 +72,10 @@ public:
 	void set_direction();
 
 	void set_destination_counts(int target) {
-        int error = target - current_counts();
+        int error = target - current_counts;
         already_there = (std::abs(error) < MOT_PAP_POS_THRESHOLD);        
 
-		destination_counts_ = target;
+		destination_counts = target;
 		if (is_dummy)  {
 			return;
 		}
@@ -114,18 +114,8 @@ public:
 	bool already_there = false;
 	bool stalled = false;
     bool reversed = false;
-
-    volatile int&  current_counts() { return current_counts_; }             // setter
-    volatile const int& current_counts() const { return current_counts_; }  // getter
-
-    //int&  destination_counts() { return destination_counts_; }
-    const int& destination_counts() const  { return destination_counts_; }
-
-
-
-private:
-    volatile int current_counts_ = 0;
-    int destination_counts_ = 0;
+    volatile int current_counts = 0;
+    int destination_counts = 0;
     bool is_dummy;
 };
 

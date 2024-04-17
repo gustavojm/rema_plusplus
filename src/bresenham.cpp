@@ -39,22 +39,22 @@ void bresenham::task() {
                     int counts = y;
                     lDebug(Info, "Soft stop in %i counts", counts);
 
-                    int first_axis_setpoint = first_axis->current_counts();
-                    int second_axis_setpoint = second_axis->current_counts();
+                    int first_axis_setpoint = first_axis->current_counts;
+                    int second_axis_setpoint = second_axis->current_counts;
 
-                    if (first_axis->destination_counts() > first_axis->current_counts()) {
+                    if (first_axis->destination_counts > first_axis->current_counts) {
                         first_axis_setpoint += counts;
                     }
                     // DO NOT use "else". If destination_counts() == current_counts nothing must be done
-                    if (first_axis->destination_counts() < first_axis->current_counts()) {
+                    if (first_axis->destination_counts < first_axis->current_counts) {
                         first_axis_setpoint -= counts;
                     }
 
-                    if (second_axis->destination_counts() > second_axis->current_counts()) {
+                    if (second_axis->destination_counts > second_axis->current_counts) {
                         second_axis_setpoint += counts;
                     }
                     // DO NOT use "else". If destination_counts() == current_counts nothing must be done
-                    if (second_axis->destination_counts() < second_axis->current_counts()) {
+                    if (second_axis->destination_counts < second_axis->current_counts) {
                         second_axis_setpoint -= counts;
                     }
 
@@ -80,8 +80,8 @@ void bresenham::task() {
 
 
 void bresenham::calculate() {
-    first_axis->delta = abs(first_axis->destination_counts() - first_axis->current_counts());
-    second_axis->delta = abs(second_axis->destination_counts() - second_axis->current_counts());
+    first_axis->delta = abs(first_axis->destination_counts - first_axis->current_counts);
+    second_axis->delta = abs(second_axis->destination_counts - second_axis->current_counts);
 
     first_axis->set_direction();
     second_axis->set_direction();
@@ -120,7 +120,7 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
         //rema::update_watchdog_timer();
         kp.restart();
 
-        current_freq = kp.run(leader_axis->destination_counts(), leader_axis->current_counts());
+        current_freq = kp.run(leader_axis->destination_counts, leader_axis->current_counts);
         lDebug(Debug, "Control output = %i: ", current_freq);
 
         ticks_last_time = xTaskGetTickCount();
@@ -184,7 +184,7 @@ void bresenham::supervise() {
                                         // if didn't stop for proximity to set point, avoid going to infinity
                                         // keeps dancing around the setpoint...
 
-            current_freq = kp.run(leader_axis->destination_counts(), leader_axis->current_counts());
+            current_freq = kp.run(leader_axis->destination_counts, leader_axis->current_counts);
             lDebug(Debug, "Control output = %i: ", current_freq);
             tmr.change_freq(current_freq);
 

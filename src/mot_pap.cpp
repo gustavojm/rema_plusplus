@@ -39,7 +39,7 @@ void mot_pap::set_direction(enum direction direction) {
 }
 
 void mot_pap::set_direction() {
-    dir = direction_calculate(destination_counts() - current_counts());
+    dir = direction_calculate(destination_counts - current_counts);
     set_direction(dir);
 }
 
@@ -49,7 +49,7 @@ bool mot_pap::check_for_stall() {
     }
 
     const int expected_counts = ((half_pulses_stall >> 1) * encoder_resolution / motor_resolution) - MOT_PAP_STALL_THRESHOLD;
-    const int pos_diff = std::abs((int) (current_counts() - last_pos));
+    const int pos_diff = std::abs((int) (current_counts - last_pos));
 
     if (pos_diff < expected_counts) {
         stalled_counter++;
@@ -64,7 +64,7 @@ bool mot_pap::check_for_stall() {
     }
 
     half_pulses_stall = 0;
-    last_pos = current_counts();
+    last_pos = current_counts;
     return false;
 }
 
@@ -78,7 +78,7 @@ void mot_pap::read_pos_from_encoder() {
         return;
     }
 
-    current_counts() = encoders->read_counter(name);
+    current_counts = encoders->read_counter(name);
 }
 
 bool mot_pap::check_already_there() {
@@ -97,9 +97,9 @@ bool mot_pap::check_already_there() {
  */
 void mot_pap::update_position() {
     if (reversed) {
-        (dir == DIRECTION_CW) ? current_counts()-- : current_counts()++;
+        (dir == DIRECTION_CW) ? current_counts-- : current_counts++;
     } else {
-        (dir == DIRECTION_CW) ? current_counts()++ : current_counts()--;
+        (dir == DIRECTION_CW) ? current_counts++ : current_counts--;
     }
 }
 

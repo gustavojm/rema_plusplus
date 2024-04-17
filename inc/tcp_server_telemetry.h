@@ -39,13 +39,13 @@ public:
             z_dummy_axes->first_axis->read_pos_from_encoder();
             JSON_Value *coords = json_value_init_object();
             json_object_set_number(json_value_get_object(coords), "x",
-                    x_y_axes->first_axis->current_counts()
+                    x_y_axes->first_axis->current_counts
                             / static_cast<double>(x_y_axes->first_axis->inches_to_counts_factor));
             json_object_set_number(json_value_get_object(coords), "y",
-                    x_y_axes->second_axis->current_counts()
+                    x_y_axes->second_axis->current_counts
                             / static_cast<double>(x_y_axes->second_axis->inches_to_counts_factor));
             json_object_set_number(json_value_get_object(coords), "z",
-                    z_dummy_axes->first_axis->current_counts()
+                    z_dummy_axes->first_axis->current_counts
                             / static_cast<double>(z_dummy_axes->first_axis->inches_to_counts_factor));
 
             json_object_set_value(json_value_get_object(telemetry), "coords", coords);
