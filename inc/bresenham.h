@@ -101,6 +101,7 @@ public:
     class tmr tmr;
     volatile bool already_there = false;
     volatile bool was_soft_stopped = false;
+    volatile bool was_stopped_by_probe = false;
     class kp kp;
     int error;
 

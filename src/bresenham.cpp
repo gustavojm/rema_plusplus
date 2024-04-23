@@ -24,6 +24,7 @@ void bresenham::task() {
             switch (msg_rcv->type) {
             case mot_pap::TYPE_BRESENHAM:
                 was_soft_stopped = false;
+                was_stopped_by_probe = false;
                 move(msg_rcv->first_axis_setpoint, msg_rcv->second_axis_setpoint);
                 break;
 
@@ -240,7 +241,7 @@ void bresenham::pause() {
 }
 
 /**
- * @brief   if there is a movement in process, stops it
+ * @brief   if there was a movement in process, resume it
  * @returns nothing
  */
 void bresenham::resume() {

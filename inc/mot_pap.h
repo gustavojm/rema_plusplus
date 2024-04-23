@@ -97,10 +97,7 @@ public:
 public:
 	const char name;
 	enum type type = TYPE_HARD_STOP;
-	enum direction dir = DIRECTION_NONE;
-    bool probe_triggered = false;
-    int probe_pos = 0;
-    enum direction probe_last_dir = DIRECTION_NONE;
+	enum direction dir = DIRECTION_NONE;    
 	int last_pos = 0;
 	int inches_to_counts_factor = 0;
 	int motor_resolution = 0;

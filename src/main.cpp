@@ -88,7 +88,7 @@ int main(void) {
 
     network_init();
 
-    /* Start the scheduler itself. */
+    /* Start the scheduler itself. main()'s stack gets destroyed at this point */
     vTaskStartScheduler();
 
     return 1;

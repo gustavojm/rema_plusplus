@@ -68,6 +68,10 @@ public:
             json_object_set_boolean(json_value_get_object(stalled), "z", z_dummy_axes->first_axis->stalled);
             json_object_set_value(json_value_get_object(telemetry), "stalled", stalled);
 
+            JSON_Value *probe = json_value_init_object();
+            json_object_set_boolean(json_value_get_object(probe), "x_y", x_y_axes->was_stopped_by_probe);
+            json_object_set_boolean(json_value_get_object(probe), "z", z_dummy_axes->was_stopped_by_probe);
+            json_object_set_value(json_value_get_object(telemetry), "probe", probe);
 
             JSON_Value *on_condition = json_value_init_object();
             json_object_set_boolean(json_value_get_object(on_condition), "x_y", (x_y_axes->already_there && !x_y_axes->was_soft_stopped));        // Soft stops are only sent by joystick, so no ON_CONDITION reported
