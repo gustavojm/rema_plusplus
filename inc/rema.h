@@ -12,11 +12,23 @@
 #define WATCHDOG_TIME_MS   1000
 
 class rema {
-
 public:
+
+    enum class brakes_mode_t {
+        OFF,
+        AUTO,
+        ON
+    };
+
     static void control_enabled_set(bool status);
 
     static bool control_enabled_get();
+
+    static void brakes_release();
+
+    static void brakes_apply();
+
+    static void touch_probe_retractor_set(bool status);
 
     static void probe_enabled_set(bool status);
 
@@ -35,6 +47,7 @@ public:
     static bool control_enabled;
     static bool probe_enabled;
     static bool stall_detection;
+    static brakes_mode_t brakes_mode;
     static TickType_t lastKeepAliveTicks;
 };
 

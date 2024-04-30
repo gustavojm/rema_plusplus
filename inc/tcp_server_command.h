@@ -102,10 +102,16 @@ JSON_Value* axes_soft_stop_all_cmd(JSON_Value const *pars);
 JSON_Value* network_settings_cmd(JSON_Value const *pars);
 
 JSON_Value* mem_info_cmd(JSON_Value const *pars);
+
 JSON_Value* temperature_info_cmd(JSON_Value const *pars);
+
 JSON_Value* move_closed_loop_cmd(JSON_Value const *pars);
+
 JSON_Value* move_free_run_cmd(JSON_Value const *pars); 
+
 JSON_Value* move_incremental_cmd(JSON_Value const *pars);
+
+JSON_Value* brakes_mode_cmd(JSON_Value const *pars);
 
 JSON_Value* read_encoders_cmd(JSON_Value const *pars);
 

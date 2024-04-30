@@ -4,8 +4,6 @@
 #include <cctype>
 #include "debug.h"
 #include "FreeRTOS.h"
-    int len;
-
 
 #include "mot_pap.h"
 #include "net_commands.h"
@@ -82,6 +80,51 @@ JSON_Value* tcp_server_command::control_enable_cmd(JSON_Value const *pars) {
             rema::control_enabled_get());
     return root_value;
 }
+
+JSON_Value* tcp_server_command::brakes_mode_cmd(JSON_Value const *pars) {
+    JSON_Value *root_value = json_value_init_object();
+    JSON_Object *pars_object = json_value_get_object(pars);
+
+    if (json_object_has_value_of_type(pars_object, "brakes_mode", JSONString)) {
+        char const *brakes_mode = json_object_get_string(pars_object, "brakes_mode");
+
+        if (!strcmp(brakes_mode, "OFF")) {
+            rema::brakes_mode = rema::brakes_mode_t::OFF;
+            rema::brakes_release();
+        }
+
+        if (!strcmp(brakes_mode, "AUTO")) {
+            rema::brakes_mode = rema::brakes_mode_t::AUTO;
+        }
+
+        if (!strcmp(brakes_mode, "ON")) {
+            rema::brakes_mode = rema::brakes_mode_t::ON;
+            rema::brakes_apply();
+        }        
+    }
+
+
+    switch (rema::brakes_mode)
+    {
+    case rema::brakes_mode_t::OFF :
+        json_object_set_string(json_value_get_object(root_value), "STATUS", "OFF");
+        break;
+
+    case rema::brakes_mode_t::AUTO :
+        json_object_set_string(json_value_get_object(root_value), "STATUS", "AUTO");
+        break;
+
+    case rema::brakes_mode_t::ON :
+        json_object_set_string(json_value_get_object(root_value), "STATUS", "ON");
+        break;
+
+    default:
+        break;
+    }
+   
+    return root_value;
+}
+
 
 JSON_Value* tcp_server_command::stall_control_cmd(JSON_Value const *pars) {
     JSON_Value *root_value = json_value_init_object();
@@ -385,6 +428,11 @@ const tcp_server_command::cmd_entry tcp_server_command::cmds_table[] = {
                 "STALL_CONTROL",
                 &tcp_server_command::stall_control_cmd,
         },
+        {
+                "BRAKES_MODE",
+                &tcp_server_command::brakes_mode_cmd,
+        },
+
         {
                 "AXES_HARD_STOP_ALL",
                 &tcp_server_command::axes_hard_stop_all_cmd,

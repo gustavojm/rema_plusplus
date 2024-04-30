@@ -4,16 +4,17 @@
 
 extern bresenham *x_y_axes, *z_dummy_axes;
 
-gpio_templ< 2, 1, SCU_MODE_FUNC4, 5, 1 >  relay_DOUT0;          // DOUT0 P2_1    PIN81   GPIO5[1] Bornes 4 y 5
-gpio_templ< 4, 6, SCU_MODE_FUNC0, 2, 6 >  relay_DOUT1;          // DOUT1 P4_6    PIN11   GPIO2[6] Bornes 6 y 7
-gpio_templ< 4, 5, SCU_MODE_FUNC0, 2, 5 >  relay_DOUT2;          // DOUT2 P4_5    PIN10   GPIO2[5] Bornes 8 y 9
-gpio_templ< 4, 4, SCU_MODE_FUNC0, 2, 4 >  relay_DOUT3;          // DOUT3 P4_4    PIN9    GPIO2[4] Bornes 10 y 11
+gpio_templ< 2, 1, SCU_MODE_FUNC4, 5, 1 >  brakes_out;                   // DOUT0 P2_1    PIN81   GPIO5[1] Bornes 4 y 5
+gpio_templ< 4, 6, SCU_MODE_FUNC0, 2, 6 >  touch_probe_retractor_out;    // DOUT1 P4_6    PIN11   GPIO2[6] Bornes 6 y 7
+gpio_templ< 4, 5, SCU_MODE_FUNC0, 2, 5 >  relay_DOUT2;                  // DOUT2 P4_5    PIN10   GPIO2[5] Bornes 8 y 9
+gpio_templ< 4, 4, SCU_MODE_FUNC0, 2, 4 >  relay_DOUT3;                  // DOUT3 P4_4    PIN9    GPIO2[4] Bornes 10 y 11
 
-gpio_templ< 1, 5, SCU_MODE_FUNC0, 1, 8 >  control_out;          // DOUT7 P1_5    PIN48   GPIO1[8]
+gpio_templ< 1, 5, SCU_MODE_FUNC0, 1, 8 >  control_out;                  // DOUT7 P1_5    PIN48   GPIO1[8]
 
 bool rema::control_enabled = false;
 bool rema::probe_enabled = false;
 bool rema::stall_detection = true;
+rema::brakes_mode_t rema::brakes_mode = rema::brakes_mode_t::AUTO;
 TickType_t rema::lastKeepAliveTicks;
 
 void rema::control_enabled_set(bool status) {
@@ -25,6 +26,25 @@ void rema::control_enabled_set(bool status) {
 bool rema::control_enabled_get() {    
     return control_enabled;
 
+}
+
+void rema::brakes_release() {    
+    if (brakes_mode == brakes_mode_t::AUTO || brakes_mode == brakes_mode_t::OFF) {
+        brakes_out.init_output();
+        brakes_out.set(1);
+    }
+}
+
+void rema::brakes_apply() {
+    if (brakes_mode == brakes_mode_t::AUTO || brakes_mode == brakes_mode_t::ON) {
+        brakes_out.init_output();
+        brakes_out.set(0);
+    }
+}
+
+void rema::touch_probe_retractor_set(bool status) {
+    touch_probe_retractor_out.init_output();
+    touch_probe_retractor_out.set(status);
 }
 
 void rema::probe_enabled_set(bool status)  {
