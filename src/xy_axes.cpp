@@ -40,7 +40,7 @@ bresenham& xy_axes_init() {
 
     y_axis.gpios.step = gpio {4, 9, SCU_MODE_FUNC4, 5, 13}.init_output();          //DOUT5 P4_9    PIN33   GPIO5[13]
 
-    x_y_axes = new(xy_axes_buf) bresenham ("xy_axes", &x_axis, &y_axis, xy_axes_tmr);
+    x_y_axes = new(xy_axes_buf) bresenham ("xy_axes", &x_axis, &y_axis, xy_axes_tmr, true);
     x_y_axes->kp = {100,                             //!< Kp
             x_y_axes->step_time,                     //!< Update rate (ms)
             // 10000,                                  //!< Min output

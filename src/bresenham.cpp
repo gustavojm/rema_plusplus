@@ -100,7 +100,9 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
     // Bresenham error calculation needs to multiply by 2 for the error calculation, thus clamp setpoints to half INT32 min and max
     first_axis_setpoint = std::clamp(first_axis_setpoint, (static_cast<int>(INT32_MIN) / 2), (static_cast<int>(INT32_MAX) / 2));
     second_axis_setpoint = std::clamp(second_axis_setpoint, (static_cast<int>(INT32_MIN) / 2) , (static_cast<int>(INT32_MAX) / 2));
-    rema::brakes_release();
+    if (has_brakes) {
+        rema::brakes_release();
+    }
     is_moving = true;
     already_there = false;
     first_axis->stall_reset();
@@ -226,6 +228,9 @@ void bresenham::isr() {
  */
 void bresenham::stop() {
     is_moving = false;
+    if (has_brakes) {
+        rema::brakes_apply();
+    }    
     tmr.stop();
     current_freq = 0;
 }

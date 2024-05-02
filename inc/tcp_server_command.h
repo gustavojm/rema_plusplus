@@ -113,6 +113,8 @@ JSON_Value* move_incremental_cmd(JSON_Value const *pars);
 
 JSON_Value* brakes_mode_cmd(JSON_Value const *pars);
 
+JSON_Value* touch_probe_cmd(JSON_Value const *pars);
+
 JSON_Value* read_encoders_cmd(JSON_Value const *pars);
 
 JSON_Value* read_limits_cmd(JSON_Value const *pars);

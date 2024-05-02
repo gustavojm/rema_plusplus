@@ -12,7 +12,6 @@ gpio_templ< 4, 4, SCU_MODE_FUNC0, 2, 4 >  relay_DOUT3;                  // DOUT3
 gpio_templ< 1, 5, SCU_MODE_FUNC0, 1, 8 >  control_out;                  // DOUT7 P1_5    PIN48   GPIO1[8]
 
 bool rema::control_enabled = false;
-bool rema::probe_enabled = false;
 bool rema::stall_detection = true;
 rema::brakes_mode_t rema::brakes_mode = rema::brakes_mode_t::AUTO;
 TickType_t rema::lastKeepAliveTicks;
@@ -45,14 +44,6 @@ void rema::brakes_apply() {
 void rema::touch_probe_retractor_set(bool status) {
     touch_probe_retractor_out.init_output();
     touch_probe_retractor_out.set(status);
-}
-
-void rema::probe_enabled_set(bool status)  {
-    probe_enabled = status;
-}
-
-bool rema::probe_enabled_get()  {
-    return probe_enabled;
 }
 
 void rema::stall_control_set(bool status) {

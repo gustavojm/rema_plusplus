@@ -85,19 +85,19 @@ JSON_Value* tcp_server_command::brakes_mode_cmd(JSON_Value const *pars) {
     JSON_Value *root_value = json_value_init_object();
     JSON_Object *pars_object = json_value_get_object(pars);
 
-    if (json_object_has_value_of_type(pars_object, "brakes_mode", JSONString)) {
-        char const *brakes_mode = json_object_get_string(pars_object, "brakes_mode");
+    if (json_object_has_value_of_type(pars_object, "mode", JSONString)) {
+        char const *mode = json_object_get_string(pars_object, "mode");
 
-        if (!strcmp(brakes_mode, "OFF")) {
+        if (!strcmp(mode, "OFF")) {
             rema::brakes_mode = rema::brakes_mode_t::OFF;
             rema::brakes_release();
         }
 
-        if (!strcmp(brakes_mode, "AUTO")) {
+        if (!strcmp(mode, "AUTO")) {
             rema::brakes_mode = rema::brakes_mode_t::AUTO;
         }
 
-        if (!strcmp(brakes_mode, "ON")) {
+        if (!strcmp(mode, "ON")) {
             rema::brakes_mode = rema::brakes_mode_t::ON;
             rema::brakes_apply();
         }        
@@ -120,6 +120,26 @@ JSON_Value* tcp_server_command::brakes_mode_cmd(JSON_Value const *pars) {
 
     default:
         break;
+    }
+   
+    return root_value;
+}
+
+
+JSON_Value* tcp_server_command::touch_probe_cmd(JSON_Value const *pars) {
+    JSON_Value *root_value = json_value_init_object();
+    JSON_Object *pars_object = json_value_get_object(pars);
+
+    if (json_object_has_value_of_type(pars_object, "position", JSONString)) {
+        char const *position = json_object_get_string(pars_object, "position");
+
+        if (!strcmp(position, "DOWN")) {
+            rema::touch_probe_retractor_set(false);
+        }
+
+        if (!strcmp(position, "UP")) {
+            rema::touch_probe_retractor_set(true);
+        }
     }
    
     return root_value;
@@ -432,7 +452,10 @@ const tcp_server_command::cmd_entry tcp_server_command::cmds_table[] = {
                 "BRAKES_MODE",
                 &tcp_server_command::brakes_mode_cmd,
         },
-
+        {
+                "TOUCH_PROBE",
+                &tcp_server_command::touch_probe_cmd,
+        },
         {
                 "AXES_HARD_STOP_ALL",
                 &tcp_server_command::axes_hard_stop_all_cmd,

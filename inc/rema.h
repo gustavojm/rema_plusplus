@@ -30,10 +30,6 @@ public:
 
     static void touch_probe_retractor_set(bool status);
 
-    static void probe_enabled_set(bool status);
-
-    static bool probe_enabled_get();
-
     static void stall_control_set(bool status);
 
     static bool stall_control_get();
@@ -45,7 +41,6 @@ public:
     static void hard_limits_reached();
 
     static bool control_enabled;
-    static bool probe_enabled;
     static bool stall_detection;
     static brakes_mode_t brakes_mode;
     static TickType_t lastKeepAliveTicks;

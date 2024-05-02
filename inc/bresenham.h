@@ -36,8 +36,8 @@ public:
 
     bresenham() = delete;
 
-    explicit bresenham(const char *name, mot_pap* first_axis, mot_pap* second_axis, class tmr t) :
-            name(name), first_axis(first_axis), second_axis(second_axis), tmr(t) {
+    explicit bresenham(const char *name, mot_pap* first_axis, mot_pap* second_axis, class tmr t, bool has_brakes = false) :
+            name(name), first_axis(first_axis), second_axis(second_axis), tmr(t), has_brakes(has_brakes) {
 
         queue = xQueueCreate(5, sizeof(struct bresenham_msg*));
         supervisor_semaphore = xSemaphoreCreateBinary();
@@ -102,6 +102,7 @@ public:
     volatile bool already_there = false;
     volatile bool was_soft_stopped = false;
     volatile bool was_stopped_by_probe = false;
+    bool has_brakes = false;
     class kp kp;
     int error;
 
