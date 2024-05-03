@@ -133,12 +133,12 @@ JSON_Value* tcp_server_command::touch_probe_cmd(JSON_Value const *pars) {
     if (json_object_has_value_of_type(pars_object, "position", JSONString)) {
         char const *position = json_object_get_string(pars_object, "position");
 
-        if (!strcmp(position, "DOWN")) {
-            rema::touch_probe_retractor_set(false);
+        if (!strcmp(position, "IN")) {
+            rema::touch_probe_retract();
         }
 
-        if (!strcmp(position, "UP")) {
-            rema::touch_probe_retractor_set(true);
+        if (!strcmp(position, "OUT")) {
+            rema::touch_probe_extend();
         }
     }
    

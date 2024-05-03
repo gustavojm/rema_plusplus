@@ -5,7 +5,7 @@
 extern bresenham *x_y_axes, *z_dummy_axes;
 
 gpio_templ< 2, 1, SCU_MODE_FUNC4, 5, 1 >  brakes_out;                   // DOUT0 P2_1    PIN81   GPIO5[1] Bornes 4 y 5
-gpio_templ< 4, 6, SCU_MODE_FUNC0, 2, 6 >  touch_probe_retractor_out;    // DOUT1 P4_6    PIN11   GPIO2[6] Bornes 6 y 7
+gpio_templ< 4, 6, SCU_MODE_FUNC0, 2, 6 >  touch_probe_actuator_out;    // DOUT1 P4_6    PIN11   GPIO2[6] Bornes 6 y 7
 gpio_templ< 4, 5, SCU_MODE_FUNC0, 2, 5 >  relay_DOUT2;                  // DOUT2 P4_5    PIN10   GPIO2[5] Bornes 8 y 9
 gpio_templ< 4, 4, SCU_MODE_FUNC0, 2, 4 >  relay_DOUT3;                  // DOUT3 P4_4    PIN9    GPIO2[4] Bornes 10 y 11
 
@@ -41,9 +41,14 @@ void rema::brakes_apply() {
     }
 }
 
-void rema::touch_probe_retractor_set(bool status) {
-    touch_probe_retractor_out.init_output();
-    touch_probe_retractor_out.set(status);
+void rema::touch_probe_extend() {
+    touch_probe_actuator_out.init_output();
+    touch_probe_actuator_out.set(0);
+}
+
+void rema::touch_probe_retract() {
+    touch_probe_actuator_out.init_output();
+    touch_probe_actuator_out.set(1);
 }
 
 void rema::stall_control_set(bool status) {

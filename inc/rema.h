@@ -28,7 +28,9 @@ public:
 
     static void brakes_apply();
 
-    static void touch_probe_retractor_set(bool status);
+    static void touch_probe_extend();
+
+    static void touch_probe_retract();
 
     static void stall_control_set(bool status);
 
