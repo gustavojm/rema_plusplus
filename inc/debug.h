@@ -28,47 +28,53 @@
  * </tt></pre>
  * <p>
  * Based on code and ideas found
- * <a href="http://stackoverflow.com/questions/1644868/c-define-macro-for-debug-printing">
+ * <a
+ href="http://stackoverflow.com/questions/1644868/c-define-macro-for-debug-printing">
  * here</a> and
- * <a href="http://stackoverflow.com/questions/679979/how-to-make-a-variadic-macro-variable-number-of-arguments">
+ * <a
+ href="http://stackoverflow.com/questions/679979/how-to-make-a-variadic-macro-variable-number-of-arguments">
  * here</a>.
  * <p>
  * @author Fritz Sieker
  */
 
-#include <stdio.h>
-#include <stdarg.h>
 #include <inttypes.h>
+#include <stdarg.h>
+#include <stdio.h>
 
 #include "FreeRTOS.h"
-#include "task.h"
 #include "semphr.h"
+#include "task.h"
 
 enum debugLevels {
-    Debug, Info, InfoLocal, Warn, Error,
+  Debug,
+  Info,
+  InfoLocal,
+  Warn,
+  Error,
 };
 
-static inline const char* levelText(enum debugLevels level) {
-    const char *ret;
-    switch (level) {
-    case Debug:
-        ret = "Debug";
-        break;
-    case Info:
-    case InfoLocal:
-        ret = "Info";
-        break;
-    case Warn:
-        ret = "Warn";
-        break;
-    case Error:
-        ret = "Error";
-        break;
-    default:
-        ret = "";
-        break;
-    }
-    return ret;
+static inline const char *levelText(enum debugLevels level) {
+  const char *ret;
+  switch (level) {
+  case Debug:
+    ret = "Debug";
+    break;
+  case Info:
+  case InfoLocal:
+    ret = "Info";
+    break;
+  case Warn:
+    ret = "Warn";
+    break;
+  case Error:
+    ret = "Error";
+    break;
+  default:
+    ret = "";
+    break;
+  }
+  return ret;
 }
 
 /**
@@ -99,7 +105,7 @@ void debugToFile(const char *fileName);
 void debugClose();
 
 #ifdef DEBUG
-#define DEBUG_ENABLED 1  // debug code available at runtime
+#define DEBUG_ENABLED 1 // debug code available at runtime
 #else
 /**
  * This macro controls whether all debugging code is optimized out of the
@@ -107,7 +113,7 @@ void debugClose();
  * <tt>debugLevel</tt> variable. The value (0/1) depends on whether
  * the macro <tt>DEBUG</tt> is defined during the compile.
  */
-#define DEBUG_ENABLED 0  // all debug code optimized out
+#define DEBUG_ENABLED 0 // all debug code optimized out
 #endif
 
 /** Prints the file name, line number, function name and "HERE" */
@@ -124,39 +130,39 @@ void debugClose();
  * @param     fmt     : format to print the var
  * @param     name     : name of the variable to print
  */
-#define vDebug(fmt, name) debug("%s=(" fmt ")" , debugV(name))
+#define vDebug(fmt, name) debug("%s=(" fmt ")", debugV(name))
 
 /** Simple alias for <tt>lDebug()</tt> */
 #define debug(fmt, ...) lDebug(1, fmt, ##__VA_ARGS__)
 
-static inline char* make_message(const char *fmt, ...) {
-    int size = 0;
-    char *p = NULL;
-    va_list ap;
+static inline char *make_message(const char *fmt, ...) {
+  int size = 0;
+  char *p = NULL;
+  va_list ap;
 
-    /* Determine required size */
+  /* Determine required size */
 
-    va_start(ap, fmt);
-    size = vsnprintf(p, size, fmt, ap);
-    va_end(ap);
+  va_start(ap, fmt);
+  size = vsnprintf(p, size, fmt, ap);
+  va_end(ap);
 
-    if (size < 0)
-        return NULL;
+  if (size < 0)
+    return NULL;
 
-    size++; /* For '\0' */
-    p = new char[size];
-    if (p == NULL)
-        return NULL;
+  size++; /* For '\0' */
+  p = new char[size];
+  if (p == NULL)
+    return NULL;
 
-    va_start(ap, fmt);
-    size = vsnprintf(p, size, fmt, ap);
-    if (size < 0) {
-        delete[] p;
-        return NULL;
-    }
-    va_end(ap);
+  va_start(ap, fmt);
+  size = vsnprintf(p, size, fmt, ap);
+  if (size < 0) {
+    delete[] p;
+    return NULL;
+  }
+  va_end(ap);
 
-    return p;
+  return p;
 }
 
 /**
@@ -166,27 +172,30 @@ static inline char* make_message(const char *fmt, ...) {
  * @param fmt the formatting string (<b>MUST</b> be a literal
  */
 #if DEBUG_ENABLED
-#define lDebug(level, fmt, ...) \
-do { \
-        if (debug_to_uart && debugLocalLevel <= level) { \
-            if (uart_mutex != NULL) {    \
-                if (xSemaphoreTake(uart_mutex, portMAX_DELAY) == pdTRUE) { \
-                    printf("%lu - %s %s[%d] %s() " fmt "\n", xTaskGetTickCount(), \
-                    levelText(level), __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
-                    xSemaphoreGive(uart_mutex); \
-                } \
-            } \
-       }\
-       \
-       if (debug_to_network && debug_queue!=nullptr && (debugNetLevel <= level) && (level != InfoLocal)) {\
-               char *dbg_msg = make_message("%u - %s %s[%d] %s() " fmt, xTaskGetTickCount(), \
-                levelText(level), __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
-            if (xQueueSend(debug_queue, &dbg_msg, (TickType_t) 0) != pdPASS) { \
-                delete[] dbg_msg; \
-                dbg_msg = NULL; \
-            } \
-       } \
-} while (0)
+#define lDebug(level, fmt, ...)                                                \
+  do {                                                                         \
+    if (debug_to_uart && debugLocalLevel <= level) {                           \
+      if (uart_mutex != NULL) {                                                \
+        if (xSemaphoreTake(uart_mutex, portMAX_DELAY) == pdTRUE) {             \
+          printf("%lu - %s %s[%d] %s() " fmt "\n", xTaskGetTickCount(),        \
+                 levelText(level), __FILE__, __LINE__, __func__,               \
+                 ##__VA_ARGS__);                                               \
+          xSemaphoreGive(uart_mutex);                                          \
+        }                                                                      \
+      }                                                                        \
+    }                                                                          \
+                                                                               \
+    if (debug_to_network && debug_queue != nullptr &&                          \
+        (debugNetLevel <= level) && (level != InfoLocal)) {                    \
+      char *dbg_msg = make_message(                                            \
+          "%u - %s %s[%d] %s() " fmt, xTaskGetTickCount(), levelText(level),   \
+          __FILE__, __LINE__, __func__, ##__VA_ARGS__);                        \
+      if (xQueueSend(debug_queue, &dbg_msg, (TickType_t)0) != pdPASS) {        \
+        delete[] dbg_msg;                                                      \
+        dbg_msg = NULL;                                                        \
+      }                                                                        \
+    }                                                                          \
+  } while (0)
 #else
 #define lDebug(level, fmt, ...)
 #endif

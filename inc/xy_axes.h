@@ -3,6 +3,6 @@
 
 #include "bresenham.h"
 
-bresenham& xy_axes_init();
+bresenham &xy_axes_init();
 
 #endif /* XY_AXES_H_ */

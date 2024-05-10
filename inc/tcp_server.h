@@ -6,20 +6,18 @@
 #include "bresenham.h"
 #include "encoders_pico.h"
 
-
 class tcp_server {
 public:
-    explicit tcp_server(const char *name, int port);
+  explicit tcp_server(const char *name, int port);
 
-    virtual ~tcp_server() {} // Virtual destructor
+  virtual ~tcp_server() {} // Virtual destructor
 
-    virtual void reply_fn(int sock) = 0;
+  virtual void reply_fn(int sock) = 0;
 
-    void task();  
-    
-    const char *name;
-    int port;
+  void task();
+
+  const char *name;
+  int port;
 };
-
 
 #endif /* TCP_SERVER_H_ */

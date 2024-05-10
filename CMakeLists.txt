@@ -117,11 +117,18 @@ file(GLOB_RECURSE SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/newlib/*.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/sysinit.c
+)
+
+file(GLOB_RECURSE EXTERNAL_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/freertos/*.c
     ${CMAKE_CURRENT_SOURCE_DIR}/lwip/*.c
 )
 
-set(HEADERS_DIR
+file(GLOB_RECURSE HEADERS
+    inc/*
+)
+
+set(EXTERNAL_HEADERS_DIR
     ../CIAA_NXP_board/inc
     lwip/inc
     lwip/inc/ipv4
@@ -134,10 +141,15 @@ set(HEADERS_DIR
 )
 
 if(${PROJECT_NAME}_BUILD_EXECUTABLE)
-  add_executable(${PROJECT_NAME} ${SOURCES})
-  
+  add_executable(${PROJECT_NAME} ${SOURCES} ${EXTERNAL_SOURCES})
+
   if(${PROJECT_NAME}_VERBOSE_OUTPUT)
-    verbose_message("Found the following SOURCES:")
+  verbose_message("Found the following HEADERS:")
+  foreach(HEADER IN LISTS HEADERS)
+    verbose_message("* ${HEADER}")
+  endforeach()
+  
+  verbose_message("Found the following SOURCES:")
     foreach(SOURCE IN LISTS SOURCES)
       verbose_message("* ${SOURCE}")
     endforeach()
@@ -182,7 +194,7 @@ else()
 endif()
   
 target_include_directories(${PROJECT_NAME} PRIVATE
-  ${HEADERS_DIR}
+  ${HEADERS_DIR} ${EXTERNAL_HEADERS_DIR}
 )
 
 target_link_libraries(
@@ -209,7 +221,6 @@ target_link_options(${PROJECT_NAME} PRIVATE
 #
 # Set the project standard and warnings
 #
-
 include(cmake/CompilerWarnings.cmake)
 set_project_warnings(${PROJECT_NAME})
 
@@ -218,8 +229,12 @@ verbose_message("Applied compiler warnings. Using standard ${CMAKE_CXX_STANDARD}
 #
 # Enable Doxygen
 #
-
 include(cmake/Doxygen.cmake)
+
+#
+# Format the project using the `clang-format` target (i.e: cmake --build build --target clang-format)
+#
+include(cmake/clang-format.cmake)
 
 # Optional: Print executable size as part of the post build process
 add_custom_command(TARGET ${PROJECT_NAME}

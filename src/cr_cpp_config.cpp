@@ -20,9 +20,9 @@
 //
 // The software is owned by Code Red Technologies and/or its suppliers, and is
 // protected under applicable copyright laws.  All rights are reserved.  Any
-// use in violation of the foregoing restrictions may subject the user to criminal
-// sanctions under applicable laws, as well as to civil liability for the breach
-// of the terms and conditions of this license.
+// use in violation of the foregoing restrictions may subject the user to
+// criminal sanctions under applicable laws, as well as to civil liability for
+// the breach of the terms and conditions of this license.
 //
 // THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
 // OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
@@ -36,43 +36,27 @@
 //#include <stdlib.h>
 #include "FreeRTOS.h"
 
-void* operator new(size_t size) {
-    return pvPortMalloc(size);
-}
+void *operator new(size_t size) { return pvPortMalloc(size); }
 
-void* operator new[](size_t size) {
-    return pvPortMalloc(size);
-}
+void *operator new[](size_t size) { return pvPortMalloc(size); }
 
-void operator delete(void *p) {
-    vPortFree(p);
-}
+void operator delete(void *p) { vPortFree(p); }
 
-void operator delete[](void *p) {
-    vPortFree(p);
-}
+void operator delete[](void *p) { vPortFree(p); }
 
-void operator delete(void *p, unsigned int) {
-    vPortFree(p);
-}
+void operator delete(void *p, unsigned int) { vPortFree(p); }
 
-void operator delete [](void *p, unsigned int) {
-    vPortFree(p);
-}
+void operator delete[](void *p, unsigned int) { vPortFree(p); }
 
-
-extern "C" int __aeabi_atexit(void *object, void (*destructor)(void*),
-        void *dso_handle) {
-    return 0;
+extern "C" int __aeabi_atexit(void *object, void (*destructor)(void *),
+                              void *dso_handle) {
+  return 0;
 }
 
 #ifdef CPP_NO_HEAP
-extern "C" void *malloc(size_t) {
-    return reinterpret_cast<void *>(0);
-}
+extern "C" void *malloc(size_t) { return reinterpret_cast<void *>(0); }
 
-extern "C" void free(void *) {
-}
+extern "C" void free(void *) {}
 #endif
 
 #ifndef CPP_USE_CPPLIBRARY_TERMINATE_HANDLER
@@ -88,8 +72,8 @@ extern "C" void free(void *) {
  ******************************************************************/
 namespace __gnu_cxx {
 void __verbose_terminate_handler() {
-    while (1)
-        {}
+  while (1) {
+  }
 }
-}
+} // namespace __gnu_cxx
 #endif

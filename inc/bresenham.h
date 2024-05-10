@@ -1,23 +1,21 @@
 #ifndef BRESENHAM_H_
 #define BRESENHAM_H_
 
-#include <cstdint>
 #include <chrono>
+#include <cstdint>
 
-#include "mot_pap.h"
-#include "gpio.h"
 #include "FreeRTOS.h"
-#include "task.h"
-#include "semphr.h"
-#include "tmr.h"
-#include "parson.h"
+#include "debug.h"
 #include "gpio.h"
 #include "kp.h"
-#include "debug.h"
+#include "mot_pap.h"
+#include "parson.h"
+#include "semphr.h"
+#include "task.h"
+#include "tmr.h"
 
-#define TASK_PRIORITY ( configMAX_PRIORITIES - 3 )
-#define SUPERVISOR_TASK_PRIORITY ( configMAX_PRIORITIES - 1)
-
+#define TASK_PRIORITY (configMAX_PRIORITIES - 3)
+#define SUPERVISOR_TASK_PRIORITY (configMAX_PRIORITIES - 1)
 
 using namespace std::chrono_literals;
 
@@ -26,98 +24,98 @@ using namespace std::chrono_literals;
  * @brief   messages to axis tasks.
  */
 struct bresenham_msg {
-    enum mot_pap::type type;
-    int first_axis_setpoint;
-    int second_axis_setpoint;
+  enum mot_pap::type type;
+  int first_axis_setpoint;
+  int second_axis_setpoint;
 };
 
 class bresenham {
 public:
+  bresenham() = delete;
 
-    bresenham() = delete;
+  explicit bresenham(const char *name, mot_pap *first_axis,
+                     mot_pap *second_axis, class tmr t, bool has_brakes = false)
+      : name(name), first_axis(first_axis), second_axis(second_axis), tmr(t),
+        has_brakes(has_brakes) {
 
-    explicit bresenham(const char *name, mot_pap* first_axis, mot_pap* second_axis, class tmr t, bool has_brakes = false) :
-            name(name), first_axis(first_axis), second_axis(second_axis), tmr(t), has_brakes(has_brakes) {
+    queue = xQueueCreate(5, sizeof(struct bresenham_msg *));
+    supervisor_semaphore = xSemaphoreCreateBinary();
 
-        queue = xQueueCreate(5, sizeof(struct bresenham_msg*));
-        supervisor_semaphore = xSemaphoreCreateBinary();
-
-        char supervisor_task_name[configMAX_TASK_NAME_LEN];
-        memset(supervisor_task_name, 0, sizeof(supervisor_task_name));
-        strncat(supervisor_task_name, name, sizeof(supervisor_task_name) - strlen(supervisor_task_name) - 1);
-        strncat(supervisor_task_name, "_supervisor", sizeof(supervisor_task_name) - strlen(supervisor_task_name) -1);
-        if (supervisor_semaphore != NULL) {
-            // Create the 'handler' task, which is the task to which interrupt processing is deferred
-            xTaskCreate([](void* axes) { static_cast<bresenham*>(axes)->supervise();}, supervisor_task_name,
-            256,
-            this, SUPERVISOR_TASK_PRIORITY, NULL);
-            lDebug(Info, "%s: created", supervisor_task_name);
-        }
-
-        char task_name[configMAX_TASK_NAME_LEN];
-        memset(task_name, 0, sizeof(task_name));
-        strncat(task_name, name, sizeof(task_name) - strlen(task_name) - 1);
-        strncat(task_name, "_task", sizeof(task_name) - strlen(task_name) - 1);
-        xTaskCreate([](void* axes) { static_cast<bresenham*>(axes)->task();}, task_name, 256, this,
-        TASK_PRIORITY, NULL);
-
-        lDebug(Info, "%s: created", task_name);
-
+    char supervisor_task_name[configMAX_TASK_NAME_LEN];
+    memset(supervisor_task_name, 0, sizeof(supervisor_task_name));
+    strncat(supervisor_task_name, name,
+            sizeof(supervisor_task_name) - strlen(supervisor_task_name) - 1);
+    strncat(supervisor_task_name, "_supervisor",
+            sizeof(supervisor_task_name) - strlen(supervisor_task_name) - 1);
+    if (supervisor_semaphore != NULL) {
+      // Create the 'handler' task, which is the task to which interrupt
+      // processing is deferred
+      xTaskCreate(
+          [](void *axes) { static_cast<bresenham *>(axes)->supervise(); },
+          supervisor_task_name, 256, this, SUPERVISOR_TASK_PRIORITY, NULL);
+      lDebug(Info, "%s: created", supervisor_task_name);
     }
 
-	void task();
+    char task_name[configMAX_TASK_NAME_LEN];
+    memset(task_name, 0, sizeof(task_name));
+    strncat(task_name, name, sizeof(task_name) - strlen(task_name) - 1);
+    strncat(task_name, "_task", sizeof(task_name) - strlen(task_name) - 1);
+    xTaskCreate([](void *axes) { static_cast<bresenham *>(axes)->task(); },
+                task_name, 256, this, TASK_PRIORITY, NULL);
 
-	void set_timer(class tmr tmr) {
-		this->tmr = tmr;
-	}
+    lDebug(Info, "%s: created", task_name);
+  }
 
-	void supervise();
+  void task();
 
-	void move(int first_axis_setpoint, int second_axis_setpoint);
+  void set_timer(class tmr tmr) { this->tmr = tmr; }
 
-	void step();
+  void supervise();
 
-    void send(bresenham_msg msg);
+  void move(int first_axis_setpoint, int second_axis_setpoint);
 
-	void isr();
+  void step();
 
-	void stop();
+  void send(bresenham_msg msg);
 
-    void pause();
+  void isr();
 
-    void resume();
+  void stop();
+
+  void pause();
+
+  void resume();
 
 public:
-	const char *name;
-	bool is_moving = false;
-    int current_freq = 0;
-    std::chrono::milliseconds step_time = 100ms;
-    TickType_t ticks_last_time = 0;
-    QueueHandle_t queue;
-    SemaphoreHandle_t supervisor_semaphore;
-    mot_pap* first_axis = nullptr;
-    mot_pap* second_axis = nullptr;
-    mot_pap* leader_axis = nullptr;
-    class tmr tmr;
-    volatile bool already_there = false;
-    volatile bool was_soft_stopped = false;
-    volatile bool was_stopped_by_probe = false;
-    bool has_brakes = false;
-    class kp kp;
-    int error;
+  const char *name;
+  bool is_moving = false;
+  int current_freq = 0;
+  std::chrono::milliseconds step_time = 100ms;
+  TickType_t ticks_last_time = 0;
+  QueueHandle_t queue;
+  SemaphoreHandle_t supervisor_semaphore;
+  mot_pap *first_axis = nullptr;
+  mot_pap *second_axis = nullptr;
+  mot_pap *leader_axis = nullptr;
+  class tmr tmr;
+  volatile bool already_there = false;
+  volatile bool was_soft_stopped = false;
+  volatile bool was_stopped_by_probe = false;
+  bool has_brakes = false;
+  class kp kp;
+  int error;
 
 private:
-    void calculate();
+  void calculate();
 
-    bresenham(bresenham const&) = delete;
-    void operator=(bresenham const&) = delete;
+  bresenham(bresenham const &) = delete;
+  void operator=(bresenham const &) = delete;
 
-    // Note: Scott Meyers mentions in his Effective Modern
-    //       C++ book, that deleted functions should generally
-    //       be public as it results in better error messages
-    //       due to the compilers behavior to check accessibility
-    //       before deleted status
-
+  // Note: Scott Meyers mentions in his Effective Modern
+  //       C++ book, that deleted functions should generally
+  //       be public as it results in better error messages
+  //       due to the compilers behavior to check accessibility
+  //       before deleted status
 };
 
 #endif /* BRESENHAM_H_ */

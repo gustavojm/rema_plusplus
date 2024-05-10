@@ -13,11 +13,11 @@
  * all warranties, express or implied, including all implied warranties of
  * merchantability, fitness for a particular purpose and non-infringement of
  * intellectual property rights.  NXP Semiconductors assumes no responsibility
- * or liability for the use of the software, conveys no license or rights under any
- * patent, copyright, mask work right, or any other intellectual property rights in
- * or to any products. NXP Semiconductors reserves the right to make changes
- * in the software without notification. NXP Semiconductors also makes no
- * representation or warranty that such application will be suitable for the
+ * or liability for the use of the software, conveys no license or rights under
+ * any patent, copyright, mask work right, or any other intellectual property
+ * rights in or to any products. NXP Semiconductors reserves the right to make
+ * changes in the software without notification. NXP Semiconductors also makes
+ * no representation or warranty that such application will be suitable for the
  * specified use without further testing or modification.
  *
  * @par
@@ -62,7 +62,10 @@ extern "C" {
 #define LPC_CHECK_SLOWMEM 1
 
 /* Array of slow memory address ranges for LPC_CHECK_SLOWMEM */
-#define LPC_SLOWMEM_ARRAY {{0x14000000, (0x14000000 + ((8 * 1024 * 1024) - 1))}}
+#define LPC_SLOWMEM_ARRAY                                                      \
+  {                                                                            \
+    { 0x14000000, (0x14000000 + ((8 * 1024 * 1024) - 1)) }                     \
+  }
 
 /**
  * @}

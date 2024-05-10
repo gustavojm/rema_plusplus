@@ -3,6 +3,6 @@
 
 #include "bresenham.h"
 
-bresenham& z_axis_init();
+bresenham &z_axis_init();
 
 #endif /* Z_AXIS_H_ */
