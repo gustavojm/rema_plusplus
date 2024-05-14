@@ -54,9 +54,9 @@ extern "C" int __aeabi_atexit(void *object, void (*destructor)(void *),
 }
 
 #ifdef CPP_NO_HEAP
-//extern "C" void *malloc(size_t) { return reinterpret_cast<void *>(0); }
+extern "C" void *malloc(size_t) { return reinterpret_cast<void *>(0); }
 
-//extern "C" void free(void *) {}
+extern "C" void free(void *) {}
 #endif
 
 #ifndef CPP_USE_CPPLIBRARY_TERMINATE_HANDLER
