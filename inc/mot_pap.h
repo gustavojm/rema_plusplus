@@ -1,7 +1,6 @@
 #ifndef MOT_PAP_H_
 #define MOT_PAP_H_
 
-#include <chrono>
 #include <cstdint>
 #include <cstdlib>
 
@@ -22,7 +21,6 @@
 
 extern encoders_pico *encoders;
 
-using namespace std::chrono_literals;
 /**
  * @struct 	mot_pap
  * @brief	axis structure.

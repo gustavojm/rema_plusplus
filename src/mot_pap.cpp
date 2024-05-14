@@ -12,8 +12,6 @@
 
 extern encoders_pico *encoders;
 
-using namespace std::chrono_literals;
-
 /**
  * @brief	returns the direction of movement depending if the error is
  * positive or negative

@@ -17,8 +17,6 @@
 #define TASK_PRIORITY (configMAX_PRIORITIES - 3)
 #define SUPERVISOR_TASK_PRIORITY (configMAX_PRIORITIES - 1)
 
-using namespace std::chrono_literals;
-
 /**
  * @struct  bresenham_msg
  * @brief   messages to axis tasks.
@@ -90,7 +88,7 @@ public:
   const char *name;
   bool is_moving = false;
   int current_freq = 0;
-  std::chrono::milliseconds step_time = 100ms;
+  std::chrono::milliseconds step_time = std::chrono::milliseconds(100);
   TickType_t ticks_last_time = 0;
   QueueHandle_t queue;
   SemaphoreHandle_t supervisor_semaphore;

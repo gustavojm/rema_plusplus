@@ -60,8 +60,7 @@ void kp::set_tunings(float kp) {
 }
 
 void kp::set_sample_period(std::chrono::milliseconds new_sample_period_ms) {
-  using namespace std::chrono_literals;
-  if (new_sample_period_ms > 0ms) {
+  if (new_sample_period_ms > std::chrono::milliseconds(0)) {
     sample_period_ms = new_sample_period_ms;
   }
 }

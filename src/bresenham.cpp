@@ -12,8 +12,6 @@
 #include "debug.h"
 #include "rema.h"
 
-using namespace std::chrono_literals;
-
 void bresenham::task() {
   struct bresenham_msg *msg_rcv;
 
