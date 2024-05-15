@@ -41,7 +41,7 @@ set(C_FLAGS
     -fmessage-length=0
     -fno-builtin -fshort-enums
     -fno-common -fmerge-constants
-)
+   )
 
 set(CXX_FLAGS
     ${C_FLAGS}    
@@ -76,7 +76,7 @@ add_compile_definitions(
     __NEWLIB__ 
     CORE_M4     
     __USE_LPCOPEN 
-    CPP_USE_HEAP 
+    #CPP_USE_HEAP 
     __LPC43XX__
 )
 
@@ -128,14 +128,17 @@ file(GLOB_RECURSE HEADERS
     inc/*
 )
 
+set(HEADERS_DIR
+    inc
+)
+
 set(EXTERNAL_HEADERS_DIR
     ../CIAA_NXP_board/inc
     lwip/inc
     lwip/inc/ipv4
     freertos/inc
-    inc
     ../../pico/encoders/inc
-    /usr/local/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/arm-none-eabi/include
+    #/usr/local/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/arm-none-eabi/include
     ../lpc_chip_43xx/inc
     ../lpc_chip_43xx/inc/config_43xx
 )

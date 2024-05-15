@@ -22,7 +22,7 @@
 extern encoders_pico *encoders;
 
 /**
- * @struct 	mot_pap
+ * @class 	mot_pap
  * @brief	axis structure.
  */
 class mot_pap {
