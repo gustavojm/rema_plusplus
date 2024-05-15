@@ -138,8 +138,4 @@
 /* Needed for malloc/free */
 #include "FreeRTOS.h"
 
-#define malloc pvPortMalloc
-#define free vPortFree
-
-
 #endif /* __LWIPOPTS_H_ */
