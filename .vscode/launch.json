@@ -9,7 +9,7 @@
             "request": "launch",
             "type": "cortex-debug",
             "servertype": "openocd",
-            "configFiles": ["/home/gustavo/CIAA/openOCD/lpc4337.cfg"],
+            "configFiles": ["${workspaceRoot}/openOCD/lpc4337.cfg"],
             "searchDir": [],
             "runToEntryPoint": "main",
             "showDevDebugOutput": "raw",

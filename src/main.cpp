@@ -80,6 +80,7 @@ int main(void) {
 
   settings::init();
 
+  rema::init_outputs();
   xy_axes_init();
   z_axis_init();
   encoders_pico_init();
@@ -170,5 +171,17 @@ extern "C" void prvGetRegistersFromStack(uint32_t *pulFaultStackAddress) {
   /* When the following line is hit, the variables contain the register values.
    */
   for (;;) {
+  }
+}
+
+//__attribute__((section(".after_vectors"))) void HardFault_Handler(void) {
+void HardFault_Handler(void) {
+  while (1) {
+    gpio_templ<4, 4, SCU_MODE_FUNC0, 2, 4>
+    relay_DOUT3; // DOUT3 P4_4    PIN9    GPIO2[4] Bornes 10 y 11
+    relay_DOUT3.set(1);
+    udelay(1000000);
+    relay_DOUT3.set(0);
+    udelay(1000000);
   }
 }

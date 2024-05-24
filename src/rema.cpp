@@ -21,9 +21,16 @@ bool rema::stall_detection = true;
 rema::brakes_mode_t rema::brakes_mode = rema::brakes_mode_t::AUTO;
 TickType_t rema::lastKeepAliveTicks;
 
+void rema::init_outputs() {
+    brakes_out.init_output();
+    touch_probe_actuator_out.init_output();
+    relay_DOUT2.init_output();
+    relay_DOUT3.init_output();
+    control_out.init_output();
+}
+
 void rema::control_enabled_set(bool status) {
-  control_enabled = status;
-  control_out.init_output();
+  control_enabled = status;  
   control_out.set(status);
 }
 
@@ -31,25 +38,21 @@ bool rema::control_enabled_get() { return control_enabled; }
 
 void rema::brakes_release() {
   if (brakes_mode == brakes_mode_t::AUTO || brakes_mode == brakes_mode_t::OFF) {
-    brakes_out.init_output();
     brakes_out.set(1);
   }
 }
 
 void rema::brakes_apply() {
   if (brakes_mode == brakes_mode_t::AUTO || brakes_mode == brakes_mode_t::ON) {
-    brakes_out.init_output();
     brakes_out.set(0);
   }
 }
 
 void rema::touch_probe_extend() {
-  touch_probe_actuator_out.init_output();
   touch_probe_actuator_out.set(0);
 }
 
 void rema::touch_probe_retract() {
-  touch_probe_actuator_out.init_output();
   touch_probe_actuator_out.set(1);
 }
 

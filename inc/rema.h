@@ -15,6 +15,8 @@ class rema {
 public:
   enum class brakes_mode_t { OFF, AUTO, ON };
 
+  static void init_outputs();
+
   static void control_enabled_set(bool status);
 
   static bool control_enabled_get();

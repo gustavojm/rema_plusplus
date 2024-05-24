@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "cstdlib": "cpp",
+        "cmath": "cpp",
+        "cstddef": "cpp",
+        "reent.h": "c"
+    }
+}
