@@ -71,6 +71,7 @@ function(set_project_warnings PROJECT_NAME)
                 ${PROJECT_WARNINGS}
                 ${CXX_WARNINGS}
         >
+        $<$<CONFIG:Debug>:-Wnull-dereference>      # Only for Debug build, else gives false positives
         )
   else()
         target_compile_options(${PROJECT_NAME} PUBLIC
@@ -81,8 +82,9 @@ function(set_project_warnings PROJECT_NAME)
                 ${PROJECT_WARNINGS}
                 ${CXX_WARNINGS}
         >
+        $<$<CONFIG:Debug>:-Wnull-dereference>      # Only for Debug build, else gives false positives
         )
-  endif()
+  endif()  
 
   if(NOT TARGET ${PROJECT_NAME})
     message(AUTHOR_WARNING "${PROJECT_NAME} is not a target, thus no compiler warning were added.")

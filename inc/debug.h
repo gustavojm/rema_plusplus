@@ -104,18 +104,6 @@ void debugToFile(const char *fileName);
 
 void debugClose();
 
-#ifdef DEBUG
-#define DEBUG_ENABLED 1 // debug code available at runtime
-#else
-/**
- * This macro controls whether all debugging code is optimized out of the
- * executable, or is compiled and controlled at runtime by the
- * <tt>debugLevel</tt> variable. The value (0/1) depends on whether
- * the macro <tt>DEBUG</tt> is defined during the compile.
- */
-#define DEBUG_ENABLED 0 // all debug code optimized out
-#endif
-
 /** Prints the file name, line number, function name and "HERE" */
 #define HERE debug("HERE")
 
@@ -166,12 +154,20 @@ static inline char *make_message(const char *fmt, ...) {
 }
 
 /**
+ * This macro controls whether all debugging code is optimized out of the
+ * executable, or is compiled and controlled at runtime by the
+ * <tt>debugLevel</tt> variable. Depends on whether
+ * the macro <tt>NDEBUG</tt> is defined during the compile.
+ */
+#ifdef NDEBUG
+#define lDebug(level, fmt, ...)
+#else
+/**
  * @brief prints this message if the variable <tt>debugLevel</tt> is greater
  * than or equal to the parameter.
  * @param level the level at which this information should be printed
  * @param fmt the formatting string (<b>MUST</b> be a literal
  */
-#if DEBUG_ENABLED
 #define lDebug(level, fmt, ...)                                                \
   do {                                                                         \
     if (debug_to_uart && debugLocalLevel <= level) {                           \
@@ -196,8 +192,6 @@ static inline char *make_message(const char *fmt, ...) {
       }                                                                        \
     }                                                                          \
   } while (0)
-#else
-#define lDebug(level, fmt, ...)
 #endif
 
 #endif

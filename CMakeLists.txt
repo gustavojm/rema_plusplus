@@ -64,14 +64,13 @@ set(CMAKE_ASM_FLAGS_DEBUG "${ASM_FLAGS}")
 set(CMAKE_ASM_FLAGS_RELEASE "${ASM_FLAGS}")
 set(CMAKE_C_FLAGS_DEBUG "${C_FLAGS} -g -Og")
 set(CMAKE_CXX_FLAGS_DEBUG "${CXX_FLAGS} -g -Og")
-set(CMAKE_C_FLAGS_RELEASE "${C_FLAGS} -DNDEBUG -O3")    # -Os -flto
-set(CMAKE_CXX_FLAGS_RELEASE "${CXX_FLAGS} -DNDEBUG -O3")  # -Os -g3 -flto
+set(CMAKE_C_FLAGS_RELEASE "${C_FLAGS} -DNDEBUG -Os")    # -Os -flto
+set(CMAKE_CXX_FLAGS_RELEASE "${CXX_FLAGS} -DNDEBUG -Os")  # -Os -g3 -flto
 set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${LD_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${LD_FLAGS}")   # -g3 -flto
 
 # some definition (-D)
 add_compile_definitions(
-    DEBUG
     #SIMULATE_ENCODER 
     __CODE_RED 
     __NEWLIB__ 
