@@ -24,7 +24,7 @@
 #define configTICK_RATE_HZ          ((TickType_t) 1000)
 #define configMINIMAL_STACK_SIZE    ((uint16_t) 128)
 #ifdef __CODE_RED
-#define configTOTAL_HEAP_SIZE        ((size_t) (40*1024)) /* GPa 201118 1610 Estaba en 32*1024 */
+#define configTOTAL_HEAP_SIZE        ((size_t) (64*1024)) /* GPa 201118 1610 Estaba en 32*1024 */
 #else
 #define configTOTAL_HEAP_SIZE        ((size_t) (0))
 #endif

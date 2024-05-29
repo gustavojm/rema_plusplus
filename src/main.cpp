@@ -33,7 +33,7 @@ extern bresenham *x_y_axes, *z_dummy_axes;
 uint8_t __attribute__((section("."
                                "data"
                                ".$"
-                               "RamLoc40"))) ucHeap[configTOTAL_HEAP_SIZE];
+                               "RamAHB32_48_64"))) ucHeap[configTOTAL_HEAP_SIZE];
 
 /* Sets up system hardware */
 static void prvSetupHardware(void) {
