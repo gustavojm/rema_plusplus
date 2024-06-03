@@ -56,15 +56,21 @@ static void temperature_ds18b20_task(void *par) {
 
   sensors[0].ds18b20->startConversions();
 
-  while (true) {
-    for (int i = 0; i < detected_sensors; i++) {
-      if (sensors[i].ds18b20->isConversionDone()) {
-        sensors[i].reading = sensors[i].ds18b20->readTemperature();
-        vTaskDelay(pdMS_TO_TICKS(reading_interval));
-
-        sensors[0].ds18b20->startConversions();
-      }
+  while (true) {    
+    sensors[0].ds18b20->startConversions();    
+    int retries_left = 10;
+    while ((!sensors[0].ds18b20->isConversionDone()) & (retries_left--)) {
+      vTaskDelay(pdMS_TO_TICKS(100));
     }
+    
+    if (!retries_left) {
+      continue;
+    }
+
+    for (int i = 0; i < detected_sensors; i++) {
+      sensors[i].reading = sensors[i].ds18b20->readTemperature();
+    }
+    vTaskDelay(pdMS_TO_TICKS(reading_interval));
   }
 }
 
