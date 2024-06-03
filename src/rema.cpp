@@ -14,7 +14,7 @@ gpio_templ<4, 4, SCU_MODE_FUNC0, 2, 4>
     relay_DOUT3; // DOUT3 P4_4    PIN9    GPIO2[4] Bornes 10 y 11
 
 gpio_templ<1, 5, SCU_MODE_FUNC0, 1, 8>
-    control_out; // DOUT7 P1_5    PIN48   GPIO1[8]
+    shut_down_out; // DOUT7 P1_5    PIN48   GPIO1[8]
 
 bool rema::control_enabled = false;
 bool rema::stall_detection = true;
@@ -26,12 +26,13 @@ void rema::init_outputs() {
     touch_probe_actuator_out.init_output();
     relay_DOUT2.init_output();
     relay_DOUT3.init_output();
-    control_out.init_output();
+    shut_down_out.init_output();
+    shut_down_out.set(1);
 }
 
 void rema::control_enabled_set(bool status) {
   control_enabled = status;  
-  control_out.set(status);
+  shut_down_out.set(!status);
 }
 
 bool rema::control_enabled_get() { return control_enabled; }
