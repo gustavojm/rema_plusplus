@@ -159,9 +159,50 @@ static inline char *make_message(const char *fmt, ...) {
  * <tt>debugLevel</tt> variable. Depends on whether
  * the macro <tt>NDEBUG</tt> is defined during the compile.
  */
-#ifdef NDEBUG
+#if defined(NDEBUG) && !defined(DEBUG_NETWORK)
 #define lDebug(level, fmt, ...)
 #else
+
+#if defined(NDEBUG)
+#define lDebug_uart_semihost(level, fmt, ...)
+#endif
+
+#if !defined(DEBUG_NETWORK)
+#define lDebug_network(level, fmt, ...)
+#endif
+
+#if !defined(NDEBUG)
+#define lDebug_uart_semihost(level, fmt, ...)                                \
+do {                                                                         \
+  if (debug_to_uart && debugLocalLevel <= level) {                           \
+    if (uart_mutex != NULL) {                                                \
+      if (xSemaphoreTake(uart_mutex, portMAX_DELAY) == pdTRUE) {             \
+        printf("%lu - %s %s[%d] %s() " fmt "\n", xTaskGetTickCount(),        \
+                levelText(level), __FILE__, __LINE__, __func__,              \
+                ##__VA_ARGS__);                                              \
+        xSemaphoreGive(uart_mutex);                                          \
+      }                                                                      \
+    }                                                                        \
+  }                                                                          \
+} while (0);
+#endif
+
+#if defined(DEBUG_NETWORK)
+#define lDebug_network(level, fmt, ...)                                      \
+do {                                                                         \
+  if (debug_to_network && debug_queue != nullptr &&                          \
+      (debugNetLevel <= level) && (level != InfoLocal)) {                    \
+    char *dbg_msg = make_message(                                            \
+        "%u - %s %s[%d] %s() " fmt, xTaskGetTickCount(), levelText(level),   \
+        __FILE__, __LINE__, __func__, ##__VA_ARGS__);                        \
+    if (xQueueSend(debug_queue, &dbg_msg, (TickType_t)0) != pdPASS) {        \
+      delete[] dbg_msg;                                                      \
+      dbg_msg = NULL;                                                        \
+    }                                                                        \
+  }                                                                          \
+} while (0);
+#endif
+
 /**
  * @brief prints this message if the variable <tt>debugLevel</tt> is greater
  * than or equal to the parameter.
@@ -170,28 +211,8 @@ static inline char *make_message(const char *fmt, ...) {
  */
 #define lDebug(level, fmt, ...)                                                \
   do {                                                                         \
-    if (debug_to_uart && debugLocalLevel <= level) {                           \
-      if (uart_mutex != NULL) {                                                \
-        if (xSemaphoreTake(uart_mutex, portMAX_DELAY) == pdTRUE) {             \
-          printf("%lu - %s %s[%d] %s() " fmt "\n", xTaskGetTickCount(),        \
-                 levelText(level), __FILE__, __LINE__, __func__,               \
-                 ##__VA_ARGS__);                                               \
-          xSemaphoreGive(uart_mutex);                                          \
-        }                                                                      \
-      }                                                                        \
-    }                                                                          \
-                                                                               \
-    if (debug_to_network && debug_queue != nullptr &&                          \
-        (debugNetLevel <= level) && (level != InfoLocal)) {                    \
-      char *dbg_msg = make_message(                                            \
-          "%u - %s %s[%d] %s() " fmt, xTaskGetTickCount(), levelText(level),   \
-          __FILE__, __LINE__, __func__, ##__VA_ARGS__);                        \
-      if (xQueueSend(debug_queue, &dbg_msg, (TickType_t)0) != pdPASS) {        \
-        delete[] dbg_msg;                                                      \
-        dbg_msg = NULL;                                                        \
-      }                                                                        \
-    }                                                                          \
+    lDebug_uart_semihost(level, fmt, ##__VA_ARGS__)                            \
+    lDebug_network(level, fmt, ##__VA_ARGS__)                                  \
   } while (0)
 #endif
-
 #endif
