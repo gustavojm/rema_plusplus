@@ -130,9 +130,18 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
     // rema::update_watchdog_timer();
     kp.restart();
 
-    current_freq =
-        kp.run(leader_axis->destination_counts, leader_axis->current_counts);
+    if (!was_soft_stopped) {
+      current_freq =
+          kp.run(leader_axis->destination_counts, leader_axis->current_counts);
+          if (current_freq < kp.out_min) {
+              current_freq = kp.out_min;
+          }
+    } else {
+      current_freq -=
+          kp.run(leader_axis->destination_counts, leader_axis->current_counts);      
+    }
     lDebug(Debug, "Control output = %i: ", current_freq);
+
 
     ticks_last_time = xTaskGetTickCount();
     tmr.change_freq(current_freq);
@@ -197,9 +206,18 @@ void bresenham::supervise() {
                    // if didn't stop for proximity to set point, avoid going to
                    // infinity keeps dancing around the setpoint...
 
-      current_freq =
-          kp.run(leader_axis->destination_counts, leader_axis->current_counts);
+      if (!was_soft_stopped) {
+        current_freq =
+            kp.run(leader_axis->destination_counts, leader_axis->current_counts);
+      } else {
+            current_freq -=
+            kp.run(leader_axis->destination_counts, leader_axis->current_counts);
+            if (current_freq < kp.out_min) {
+                current_freq = kp.out_min;
+            }
+      }    
       lDebug(Debug, "Control output = %i: ", current_freq);
+      
       tmr.change_freq(current_freq);
     }
   end:;
