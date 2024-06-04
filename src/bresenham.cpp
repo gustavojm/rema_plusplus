@@ -21,9 +21,11 @@ void bresenham::task() {
 
       switch (msg_rcv->type) {
       case mot_pap::TYPE_BRESENHAM:
-        was_soft_stopped = false;
+        vTaskSuspend(supervisor_task_handle);
         was_stopped_by_probe = false;
+        was_soft_stopped = false;
         move(msg_rcv->first_axis_setpoint, msg_rcv->second_axis_setpoint);
+        vTaskResume(supervisor_task_handle);
         break;
 
       case mot_pap::TYPE_SOFT_STOP:
@@ -59,8 +61,10 @@ void bresenham::task() {
             second_axis_setpoint -= counts;
           }
 
+          vTaskSuspend(supervisor_task_handle);
           was_soft_stopped = true;
           move(first_axis_setpoint, second_axis_setpoint);
+          vTaskResume(supervisor_task_handle);
 
           // first_axis->soft_stop(y);
           // second_axis->soft_stop(y);
@@ -97,7 +101,7 @@ void bresenham::calculate() {
   }
 }
 
-void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
+void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {  
   // Bresenham error calculation needs to multiply by 2 for the error
   // calculation, thus clamp setpoints to half INT32 min and max
   first_axis_setpoint =
@@ -132,20 +136,20 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
 
     if (!was_soft_stopped) {
       current_freq =
-          kp.run(leader_axis->destination_counts, leader_axis->current_counts);
-          if (current_freq < kp.out_min) {
-              current_freq = kp.out_min;
-          }
+        kp.run(leader_axis->destination_counts, leader_axis->current_counts);
     } else {
-      current_freq -=
-          kp.run(leader_axis->destination_counts, leader_axis->current_counts);      
+      current_freq -= 
+        kp.run(leader_axis->destination_counts, leader_axis->current_counts);
+      if (current_freq < kp.out_min) {
+          current_freq = kp.out_min;
+      }
     }
     lDebug(Debug, "Control output = %i: ", current_freq);
 
 
     ticks_last_time = xTaskGetTickCount();
     tmr.change_freq(current_freq);
-  }
+  }  
 }
 
 void bresenham::step() {
@@ -208,16 +212,15 @@ void bresenham::supervise() {
 
       if (!was_soft_stopped) {
         current_freq =
-            kp.run(leader_axis->destination_counts, leader_axis->current_counts);
+          kp.run(leader_axis->destination_counts, leader_axis->current_counts);
       } else {
-            current_freq -=
-            kp.run(leader_axis->destination_counts, leader_axis->current_counts);
-            if (current_freq < kp.out_min) {
-                current_freq = kp.out_min;
-            }
+        current_freq -= 
+          kp.run(leader_axis->destination_counts, leader_axis->current_counts);
+        if (current_freq < kp.out_min) {
+            current_freq = kp.out_min;
+        }
       }    
-      lDebug(Debug, "Control output = %i: ", current_freq);
-      
+      lDebug(Debug, "Control output = %i: ", current_freq);     
       tmr.change_freq(current_freq);
     }
   end:;

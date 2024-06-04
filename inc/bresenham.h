@@ -50,7 +50,7 @@ public:
       // processing is deferred
       xTaskCreate(
           [](void *axes) { static_cast<bresenham *>(axes)->supervise(); },
-          supervisor_task_name, 256, this, SUPERVISOR_TASK_PRIORITY, NULL);
+          supervisor_task_name, 256, this, SUPERVISOR_TASK_PRIORITY, &supervisor_task_handle);
       lDebug(Info, "%s: created", supervisor_task_name);
     }
 
@@ -92,6 +92,7 @@ public:
   TickType_t ticks_last_time = 0;
   QueueHandle_t queue;
   SemaphoreHandle_t supervisor_semaphore;
+  TaskHandle_t supervisor_task_handle = nullptr;  
   mot_pap *first_axis = nullptr;
   mot_pap *second_axis = nullptr;
   mot_pap *leader_axis = nullptr;
