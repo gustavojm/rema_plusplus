@@ -13,6 +13,7 @@
 
 class rema {
 public:
+  static const int BRAKES_RELEASE_DELAY_MS = 200;
   enum class brakes_mode_t { OFF, AUTO, ON };
 
   static void init_outputs();

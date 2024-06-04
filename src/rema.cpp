@@ -23,9 +23,12 @@ TickType_t rema::lastKeepAliveTicks;
 
 void rema::init_outputs() {
     brakes_out.init_output();
+    brakes_apply();
+
     touch_probe_actuator_out.init_output();
     relay_DOUT2.init_output();
     relay_DOUT3.init_output();
+    
     shut_down_out.init_output();
     shut_down_out.set(1);
 }
@@ -39,13 +42,14 @@ bool rema::control_enabled_get() { return control_enabled; }
 
 void rema::brakes_release() {
   if (brakes_mode == brakes_mode_t::AUTO || brakes_mode == brakes_mode_t::OFF) {
-    brakes_out.set(1);
+    brakes_out.set(true);
+    vTaskDelay(pdMS_TO_TICKS(BRAKES_RELEASE_DELAY_MS));
   }
 }
 
 void rema::brakes_apply() {
   if (brakes_mode == brakes_mode_t::AUTO || brakes_mode == brakes_mode_t::ON) {
-    brakes_out.set(0);
+    brakes_out.set(false);
   }
 }
 
