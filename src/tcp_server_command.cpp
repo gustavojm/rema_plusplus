@@ -661,7 +661,7 @@ int tcp_server_command::json_wp(char *rx_buff, char **tx_buff) {
       for (unsigned int i = 0; i < json_array_get_count(commands); i++) {
         JSON_Object *command = json_array_get_object(commands, i);
         char const *command_name = json_object_get_string(command, "command");
-        lDebug(Info, "Command Found: %s", command_name);
+        lDebug(InfoLocal, "Command Found: %s", command_name);
         JSON_Value *pars = json_object_get_value(command, "pars");
 
         JSON_Value *ans = cmd_execute(command_name, pars);
