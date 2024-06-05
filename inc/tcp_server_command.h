@@ -85,6 +85,8 @@ public:
 
   JSON_Value *logs_cmd(JSON_Value const *pars);
 
+  JSON_Value *set_log_level_cmd(JSON_Value const *pars);  
+
   JSON_Value *protocol_version_cmd(JSON_Value const *pars);
 
   JSON_Value *control_enable_cmd(JSON_Value const *pars);

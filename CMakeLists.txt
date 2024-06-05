@@ -72,7 +72,7 @@ set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${LD_FLAGS}")   # -g3 -flto
 # some definition (-D)
 add_compile_definitions(
     #SIMULATE_ENCODER
-    #DEBUG_NETWORK
+    DEBUG_NETWORK
     __CODE_RED 
     __NEWLIB__ 
     CORE_M4     

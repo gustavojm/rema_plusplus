@@ -14,6 +14,7 @@
 #include "temperature_ds18b20.h"
 #include "xy_axes.h"
 #include "z_axis.h"
+#include "debug.h"
 
 #define PROTOCOL_VERSION "JSON_1.0"
 
@@ -30,6 +31,54 @@ bresenham *tcp_server_command::get_axes(const char *axis) {
     return x_y_axes;
     break;
   }
+}
+
+JSON_Value *tcp_server_command::set_log_level_cmd(JSON_Value const *pars) {
+  JSON_Value *root_value = json_value_init_object();
+  JSON_Object *pars_object = json_value_get_object(pars);
+
+  if (json_object_has_value_of_type(pars_object, "local_level", JSONString)) {
+    char const *level = json_object_get_string(pars_object, "local_level");
+
+    if (!strcmp(level, "Debug")) {
+      debugLocalSetLevel(true, Debug);
+    }
+
+    if (!strcmp(level, "Info")) {
+      debugLocalSetLevel(true, Info);
+    }
+
+    if (!strcmp(level, "Warning")) {
+      debugLocalSetLevel(true, Warn);
+    }
+
+    if (!strcmp(level, "Error")) {
+      debugLocalSetLevel(true, Error);
+    }
+  }
+
+  if (json_object_has_value_of_type(pars_object, "net_level", JSONString)) {
+    char const *level = json_object_get_string(pars_object, "net_level");
+
+    if (!strcmp(level, "Debug")) {
+      debugNetSetLevel(true, Debug);
+    }
+
+    if (!strcmp(level, "Info")) {
+      debugNetSetLevel(true, Info);
+    }
+
+    if (!strcmp(level, "Warning")) {
+      debugNetSetLevel(true, Warn);
+    }
+
+    if (!strcmp(level, "Error")) {
+      debugNetSetLevel(true, Error);
+    }
+  }
+
+
+  return root_value;
 }
 
 JSON_Value *tcp_server_command::logs_cmd(JSON_Value const *pars) {
@@ -481,6 +530,11 @@ const tcp_server_command::cmd_entry tcp_server_command::cmds_table[] = {
         "LOGS",
         &tcp_server_command::logs_cmd,
     },
+    {
+        "SET_LOG_LEVEL",
+        &tcp_server_command::set_log_level_cmd,
+    },
+
     {
         "KP_SET_TUNINGS",
         &tcp_server_command::kp_set_tunings_cmd,

@@ -71,7 +71,7 @@ void msDelay(uint32_t ms) { vTaskDelay((configTICK_RATE_HZ * ms) / 1000); }
 int main(void) {
   debugInit();
   debugLocalSetLevel(true, Info);
-  debugNetSetLevel(true, Warn);
+  debugNetSetLevel(true, Debug);
 
   prvSetupHardware();
 
