@@ -36,6 +36,11 @@ void rema::init_outputs() {
 void rema::control_enabled_set(bool status) {
   control_enabled = status;  
   shut_down_out.set(!status);
+  if (status) {
+    x_y_axes->first_axis->stall_reset();
+    x_y_axes->second_axis->stall_reset();
+    z_dummy_axes->first_axis->stall_reset();
+  }
 }
 
 bool rema::control_enabled_get() { return control_enabled; }
