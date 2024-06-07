@@ -111,7 +111,12 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
       std::clamp(second_axis_setpoint, (static_cast<int>(INT32_MIN) / 2),
                  (static_cast<int>(INT32_MAX) / 2));
   if (has_brakes) {
-    rema::brakes_release();
+    if (rema::brakes_mode != rema::brakes_mode_t::ON) {
+      rema::brakes_release();
+    } else {
+      lDebug(Warn, "Trying to move with brakes ON");
+      return;
+    }
   }
   is_moving = true;
   already_there = false;
