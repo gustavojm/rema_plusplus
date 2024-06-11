@@ -110,6 +110,12 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
   second_axis_setpoint =
       std::clamp(second_axis_setpoint, (static_cast<int>(INT32_MIN) / 2),
                  (static_cast<int>(INT32_MAX) / 2));
+
+  if (!rema::control_enabled_get()) {
+    lDebug(Warn, "Trying to move with control disabled");
+    return;
+  }
+
   if (has_brakes) {
     if (rema::brakes_mode != rema::brakes_mode_t::ON) {
       rema::brakes_release();
@@ -118,6 +124,7 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
       return;
     }
   }
+
   is_moving = true;
   already_there = false;
   first_axis->stall_reset();
@@ -264,12 +271,14 @@ cont:;
  * @returns nothing
  */
 void bresenham::stop() {
-  is_moving = false;
-  if (has_brakes) {
-    rema::brakes_apply();
+  if (is_moving) {
+    is_moving = false;
+    if (has_brakes) {
+      rema::brakes_apply();
+    }
+    tmr.stop();
+    current_freq = 0;
   }
-  tmr.stop();
-  current_freq = 0;
 }
 
 /**
