@@ -40,9 +40,7 @@ bresenham &z_axis_init() {
       100,                     //!< Kp
       z_dummy_axes->step_time, //!< Update rate (ms)
       10000,                   //!< Min output
-      100000                   //!< Max output
-      // 5,
-      // 50
+      125000                   //!< Max output
   };
 
   return *z_dummy_axes;
