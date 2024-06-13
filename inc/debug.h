@@ -202,7 +202,7 @@ do {                                                                         \
   if (debug_to_network && debug_queue != nullptr &&                          \
       (debugNetLevel <= level) && (level != InfoLocal)) {                    \
     char *dbg_msg = make_message(                                            \
-        "%s|%u %s[%d] %s() " fmt, levelText(level), xTaskGetTickCount(),     \
+        "%s|%u|%s|%d|%s|" fmt, levelText(level), xTaskGetTickCount(),        \
         __FILE__, __LINE__, __func__, ##__VA_ARGS__);                        \
     if (!uxQueueSpacesAvailable(debug_queue)) {                              \
       char *dbg_msg = NULL;                                                  \
