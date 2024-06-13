@@ -15,7 +15,7 @@ SemaphoreHandle_t uart_mutex;
 
 void debugInit() {
   uart_mutex = xSemaphoreCreateMutex();
-  debug_queue = xQueueCreate(10, sizeof(char *));
+  debug_queue = xQueueCreate(NET_DEBUG_QUEUE_SIZE, sizeof(char *));
 }
 
 /**

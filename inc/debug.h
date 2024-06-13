@@ -46,6 +46,9 @@
 #include "semphr.h"
 #include "task.h"
 
+const int NET_DEBUG_QUEUE_SIZE = 50;
+const int NET_DEBUG_MAX_MSG_SIZE = 255;
+
 enum debugLevels {
   Debug,
   Info,
@@ -137,6 +140,9 @@ static inline char *make_message(const char *fmt, ...) {
   if (size < 0)
     return NULL;
 
+  if (size > NET_DEBUG_MAX_MSG_SIZE)
+    size = NET_DEBUG_MAX_MSG_SIZE;
+
   size++; /* For '\0' */
   p = new char[size];
   if (p == NULL)
@@ -187,14 +193,24 @@ do {                                                                         \
 } while (0);
 #endif
 
+/** Network debug logs will be rotated to have the last ones by eliminating 
+ * the oldest if no space in debug_queue is available 
+ **/
 #if defined(DEBUG_NETWORK)
 #define lDebug_network(level, fmt, ...)                                      \
 do {                                                                         \
   if (debug_to_network && debug_queue != nullptr &&                          \
       (debugNetLevel <= level) && (level != InfoLocal)) {                    \
     char *dbg_msg = make_message(                                            \
-        "%s|%u %s[%d] %s() " fmt, levelText(level), xTaskGetTickCount(),   \
+        "%s|%u %s[%d] %s() " fmt, levelText(level), xTaskGetTickCount(),     \
         __FILE__, __LINE__, __func__, ##__VA_ARGS__);                        \
+    if (!uxQueueSpacesAvailable(debug_queue)) {                              \
+      char *dbg_msg = NULL;                                                  \
+      if (xQueueReceive(debug_queue, &dbg_msg, (TickType_t)0) == pdPASS) {   \
+        delete[] dbg_msg;                                                    \
+        dbg_msg = NULL;                                                      \
+      }                                                                      \
+    }                                                                        \
     if (xQueueSend(debug_queue, &dbg_msg, (TickType_t)0) != pdPASS) {        \
       delete[] dbg_msg;                                                      \
       dbg_msg = NULL;                                                        \
