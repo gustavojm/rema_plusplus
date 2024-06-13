@@ -42,6 +42,7 @@ set(C_FLAGS
     -fno-builtin -fshort-enums
     -fno-common -fmerge-constants
     #-save-temps=obj                            save intermediate files in CMakeFiles/REMA_plusplus.dir "source.c.i"
+    -ffile-prefix-map=${CMAKE_SOURCE_DIR}/=
    )
 
 set(CXX_FLAGS
