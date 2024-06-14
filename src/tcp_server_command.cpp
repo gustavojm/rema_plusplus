@@ -256,16 +256,27 @@ JSON_Value *tcp_server_command::kp_set_tunings_cmd(JSON_Value const *pars) {
 }
 
 JSON_Value *tcp_server_command::axes_hard_stop_all_cmd(JSON_Value const *pars) {
-  x_y_axes->send({mot_pap::TYPE_HARD_STOP});
-  z_dummy_axes->send({mot_pap::TYPE_HARD_STOP});
+  if (x_y_axes->is_moving) {
+    x_y_axes->send({mot_pap::TYPE_HARD_STOP});
+  }
+
+  if (z_dummy_axes->is_moving) {
+    z_dummy_axes->send({mot_pap::TYPE_HARD_STOP});
+  }
+
   JSON_Value *root_value = json_value_init_object();
   json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
   return root_value;
 }
 
 JSON_Value *tcp_server_command::axes_soft_stop_all_cmd(JSON_Value const *pars) {
-  x_y_axes->send({mot_pap::TYPE_SOFT_STOP});
-  z_dummy_axes->send({mot_pap::TYPE_SOFT_STOP});
+  if (x_y_axes->is_moving) {
+    x_y_axes->send({mot_pap::TYPE_SOFT_STOP});
+  }
+
+  if (z_dummy_axes->is_moving) {
+    z_dummy_axes->send({mot_pap::TYPE_SOFT_STOP});
+  }
   JSON_Value *root_value = json_value_init_object();
   json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
   return root_value;
@@ -415,8 +426,8 @@ JSON_Value *tcp_server_command::move_free_run_cmd(JSON_Value const *pars) {
     msg.first_axis_setpoint = first_axis_setpoint;
     msg.second_axis_setpoint = second_axis_setpoint;
     axes_->send(msg);
-    lDebug(Info, "AXIS_BRESENHAM SETPOINT X= %i, SETPOINT Y=%i",
-           first_axis_setpoint, second_axis_setpoint);
+    // lDebug(Info, "AXIS_BRESENHAM First Axis Setpoint= %i, Second Axis Setpoint=%i",
+    //        first_axis_setpoint, second_axis_setpoint);
   }
   JSON_Value *root_value = json_value_init_object();
   json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
@@ -455,8 +466,8 @@ JSON_Value *tcp_server_command::move_incremental_cmd(JSON_Value const *pars) {
         axes_->second_axis->current_counts +
         (second_axis_delta * axes_->first_axis->inches_to_counts_factor);
     axes_->send(msg);
-    lDebug(Info, "AXIS_BRESENHAM SETPOINT X=%i, SETPOINT Y=%i",
-           msg.first_axis_setpoint, msg.second_axis_setpoint);
+    // lDebug(Info, "AXIS_BRESENHAM First Axis Setpoint=%i, Second Axis Setpoint=%i",
+    //        msg.first_axis_setpoint, msg.second_axis_setpoint);
   }
   JSON_Value *root_value = json_value_init_object();
   json_object_set_boolean(json_value_get_object(root_value), "ACK", true);

@@ -38,7 +38,7 @@ void bresenham::task() {
           int y = ((static_cast<float>(y2 - y1) / (x2 - x1)) * (x - x1)) + y1;
 
           int counts = y;
-          lDebug(Info, "Soft stop in %i counts", counts);
+          lDebug(Info, "Soft stop %s in %i counts", name, counts);
 
           int first_axis_setpoint = first_axis->current_counts;
           int second_axis_setpoint = second_axis->current_counts;
@@ -74,6 +74,7 @@ void bresenham::task() {
       case mot_pap::TYPE_HARD_STOP:
       default:
         stop();
+        lDebug(Info, "Hard stop %s", name);
         break;
       }
 
@@ -304,6 +305,6 @@ void bresenham::resume() {
 void bresenham::send(bresenham_msg msg) {
   auto *msg_ptr = new bresenham_msg(msg);
   if (xQueueSend(queue, &msg_ptr, portMAX_DELAY) == pdPASS) {
-    lDebug(Debug, "Command sent");
+    lDebug(Info, "%s: command sent", name);
   }
 }
