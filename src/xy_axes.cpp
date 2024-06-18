@@ -38,6 +38,7 @@ bresenham &xy_axes_init() {
   y_axis.motor_resolution = 25000;
   y_axis.encoder_resolution = 500;
   y_axis.inches_to_counts_factor = 5000;
+  y_axis.reversed = true;
 
   y_axis.gpios.step = gpio{4, 9, SCU_MODE_FUNC4, 5, 13}
                           .init_output(); // DOUT5 P4_9    PIN33   GPIO5[13]
