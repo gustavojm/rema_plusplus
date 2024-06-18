@@ -29,7 +29,7 @@ bresenham &z_axis_init() {
 
   z_axis.motor_resolution = 25000;
   z_axis.encoder_resolution = 500;
-  z_axis.inches_to_counts_factor = 5000;
+  z_axis.inches_to_counts_factor = 5 * 500;
 
   z_axis.gpios.step = gpio{4, 10, SCU_MODE_FUNC4, 5, 14}
                           .init_output(); // DOUT6 P4_10   PIN35   GPIO5[14]
