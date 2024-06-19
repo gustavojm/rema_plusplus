@@ -24,7 +24,7 @@ bresenham &z_axis_init() {
   static mot_pap z_axis('Z', 
         25000,      // motor resolution
         500,        // encoder resolution
-        5           // turns_per_inch
+        10          // turns_per_inch
       );      
   z_axis.gpios.step = gpio{4, 10, SCU_MODE_FUNC4, 5, 14}
                           .init_output(); // DOUT6 P4_10   PIN35   GPIO5[14]
@@ -32,7 +32,7 @@ bresenham &z_axis_init() {
   static mot_pap dummy_axis('D',
         25000,      // motor resolution
         500,        // encoder resolution
-        5,          // turns_per_inch
+        10,         // turns_per_inch
         true        // is_dummy axis
       );
 
@@ -47,7 +47,7 @@ bresenham &z_axis_init() {
       100,                     //!< Kp
       z_dummy_axes->step_time, //!< Update rate (ms)
       10000,                   //!< Min output
-      125000                   //!< Max output
+      60000                    //!< Max output
   };
 
   return *z_dummy_axes;

@@ -66,9 +66,9 @@ public:
                               (limits.hard & 1 << 2));
       json_object_set_boolean(json_value_get_object(limits_json), "down",
                               (limits.hard & 1 << 3));
-      json_object_set_boolean(json_value_get_object(limits_json), "in",
-                              (limits.hard & 1 << 4));
       json_object_set_boolean(json_value_get_object(limits_json), "out",
+                              (limits.hard & 1 << 4));
+      json_object_set_boolean(json_value_get_object(limits_json), "in",
                               (limits.hard & 1 << 5));
       json_object_set_boolean(json_value_get_object(limits_json), "probe",
                               (limits.hard & 1 << 6));

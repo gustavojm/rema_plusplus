@@ -24,7 +24,7 @@ bresenham &xy_axes_init() {
   static mot_pap x_axis('X',
         25000,      // motor resolution
         500,        // encoder resolution
-        5           // turns_per_inch
+        10          // turns_per_inch
       );
   x_axis.reversed = true;
   x_axis.gpios.step = gpio{4, 8, SCU_MODE_FUNC4, 5, 12}
@@ -33,7 +33,7 @@ bresenham &xy_axes_init() {
   static mot_pap y_axis('Y',
         25000,      // motor resolution
         500,        // encoder resolution
-        5           // turns_per_inch
+        10          // turns_per_inch
       );
   y_axis.reversed = true;
   y_axis.gpios.step = gpio{4, 9, SCU_MODE_FUNC4, 5, 13}
@@ -49,7 +49,7 @@ bresenham &xy_axes_init() {
       100,                 //!< Kp
       x_y_axes->step_time, //!< Update rate (ms)
       10000,               //!< Min output
-      125000               //!< Max output
+      60000                //!< Max output
   };
 
   return *x_y_axes;
