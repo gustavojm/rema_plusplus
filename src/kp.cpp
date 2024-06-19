@@ -7,6 +7,9 @@
 #include "kp.h"
 #include "limits.h"
 
+const int RAMP_STEPS = 20;
+const float RAMP_RATE = 1 / static_cast<float>(RAMP_STEPS);
+
 kp::kp(int kp, std::chrono::milliseconds sample_period_ms, int min_output,
        int max_output) {
   set_output_limits(min_output, max_output);
@@ -20,7 +23,7 @@ kp::kp(int kp, std::chrono::milliseconds sample_period_ms, int min_output,
 void kp::restart() { num_times_ran = 0; }
 
 int kp::run(int setpoint, int input) {
-#define RAMP_RATE 0.05 // Change the setpoint by at most 0.1 per iteration
+
 
   int error = std::abs(setpoint - input);
 
@@ -40,7 +43,7 @@ int kp::run(int setpoint, int input) {
   if (num_times_ran < INT_MAX)
     num_times_ran++;
 
-  float attenuation = (num_times_ran < 10) ? num_times_ran * RAMP_RATE : 1;
+  float attenuation = (num_times_ran < RAMP_STEPS) ? num_times_ran * RAMP_RATE : 1;
   int out = output * attenuation;
   if (out < out_min) {
     return out_min;

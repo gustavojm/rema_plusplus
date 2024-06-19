@@ -133,9 +133,9 @@ void encoders_pico::task(void *pars) {
         z_dummy_axes->was_stopped_by_probe = limits.hard & 1 << 6;
       }
 
-      x_y_axes->first_axis->already_there = limits.targets & 1 << 0;
-      x_y_axes->second_axis->already_there = limits.targets & 1 << 1;
-      z_dummy_axes->first_axis->already_there = limits.targets & 1 << 2;
+      x_y_axes->first_axis->already_there = limits.targets & (1 << 0);
+      x_y_axes->second_axis->already_there = limits.targets & (1 << 1);
+      z_dummy_axes->first_axis->already_there = limits.targets & (1 << 2);
 
       // Motors were paused by ISR to be able to read encoders information
       x_y_axes->resume();

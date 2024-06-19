@@ -33,7 +33,7 @@ void bresenham::task() {
           int x2 = kp.out_max;
           int x1 = kp.out_min;
           int y2 = 500;
-          int y1 = 1;
+          int y1 = 50;
           int x = current_freq;
           int y = ((static_cast<float>(y2 - y1) / (x2 - x1)) * (x - x1)) + y1;
 
@@ -272,13 +272,11 @@ cont:;
  * @returns nothing
  */
 void bresenham::stop() {
-  if (is_moving) {
-    is_moving = false;
-    if (has_brakes) {
-      rema::brakes_apply();
-    }
-    tmr.stop();
-    current_freq = 0;
+  is_moving = false;
+  tmr.stop();
+  current_freq = 0;
+  if (has_brakes) {
+    rema::brakes_apply();
   }
 }
 

@@ -52,8 +52,10 @@ public:
 
   mot_pap() = delete;
 
-  explicit mot_pap(const char name, bool is_dummy = false)
-      : name(name), is_dummy(is_dummy) {}
+  explicit mot_pap(const char name, int motor_resolution, int encoder_resolution, int turns_per_inch, bool is_dummy = false)
+      : name(name), motor_resolution(motor_resolution), encoder_resolution(encoder_resolution), is_dummy(is_dummy) {
+        inches_to_counts_factor = turns_per_inch * encoder_resolution * 4;      // 4 means Full Quadrature Counting
+      }
 
   enum direction direction_calculate(int error);
 
@@ -98,23 +100,23 @@ public:
 public:
   const char name;
   enum type type = TYPE_HARD_STOP;
-  enum direction dir = DIRECTION_NONE;
-  int last_pos = 0;
+  volatile enum direction dir = DIRECTION_NONE;
+  volatile int last_pos = 0;
   int inches_to_counts_factor = 0;
   int motor_resolution = 0;
   int encoder_resolution = 0;
-  int stalled_counter = 0;
-  int delta = 0;
+  volatile int stalled_counter = 0;
+  volatile int delta = 0;
   struct gpios gpios;
   enum direction last_dir = DIRECTION_NONE;
   unsigned int half_pulses_stall =
       0; // counts steps from the last call to stall control
-  unsigned int half_pulses = 0; // counts steps for encoder simulation
-  bool already_there = false;
-  bool stalled = false;
+  volatile unsigned int half_pulses = 0; // counts steps for encoder simulation
+  volatile bool already_there = false;
+  volatile bool stalled = false;
   bool reversed = false;
   volatile int current_counts = 0;
-  int destination_counts = 0;
+  volatile int destination_counts = 0;
   bool is_dummy;
 };
 

@@ -256,13 +256,8 @@ JSON_Value *tcp_server_command::kp_set_tunings_cmd(JSON_Value const *pars) {
 }
 
 JSON_Value *tcp_server_command::axes_hard_stop_all_cmd(JSON_Value const *pars) {
-  if (x_y_axes->is_moving) {
-    x_y_axes->send({mot_pap::TYPE_HARD_STOP});
-  }
-
-  if (z_dummy_axes->is_moving) {
-    z_dummy_axes->send({mot_pap::TYPE_HARD_STOP});
-  }
+  x_y_axes->send({mot_pap::TYPE_HARD_STOP});
+  z_dummy_axes->send({mot_pap::TYPE_HARD_STOP});
 
   JSON_Value *root_value = json_value_init_object();
   json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
@@ -270,13 +265,8 @@ JSON_Value *tcp_server_command::axes_hard_stop_all_cmd(JSON_Value const *pars) {
 }
 
 JSON_Value *tcp_server_command::axes_soft_stop_all_cmd(JSON_Value const *pars) {
-  if (x_y_axes->is_moving) {
-    x_y_axes->send({mot_pap::TYPE_SOFT_STOP});
-  }
-
-  if (z_dummy_axes->is_moving) {
-    z_dummy_axes->send({mot_pap::TYPE_SOFT_STOP});
-  }
+  x_y_axes->send({mot_pap::TYPE_SOFT_STOP});
+  z_dummy_axes->send({mot_pap::TYPE_SOFT_STOP});
   JSON_Value *root_value = json_value_init_object();
   json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
   return root_value;

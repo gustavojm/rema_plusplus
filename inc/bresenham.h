@@ -86,8 +86,8 @@ public:
 
 public:
   const char *name;
-  bool is_moving = false;
-  int current_freq = 0;
+  volatile bool is_moving = false;
+  volatile int current_freq = 0;
   std::chrono::milliseconds step_time = std::chrono::milliseconds(100);
   TickType_t ticks_last_time = 0;
   QueueHandle_t queue;
@@ -102,7 +102,7 @@ public:
   volatile bool was_stopped_by_probe = false;
   bool has_brakes = false;
   class kp kp;
-  int error;
+  volatile int error;
 
 private:
   void calculate();
