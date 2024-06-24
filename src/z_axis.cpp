@@ -26,6 +26,8 @@ bresenham &z_axis_init() {
         500,        // encoder resolution
         10          // turns_per_inch
       );      
+  z_axis.reversed_direction = true;
+  z_axis.reversed_encoder = true;
   z_axis.gpios.step = gpio{4, 10, SCU_MODE_FUNC4, 5, 14}
                           .init_output(); // DOUT6 P4_10   PIN35   GPIO5[14]
 

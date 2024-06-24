@@ -114,7 +114,8 @@ public:
   volatile unsigned int half_pulses = 0; // counts steps for encoder simulation
   volatile bool already_there = false;
   volatile bool stalled = false;
-  bool reversed = false;
+  bool reversed_direction = false;
+  bool reversed_encoder = false;
   volatile int current_counts = 0;
   volatile int destination_counts = 0;
   bool is_dummy;

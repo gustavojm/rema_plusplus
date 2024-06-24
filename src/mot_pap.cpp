@@ -20,12 +20,12 @@ extern encoders_pico *encoders;
  * @returns	DIRECTION_CCW if error is negative
  */
 enum mot_pap::direction mot_pap::direction_calculate(int error) {
-  if (reversed) {
-    return error < 0 ? mot_pap::direction::DIRECTION_CW
-                     : mot_pap::direction::DIRECTION_CCW;
-  } else {
+  if (reversed_direction) {
     return error < 0 ? mot_pap::direction::DIRECTION_CCW
                      : mot_pap::direction::DIRECTION_CW;
+  } else {
+    return error < 0 ? mot_pap::direction::DIRECTION_CW
+                     : mot_pap::direction::DIRECTION_CCW;
   }
 }
 
@@ -80,7 +80,8 @@ void mot_pap::read_pos_from_encoder() {
     return;
   }
 
-  current_counts = encoders->read_counter(name);
+  int counts = encoders->read_counter(name);
+  current_counts = reversed_encoder ? -counts : counts;
 }
 
 bool mot_pap::check_already_there() {
@@ -98,10 +99,10 @@ bool mot_pap::check_already_there() {
  * @brief   updates the current position from RDC
  */
 void mot_pap::update_position() {
-  if (reversed) {
-    (dir == DIRECTION_CW) ? current_counts-- : current_counts++;
-  } else {
+  if (reversed_direction) {
     (dir == DIRECTION_CW) ? current_counts++ : current_counts--;
+  } else {
+    (dir == DIRECTION_CW) ? current_counts-- : current_counts++;
   }
 }
 
