@@ -679,7 +679,7 @@ int tcp_server_command::json_wp(char *rx_buff, char **tx_buff) {
       lDebug(Error, "Out Of Memory");
       buff_len = 0;
     } else {
-      json_serialize_to_buffer(tx_JSON_value, *tx_buff, buff_len);
+      json_serialize_to_buffer_exact_size(tx_JSON_value, *tx_buff);
     }
   }
   json_value_free(rx_JSON_value);

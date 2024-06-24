@@ -1101,6 +1101,17 @@ static int json_serialize_to_buffer_r(const JSON_Value *value, char *buf,
   }
 }
 
+int json_serialize_to_buffer_return_written(const JSON_Value *value, char *buf,
+                                     size_t buf_size_in_bytes) {
+  int written = -1;
+  size_t needed_size_in_bytes = json_serialization_size(value);
+  if (needed_size_in_bytes == 0 || buf_size_in_bytes < needed_size_in_bytes) {
+    return -1;
+  }
+  written = json_serialize_to_buffer_r(value, buf, 0, 0, NULL);
+    return written;
+}
+
 static int json_serialize_string(const char *string, size_t len, char *buf) {
   size_t i = 0;
   char c = '\0';
@@ -1710,6 +1721,16 @@ JSON_Status json_serialize_to_buffer(const JSON_Value *value, char *buf,
   }
   return JSONSuccess;
 }
+
+JSON_Status json_serialize_to_buffer_exact_size(const JSON_Value *value, char *buf) {
+  int written = -1;
+  written = json_serialize_to_buffer_r(value, buf, 0, 0, NULL);
+  if (written < 0) {
+    return JSONFailure;
+  }
+  return JSONSuccess;
+}
+
 
 JSON_Status json_serialize_to_file(const JSON_Value *value,
                                    const char *filename) {

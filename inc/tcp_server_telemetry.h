@@ -12,6 +12,7 @@
 #include <lwip/netdb.h>
 
 #include "debug.h"
+#include "parson.h"
 #include "rema.h"
 #include "tcp_server.h"
 #include "temperature_ds18b20.h"
@@ -26,7 +27,8 @@ public:
   tcp_server_telemetry(int port) : tcp_server("telemetry", port) {}
 
   void reply_fn(int sock) override {
-    char tx_buffer[512];
+    const int buf_len = 1024;
+    char tx_buffer[buf_len];
     JSON_Value *ans = json_value_init_object();
     JSON_Value *telemetry = json_value_init_object();
 
@@ -125,17 +127,19 @@ public:
 
       json_object_set_value(json_value_get_object(ans), "telemetry", telemetry);
 
-      int buff_len = json_serialization_size(ans); /* returns 0 on fail */
-      json_serialize_to_buffer(ans, tx_buffer, buff_len);
-      // lDebug(InfoLocal, "To send %d bytes: %s", buff_len, tx_buffer);
+      int msg_len = json_serialize_to_buffer_return_written(ans, tx_buffer, buf_len - 1);
+      tx_buffer[msg_len] = '\0';  //null terminate
+      msg_len++; 
 
-      if (buff_len > 0) {
+      //lDebug(InfoLocal, "To send %d bytes: %s", msg_len, tx_buffer);
+
+      if (msg_len > 0) {
         // send() can return less bytes than supplied length.
         // Walk-around for robust implementation.
-        int to_write = buff_len;
+        int to_write = msg_len;
         while (to_write > 0) {
           int written =
-              lwip_send(sock, tx_buffer + (buff_len - to_write), to_write, 0);
+              lwip_send(sock, tx_buffer + (msg_len - to_write), to_write, 0);
           if (written < 0) {
             lDebug(Error, "Error occurred during sending telemetry: errno %d",
                    errno);
@@ -143,6 +147,8 @@ public:
           }
           to_write -= written;
         }
+      } else {
+          lDebug(Error, "buffer too small");
       }
 
       vTaskDelay(pdMS_TO_TICKS(100));
