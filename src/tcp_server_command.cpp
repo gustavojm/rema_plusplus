@@ -33,6 +33,21 @@ bresenham *tcp_server_command::get_axes(const char *axis) {
   }
 }
 
+json_value_t* check_control_and_brakes(bresenham *axes) {
+  json_value_t* res = json_value_init_object();
+    if (!rema::control_enabled_get()) {
+        json_object_set_string(json_value_get_object(res), "ERROR", "CONTROL IS DISABLED");
+        return res;
+    }
+
+    if (axes->has_brakes && rema::brakes_mode == rema::brakes_mode_t::ON) {
+        json_object_set_string(json_value_get_object(res), "ERROR", "BRAKES ARE APPLIED");
+        return res;        
+    }
+
+    return nullptr;  // Indicating no errors
+}
+
 JSON_Value *tcp_server_command::set_log_level_cmd(JSON_Value const *pars) {
   JSON_Value *root_value = json_value_init_object();
   JSON_Object *pars_object = json_value_get_object(pars);
@@ -359,11 +374,16 @@ JSON_Value *tcp_server_command::temperature_info_cmd(JSON_Value const *pars) {
   return root_value;
 }
 
-JSON_Value *tcp_server_command::move_closed_loop_cmd(JSON_Value const *pars) {
+JSON_Value *tcp_server_command::move_closed_loop_cmd(JSON_Value const *pars) {  
   if (pars && json_value_get_type(pars) == JSONObject) {
     JSON_Object *pars_object = json_value_get_object(pars);
     char const *axes = json_object_get_string(pars_object, "axes");
     bresenham *axes_ = get_axes(axes);
+
+    JSON_Value * error = check_control_and_brakes(axes_);
+    if (error) {    
+      return error;
+    }
 
     double first_axis_setpoint =
         json_object_get_number(pars_object, "first_axis_setpoint");
@@ -380,9 +400,9 @@ JSON_Value *tcp_server_command::move_closed_loop_cmd(JSON_Value const *pars) {
 
     axes_->send(msg);
 
-    lDebug(Info, "AXIS_BRESENHAM SETPOINT X= %f, SETPOINT Y=%f",
+    lDebug(Info, "AXIS_BRESENHAM FIRST AXIS SETPOINT= %f, SECOND AXIS SETPOINT=%f",
            first_axis_setpoint, second_axis_setpoint);
-  }
+  } 
   JSON_Value *root_value = json_value_init_object();
   json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
   return root_value;
@@ -393,6 +413,11 @@ JSON_Value *tcp_server_command::move_free_run_cmd(JSON_Value const *pars) {
     JSON_Object *pars_object = json_value_get_object(pars);
     char const *axes = json_object_get_string(pars_object, "axes");
     bresenham *axes_ = get_axes(axes);
+
+    JSON_Value *error = check_control_and_brakes(axes_);
+    if (error) {    
+      return error;
+    }
 
     int first_axis_setpoint, second_axis_setpoint;
     if (json_object_has_value_of_type(pars_object, "first_axis_setpoint",
@@ -429,6 +454,11 @@ JSON_Value *tcp_server_command::move_incremental_cmd(JSON_Value const *pars) {
     JSON_Object *pars_object = json_value_get_object(pars);
     char const *axes = json_object_get_string(pars_object, "axes");
     bresenham *axes_ = get_axes(axes);
+    
+    JSON_Value *error = check_control_and_brakes(axes_);
+    if (error) {    
+      return error;
+    }
 
     double first_axis_delta, second_axis_delta;
     if (json_object_has_value_of_type(pars_object, "first_axis_delta",

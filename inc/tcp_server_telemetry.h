@@ -77,6 +77,15 @@ public:
       json_object_set_value(json_value_get_object(telemetry), "limits",
                             limits_json);
 
+      json_object_set_boolean(json_value_get_object(telemetry), "control_enabled",
+                            rema::control_enabled);
+
+      json_object_set_boolean(json_value_get_object(telemetry), "stall_control",
+                            rema::stall_control_get());
+
+      json_object_set_number(json_value_get_object(telemetry), "brakes_mode",
+                            static_cast<int>(rema::brakes_mode));
+
       JSON_Value *stalled = json_value_init_object();
       json_object_set_boolean(json_value_get_object(stalled), "x",
                               x_y_axes->first_axis->stalled);
