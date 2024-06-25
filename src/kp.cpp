@@ -7,7 +7,7 @@
 #include "kp.h"
 #include "limits.h"
 
-const int RAMP_STEPS = 20;
+const int RAMP_STEPS = 25;
 const float RAMP_RATE = 1 / static_cast<float>(RAMP_STEPS);
 
 kp::kp(int kp, std::chrono::milliseconds sample_period_ms, int min_output,
