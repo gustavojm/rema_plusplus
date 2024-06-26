@@ -202,10 +202,18 @@ target_include_directories(${PROJECT_NAME} PRIVATE
   ${HEADERS_DIR} ${EXTERNAL_HEADERS_DIR}
 )
 
+include(FetchContent)
+FetchContent_Declare(ArduinoJson
+    GIT_REPOSITORY https://github.com/bblanchon/ArduinoJson.git
+    GIT_TAG        v7.0.4
+)
+FetchContent_MakeAvailable(ArduinoJson)
+
 target_link_libraries(
   ${PROJECT_NAME}
   board
   chip
+  ArduinoJson
 )
 
 set(MAIN_TARGET ${PROJECT_NAME})

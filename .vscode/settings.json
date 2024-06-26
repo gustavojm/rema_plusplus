@@ -3,6 +3,14 @@
         "cstdlib": "cpp",
         "cmath": "cpp",
         "cstddef": "cpp",
-        "reent.h": "c"
+        "reent.h": "c",
+        "functional": "cpp",
+        "random": "cpp",
+        "initializer_list": "cpp",
+        "new": "cpp",
+        "sstream": "cpp",
+        "type_traits": "cpp",
+        "tuple": "cpp",
+        "memory": "cpp"
     }
 }

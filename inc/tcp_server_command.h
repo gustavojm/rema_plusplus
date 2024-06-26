@@ -11,7 +11,7 @@
 #include "lwip/sys.h"
 #include <lwip/netdb.h>
 
-#include "parson.h"
+#include "ArduinoJson.hpp"
 #include "debug.h"
 #include "rema.h"
 #include "tcp_server.h"
@@ -84,51 +84,34 @@ public:
 
   bresenham *get_axes(const char *axis);
 
-  JSON_Value *logs_cmd(JSON_Value const *pars);
+  ArduinoJson::JsonDocument logs_cmd(ArduinoJson::JsonObject const pars);
+  ArduinoJson::JsonDocument set_log_level_cmd(ArduinoJson::JsonObject const pars);  
+  // ArduinoJson::JsonDocument protocol_version_cmd(ArduinoJson::JsonObject const pars);
+  ArduinoJson::JsonDocument control_enable_cmd(ArduinoJson::JsonObject const pars);
+  // ArduinoJson::JsonDocument stall_control_cmd(ArduinoJson::JsonObject const pars);
+  // ArduinoJson::JsonDocument set_coords_cmd(ArduinoJson::JsonObject const pars);
+  // ArduinoJson::JsonDocument kp_set_tunings_cmd(ArduinoJson::JsonObject const pars);
+  ArduinoJson::JsonDocument axes_hard_stop_all_cmd(ArduinoJson::JsonObject const pars);
+  // ArduinoJson::JsonDocument axes_soft_stop_all_cmd(ArduinoJson::JsonObject const pars);
+  // ArduinoJson::JsonDocument network_settings_cmd(ArduinoJson::JsonObject const pars);
+  ArduinoJson::JsonDocument mem_info_cmd(ArduinoJson::JsonObject const pars);
+  // ArduinoJson::JsonDocument temperature_info_cmd(ArduinoJson::JsonObject const pars);
+  // ArduinoJson::JsonDocument move_closed_loop_cmd(ArduinoJson::JsonObject const pars);
+  // ArduinoJson::JsonDocument move_free_run_cmd(ArduinoJson::JsonObject const pars);
+  // ArduinoJson::JsonDocument move_incremental_cmd(ArduinoJson::JsonObject const pars);
+  // ArduinoJson::JsonDocument brakes_mode_cmd(ArduinoJson::JsonObject const pars);
+  // ArduinoJson::JsonDocument touch_probe_cmd(ArduinoJson::JsonObject const pars);
+  // ArduinoJson::JsonDocument read_encoders_cmd(ArduinoJson::JsonObject const pars);
+  // ArduinoJson::JsonDocument read_limits_cmd(ArduinoJson::JsonObject const pars);
 
-  JSON_Value *set_log_level_cmd(JSON_Value const *pars);  
-
-  JSON_Value *protocol_version_cmd(JSON_Value const *pars);
-
-  JSON_Value *control_enable_cmd(JSON_Value const *pars);
-
-  JSON_Value *stall_control_cmd(JSON_Value const *pars);
-
-  JSON_Value *set_coords_cmd(JSON_Value const *pars);
-
-  JSON_Value *kp_set_tunings_cmd(JSON_Value const *pars);
-
-  JSON_Value *axes_hard_stop_all_cmd(JSON_Value const *pars);
-
-  JSON_Value *axes_soft_stop_all_cmd(JSON_Value const *pars);
-
-  JSON_Value *network_settings_cmd(JSON_Value const *pars);
-
-  JSON_Value *mem_info_cmd(JSON_Value const *pars);
-
-  JSON_Value *temperature_info_cmd(JSON_Value const *pars);
-
-  JSON_Value *move_closed_loop_cmd(JSON_Value const *pars);
-
-  JSON_Value *move_free_run_cmd(JSON_Value const *pars);
-
-  JSON_Value *move_incremental_cmd(JSON_Value const *pars);
-
-  JSON_Value *brakes_mode_cmd(JSON_Value const *pars);
-
-  JSON_Value *touch_probe_cmd(JSON_Value const *pars);
-
-  JSON_Value *read_encoders_cmd(JSON_Value const *pars);
-
-  JSON_Value *read_limits_cmd(JSON_Value const *pars);
-
-  JSON_Value *cmd_execute(char const *cmd, JSON_Value const *pars);
-
+  //ArduinoJson::JsonDocument cmd_execute(char const *cmd, ArduinoJson::JsonDocument const pars);
+  ArduinoJson::JsonDocument cmd_execute(char const *cmd, ArduinoJson::JsonObject const pars);
+  
   int json_wp(char *rx_buff, char **tx_buff);
 
   // FredMemFn points to a member of Fred that takes (char,float)
-  typedef JSON_Value *(tcp_server_command::*cmd_function_ptr)(
-      JSON_Value const *pars);
+  typedef ArduinoJson::JsonDocument (tcp_server_command::*cmd_function_ptr)(
+      ArduinoJson::JsonObject pars);
 
   typedef struct {
     const char *cmd_name;

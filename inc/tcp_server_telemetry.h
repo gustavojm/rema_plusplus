@@ -12,7 +12,8 @@
 #include <lwip/netdb.h>
 
 #include "debug.h"
-#include "parson.h"
+
+#include "ArduinoJson.hpp"
 #include "rema.h"
 #include "tcp_server.h"
 #include "temperature_ds18b20.h"
@@ -29,8 +30,7 @@ public:
   void reply_fn(int sock) override {
     const int buf_len = 1024;
     char tx_buffer[buf_len];
-    JSON_Value *ans = json_value_init_object();
-    JSON_Value *telemetry = json_value_init_object();
+    ArduinoJson::JsonDocument ans;    
 
     int times = 0;
 
@@ -38,107 +38,55 @@ public:
       x_y_axes->first_axis->read_pos_from_encoder();
       x_y_axes->second_axis->read_pos_from_encoder();
       z_dummy_axes->first_axis->read_pos_from_encoder();
-      JSON_Value *coords = json_value_init_object();
-      json_object_set_number(
-          json_value_get_object(coords), "x",
-          x_y_axes->first_axis->current_counts /
-              static_cast<double>(
-                  x_y_axes->first_axis->inches_to_counts_factor));
-      json_object_set_number(
-          json_value_get_object(coords), "y",
-          x_y_axes->second_axis->current_counts /
-              static_cast<double>(
-                  x_y_axes->second_axis->inches_to_counts_factor));
-      json_object_set_number(
-          json_value_get_object(coords), "z",
-          z_dummy_axes->first_axis->current_counts /
-              static_cast<double>(
-                  z_dummy_axes->first_axis->inches_to_counts_factor));
 
-      json_object_set_value(json_value_get_object(telemetry), "coords", coords);
+      ans["telemetry"]["coords"]["x"] = x_y_axes->first_axis->current_counts / static_cast<double>(x_y_axes->first_axis->inches_to_counts_factor);
+      ans["telemetry"]["coords"]["y"] = x_y_axes->second_axis->current_counts / static_cast<double>(x_y_axes->second_axis->inches_to_counts_factor);
+      ans["telemetry"]["coords"]["z"] = z_dummy_axes->first_axis->current_counts / static_cast<double>(z_dummy_axes->first_axis->inches_to_counts_factor);
 
       struct limits limits = encoders->read_limits();
 
-      JSON_Value *limits_json = json_value_init_object();
-      json_object_set_boolean(json_value_get_object(limits_json), "left",
-                              (limits.hard & 1 << 0));
-      json_object_set_boolean(json_value_get_object(limits_json), "right",
-                              (limits.hard & 1 << 1));
-      json_object_set_boolean(json_value_get_object(limits_json), "up",
-                              (limits.hard & 1 << 2));
-      json_object_set_boolean(json_value_get_object(limits_json), "down",
-                              (limits.hard & 1 << 3));
-      json_object_set_boolean(json_value_get_object(limits_json), "in",
-                              (limits.hard & 1 << 4));
-      json_object_set_boolean(json_value_get_object(limits_json), "out",
-                              (limits.hard & 1 << 5));
-      json_object_set_boolean(json_value_get_object(limits_json), "probe",
-                              (limits.hard & 1 << 6));
-      json_object_set_value(json_value_get_object(telemetry), "limits",
-                            limits_json);
+      ans["telemetry"]["limits"]["left"] = static_cast<bool>(limits.hard & 1 << 0);
+      ans["telemetry"]["limits"]["right"] = static_cast<bool>(limits.hard & 1 << 1);
+      ans["telemetry"]["limits"]["up"] = static_cast<bool>(limits.hard & 1 << 2);
+      ans["telemetry"]["limits"]["down"] = static_cast<bool>(limits.hard & 1 << 3);
+      ans["telemetry"]["limits"]["in"] = static_cast<bool>(limits.hard & 1 << 4);
+      ans["telemetry"]["limits"]["out"] = static_cast<bool>(limits.hard & 1 << 5);
+      ans["telemetry"]["limits"]["probe"] = static_cast<bool>(limits.hard & 1 << 6);
 
-      json_object_set_boolean(json_value_get_object(telemetry), "control_enabled",
-                            rema::control_enabled);
+      ans["telemetry"]["control_enabled"] = rema::control_enabled;
+      ans["telemetry"]["stall_control"] = rema::stall_control_get();
+      ans["telemetry"]["brakes_mode"] = static_cast<int>(rema::brakes_mode);
 
-      json_object_set_boolean(json_value_get_object(telemetry), "stall_control",
-                            rema::stall_control_get());
+      ans["telemetry"]["stalled"]["x"] = x_y_axes->first_axis->stalled;
+      ans["telemetry"]["stalled"]["y"] = x_y_axes->second_axis->stalled;
+      ans["telemetry"]["stalled"]["z"] = z_dummy_axes->first_axis->stalled;
 
-      json_object_set_number(json_value_get_object(telemetry), "brakes_mode",
-                            static_cast<int>(rema::brakes_mode));
+      ans["telemetry"]["probe"]["x_y"] = x_y_axes->was_stopped_by_probe;
+      ans["telemetry"]["probe"]["z"] =  z_dummy_axes->was_stopped_by_probe;
 
-      JSON_Value *stalled = json_value_init_object();
-      json_object_set_boolean(json_value_get_object(stalled), "x",
-                              x_y_axes->first_axis->stalled);
-      json_object_set_boolean(json_value_get_object(stalled), "y",
-                              x_y_axes->second_axis->stalled);
-      json_object_set_boolean(json_value_get_object(stalled), "z",
-                              z_dummy_axes->first_axis->stalled);
-      json_object_set_value(json_value_get_object(telemetry), "stalled",
-                            stalled);
 
-      JSON_Value *probe = json_value_init_object();
-      json_object_set_boolean(json_value_get_object(probe), "x_y",
-                              x_y_axes->was_stopped_by_probe);
-      json_object_set_boolean(json_value_get_object(probe), "z",
-                              z_dummy_axes->was_stopped_by_probe);
-      json_object_set_value(json_value_get_object(telemetry), "probe", probe);
-
-      JSON_Value *on_condition = json_value_init_object();
-      json_object_set_boolean(
-          json_value_get_object(on_condition), "x_y",
-          (x_y_axes->already_there &&
-           !x_y_axes
-                ->was_soft_stopped)); // Soft stops are only sent by joystick,
-                                      // so no ON_CONDITION reported
-      json_object_set_boolean(
-          json_value_get_object(on_condition), "z",
-          (z_dummy_axes->already_there && !z_dummy_axes->was_soft_stopped));
-      json_object_set_value(json_value_get_object(telemetry), "on_condition",
-                            on_condition);
+      ans["telemetry"]["on_condition"]["x_y"] =
+        (x_y_axes->already_there &&
+          !x_y_axes
+              ->was_soft_stopped); // Soft stops are only sent by joystick,
+                                    // so no ON_CONDITION reported
+      ans["telemetry"]["on_condition"]["z"] =
+        (z_dummy_axes->already_there && !z_dummy_axes->was_soft_stopped);
 
       if (!(times % 50)) {
-        JSON_Value *temperatures = json_value_init_object();
-        json_object_set_number(
-            json_value_get_object(temperatures), "x",
-            (static_cast<double>(temperature_ds18b20_get(0))) / 10);
-        json_object_set_number(
-            json_value_get_object(temperatures), "y",
-            (static_cast<double>(temperature_ds18b20_get(1))) / 10);
-        json_object_set_number(
-            json_value_get_object(temperatures), "z",
-            (static_cast<double>(temperature_ds18b20_get(2))) / 10);
-        json_object_set_value(json_value_get_object(ans), "temps",
-                              temperatures);
-      } else {
-        json_object_remove(json_value_get_object(ans), "temps");
-      }
+        ans["temps"]["x"] = 
+            (static_cast<double>(temperature_ds18b20_get(0))) / 10;
+        ans["temps"]["y"] =
+            (static_cast<double>(temperature_ds18b20_get(1))) / 10;
+        ans["temps"]["z"] =
+            (static_cast<double>(temperature_ds18b20_get(2))) / 10;
+      } 
       times++;
 
-      json_object_set_value(json_value_get_object(ans), "telemetry", telemetry);
-
-      int msg_len = json_serialize_to_buffer_return_written(ans, tx_buffer, buf_len - 1);
+      size_t msg_len = ArduinoJson::serializeJson(ans, tx_buffer, sizeof(tx_buffer) - 1);
+      
       tx_buffer[msg_len] = '\0';  //null terminate
-      msg_len++; 
+      msg_len++;     
 
       //lDebug(InfoLocal, "To send %d bytes: %s", msg_len, tx_buffer);
 
@@ -152,7 +100,7 @@ public:
           if (written < 0) {
             lDebug(Error, "Error occurred during sending telemetry: errno %d",
                    errno);
-            goto err_send;
+            return;
           }
           to_write -= written;
         }
@@ -162,8 +110,6 @@ public:
 
       vTaskDelay(pdMS_TO_TICKS(100));
     }
-  err_send:
-    json_value_free(ans);
   }
 };
 
