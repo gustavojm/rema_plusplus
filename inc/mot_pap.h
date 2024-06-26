@@ -7,7 +7,6 @@
 #include "FreeRTOS.h"
 #include "encoders_pico.h"
 #include "gpio.h"
-#include "parson.h"
 #include "semphr.h"
 #include "tmr.h"
 

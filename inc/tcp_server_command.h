@@ -11,6 +11,7 @@
 #include "lwip/sys.h"
 #include <lwip/netdb.h>
 
+#include "parson.h"
 #include "debug.h"
 #include "rema.h"
 #include "tcp_server.h"

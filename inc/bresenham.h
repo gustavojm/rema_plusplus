@@ -3,13 +3,13 @@
 
 #include <chrono>
 #include <cstdint>
+#include <string.h>
 
 #include "FreeRTOS.h"
 #include "debug.h"
 #include "gpio.h"
 #include "kp.h"
 #include "mot_pap.h"
-#include "parson.h"
 #include "semphr.h"
 #include "task.h"
 #include "tmr.h"
