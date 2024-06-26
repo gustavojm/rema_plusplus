@@ -121,12 +121,11 @@ ArduinoJson::JsonDocument tcp_server_command::logs_cmd(ArduinoJson::JsonObject c
     return root_value;  
 }
 
-// auto tcp_server_command::protocol_version_cmd(JSON_Value const *pars) {
-//   auto root_value = json_value_init_object();
-//   json_object_set_string(json_value_get_object(root_value), "Version",
-//                          PROTOCOL_VERSION);
-//   return root_value;
-// }
+ArduinoJson::JsonDocument tcp_server_command::protocol_version_cmd(ArduinoJson::JsonObject const pars) {
+  ArduinoJson::JsonDocument root_value;
+  root_value["Version"] = PROTOCOL_VERSION;
+  return root_value;
+}
 
 ArduinoJson::JsonDocument tcp_server_command::control_enable_cmd(ArduinoJson::JsonObject const pars) {
   ArduinoJson::JsonDocument root_value;
@@ -181,24 +180,22 @@ ArduinoJson::JsonDocument tcp_server_command::control_enable_cmd(ArduinoJson::Js
 //   return root_value;
 // }
 
-// auto tcp_server_command::touch_probe_cmd(JSON_Value const *pars) {
-//   auto root_value = json_value_init_object();
-//   JSON_Object *pars_object = json_value_get_object(pars);
+ArduinoJson::JsonDocument tcp_server_command::touch_probe_cmd(ArduinoJson::JsonObject const pars) {
+  ArduinoJson::JsonDocument root_value;
+  //if (json_object_has_value_of_type(pars_object, "position", JSONString)) {
+    char const *position = pars["position"];
 
-//   if (json_object_has_value_of_type(pars_object, "position", JSONString)) {
-//     char const *position = json_object_get_string(pars_object, "position");
+    if (!strcmp(position, "IN")) {
+      rema::touch_probe_retract();
+    }
 
-//     if (!strcmp(position, "IN")) {
-//       rema::touch_probe_retract();
-//     }
+    if (!strcmp(position, "OUT")) {
+      rema::touch_probe_extend();
+    }
+  //}
 
-//     if (!strcmp(position, "OUT")) {
-//       rema::touch_probe_extend();
-//     }
-//   }
-
-//   return root_value;
-// }
+  return root_value;
+}
 
 // auto tcp_server_command::stall_control_cmd(JSON_Value const *pars) {
 //   auto root_value = json_value_init_object();
@@ -275,13 +272,13 @@ ArduinoJson::JsonDocument tcp_server_command::axes_hard_stop_all_cmd(ArduinoJson
   return root_value;
 }
 
-// auto tcp_server_command::axes_soft_stop_all_cmd(JSON_Value const *pars) {
-//   x_y_axes->send({mot_pap::TYPE_SOFT_STOP});
-//   z_dummy_axes->send({mot_pap::TYPE_SOFT_STOP});
-//   auto root_value = json_value_init_object();
-//   json_object_set_boolean(json_value_get_object(root_value), "ACK", true);
-//   return root_value;
-// }
+ArduinoJson::JsonDocument tcp_server_command::axes_soft_stop_all_cmd(ArduinoJson::JsonObject const pars) {
+  x_y_axes->send({mot_pap::TYPE_SOFT_STOP});
+  z_dummy_axes->send({mot_pap::TYPE_SOFT_STOP});
+  ArduinoJson::JsonDocument root_value;
+  root_value["ACK"] = true;
+  return root_value;
+}
 
 // auto tcp_server_command::network_settings_cmd(JSON_Value const *pars) {
 //   if (pars && json_value_get_type(pars) == JSONObject) {
@@ -514,19 +511,18 @@ ArduinoJson::JsonDocument tcp_server_command::mem_info_cmd(ArduinoJson::JsonObje
 //   }
 // }
 
-// auto tcp_server_command::read_limits_cmd(JSON_Value const *pars) {
-//   auto root_value = json_value_init_object();
-//   json_object_set_number(json_value_get_object(root_value), "ACK",
-//                          encoders->read_limits().hard);
-//   return root_value;
-// }
+ArduinoJson::JsonDocument tcp_server_command::read_limits_cmd(ArduinoJson::JsonObject const pars) {
+  ArduinoJson::JsonDocument root_value;
+  root_value["ACK"] = encoders->read_limits().hard;
+  return root_value;
+}
 
 // @formatter:off
 const tcp_server_command::cmd_entry tcp_server_command::cmds_table[] = {
-    // {
-    //     "PROTOCOL_VERSION",                        /* Command name */
-    //     &tcp_server_command::protocol_version_cmd, /* Associated function */
-    // },
+    {
+        "PROTOCOL_VERSION",                        /* Command name */
+        &tcp_server_command::protocol_version_cmd, /* Associated function */
+    },
     {
         "CONTROL_ENABLE",
         &tcp_server_command::control_enable_cmd,
@@ -539,10 +535,10 @@ const tcp_server_command::cmd_entry tcp_server_command::cmds_table[] = {
     //     "BRAKES_MODE",
     //     &tcp_server_command::brakes_mode_cmd,
     // },
-    // {
-    //     "TOUCH_PROBE",
-    //     &tcp_server_command::touch_probe_cmd,
-    // },
+    {
+        "TOUCH_PROBE",
+        &tcp_server_command::touch_probe_cmd,
+    },
     {
         "AXES_HARD_STOP_ALL",
         &tcp_server_command::axes_hard_stop_all_cmd,
@@ -596,10 +592,10 @@ const tcp_server_command::cmd_entry tcp_server_command::cmds_table[] = {
     //     "READ_ENCODERS",
     //     &tcp_server_command::read_encoders_cmd,
     // },
-    // {
-    //     "READ_LIMITS",
-    //     &tcp_server_command::read_limits_cmd,
-    // },
+    {
+        "READ_LIMITS",
+        &tcp_server_command::read_limits_cmd,
+    },
 };
 // @formatter:on
 

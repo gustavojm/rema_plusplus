@@ -86,13 +86,13 @@ public:
 
   ArduinoJson::JsonDocument logs_cmd(ArduinoJson::JsonObject const pars);
   ArduinoJson::JsonDocument set_log_level_cmd(ArduinoJson::JsonObject const pars);  
-  // ArduinoJson::JsonDocument protocol_version_cmd(ArduinoJson::JsonObject const pars);
+  ArduinoJson::JsonDocument protocol_version_cmd(ArduinoJson::JsonObject const pars);
   ArduinoJson::JsonDocument control_enable_cmd(ArduinoJson::JsonObject const pars);
   // ArduinoJson::JsonDocument stall_control_cmd(ArduinoJson::JsonObject const pars);
   // ArduinoJson::JsonDocument set_coords_cmd(ArduinoJson::JsonObject const pars);
   // ArduinoJson::JsonDocument kp_set_tunings_cmd(ArduinoJson::JsonObject const pars);
   ArduinoJson::JsonDocument axes_hard_stop_all_cmd(ArduinoJson::JsonObject const pars);
-  // ArduinoJson::JsonDocument axes_soft_stop_all_cmd(ArduinoJson::JsonObject const pars);
+  ArduinoJson::JsonDocument axes_soft_stop_all_cmd(ArduinoJson::JsonObject const pars);
   // ArduinoJson::JsonDocument network_settings_cmd(ArduinoJson::JsonObject const pars);
   ArduinoJson::JsonDocument mem_info_cmd(ArduinoJson::JsonObject const pars);
   // ArduinoJson::JsonDocument temperature_info_cmd(ArduinoJson::JsonObject const pars);
@@ -100,9 +100,9 @@ public:
   // ArduinoJson::JsonDocument move_free_run_cmd(ArduinoJson::JsonObject const pars);
   // ArduinoJson::JsonDocument move_incremental_cmd(ArduinoJson::JsonObject const pars);
   // ArduinoJson::JsonDocument brakes_mode_cmd(ArduinoJson::JsonObject const pars);
-  // ArduinoJson::JsonDocument touch_probe_cmd(ArduinoJson::JsonObject const pars);
+  ArduinoJson::JsonDocument touch_probe_cmd(ArduinoJson::JsonObject const pars);
   // ArduinoJson::JsonDocument read_encoders_cmd(ArduinoJson::JsonObject const pars);
-  // ArduinoJson::JsonDocument read_limits_cmd(ArduinoJson::JsonObject const pars);
+  ArduinoJson::JsonDocument read_limits_cmd(ArduinoJson::JsonObject const pars);
 
   //ArduinoJson::JsonDocument cmd_execute(char const *cmd, ArduinoJson::JsonDocument const pars);
   ArduinoJson::JsonDocument cmd_execute(char const *cmd, ArduinoJson::JsonObject const pars);
