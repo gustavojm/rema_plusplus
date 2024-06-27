@@ -265,7 +265,9 @@ SECTIONS
 
     PROVIDE(_pvHeapStart = DEFINED(__user_heap_base) ? __user_heap_base : .);
 
-    PROVIDE(_vStackTop = DEFINED(__user_stack_top) ? __user_stack_top : __top_RamLoc32 - 0);
+    PROVIDE(_pvHeapEnd = DEFINED(__user_stack_top) ? __user_stack_top : __top_RamLoc32 - 0);
+
+    PROVIDE(_vStackTop = DEFINED(__user_stack_top) ? __user_stack_top : __top_RamLoc32 - 0);    
 
     /* ## Create checksum value (used in startup) ## */
     PROVIDE(__valid_user_code_checksum = 0 - 
