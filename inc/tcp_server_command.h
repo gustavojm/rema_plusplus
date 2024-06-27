@@ -11,7 +11,7 @@
 #include "lwip/sys.h"
 #include <lwip/netdb.h>
 
-#include "ArduinoJson.hpp"
+#include "arduinojson_cust_alloc.h"
 #include "debug.h"
 #include "rema.h"
 #include "tcp_server.h"
@@ -85,31 +85,31 @@ public:
   }
 
   bresenham *get_axes(const char *axis);
-  json::JsonDocument logs_cmd(json::JsonObject const pars);
-  json::JsonDocument set_log_level_cmd(json::JsonObject const pars);  
-  json::JsonDocument protocol_version_cmd(json::JsonObject const pars);
-  json::JsonDocument control_enable_cmd(json::JsonObject const pars);
-  json::JsonDocument stall_control_cmd(json::JsonObject const pars);
-  json::JsonDocument set_coords_cmd(json::JsonObject const pars);
-  json::JsonDocument kp_set_tunings_cmd(json::JsonObject const pars);
-  json::JsonDocument axes_hard_stop_all_cmd(json::JsonObject const pars);
-  json::JsonDocument axes_soft_stop_all_cmd(json::JsonObject const pars);
-  json::JsonDocument network_settings_cmd(json::JsonObject const pars);
-  json::JsonDocument mem_info_cmd(json::JsonObject const pars);
-  json::JsonDocument temperature_info_cmd(json::JsonObject const pars);
-  json::JsonDocument move_closed_loop_cmd(json::JsonObject const pars);
-  json::JsonDocument move_free_run_cmd(json::JsonObject const pars);
-  json::JsonDocument move_incremental_cmd(json::JsonObject const pars);
-  json::JsonDocument brakes_mode_cmd(json::JsonObject const pars);
-  json::JsonDocument touch_probe_cmd(json::JsonObject const pars);
-  json::JsonDocument read_encoders_cmd(json::JsonObject const pars);
-  json::JsonDocument read_limits_cmd(json::JsonObject const pars);
-  json::JsonDocument cmd_execute(char const *cmd, json::JsonObject const pars);
+  json::MyJsonDocument logs_cmd(json::JsonObject const pars);
+  json::MyJsonDocument set_log_level_cmd(json::JsonObject const pars);  
+  json::MyJsonDocument protocol_version_cmd(json::JsonObject const pars);
+  json::MyJsonDocument control_enable_cmd(json::JsonObject const pars);
+  json::MyJsonDocument stall_control_cmd(json::JsonObject const pars);
+  json::MyJsonDocument set_coords_cmd(json::JsonObject const pars);
+  json::MyJsonDocument kp_set_tunings_cmd(json::JsonObject const pars);
+  json::MyJsonDocument axes_hard_stop_all_cmd(json::JsonObject const pars);
+  json::MyJsonDocument axes_soft_stop_all_cmd(json::JsonObject const pars);
+  json::MyJsonDocument network_settings_cmd(json::JsonObject const pars);
+  json::MyJsonDocument mem_info_cmd(json::JsonObject const pars);
+  json::MyJsonDocument temperature_info_cmd(json::JsonObject const pars);
+  json::MyJsonDocument move_closed_loop_cmd(json::JsonObject const pars);
+  json::MyJsonDocument move_free_run_cmd(json::JsonObject const pars);
+  json::MyJsonDocument move_incremental_cmd(json::JsonObject const pars);
+  json::MyJsonDocument brakes_mode_cmd(json::JsonObject const pars);
+  json::MyJsonDocument touch_probe_cmd(json::JsonObject const pars);
+  json::MyJsonDocument read_encoders_cmd(json::JsonObject const pars);
+  json::MyJsonDocument read_limits_cmd(json::JsonObject const pars);
+  json::MyJsonDocument cmd_execute(char const *cmd, json::JsonObject const pars);
 
   int json_wp(char *rx_buff, char **tx_buff);
 
   // FredMemFn points to a member of Fred that takes (char,float)
-  typedef json::JsonDocument (tcp_server_command::*cmd_function_ptr)(
+  typedef json::MyJsonDocument (tcp_server_command::*cmd_function_ptr)(
       json::JsonObject pars);
 
   typedef struct {

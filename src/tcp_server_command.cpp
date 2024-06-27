@@ -6,9 +6,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#define ARDUINOJSON_ENABLE_STD_STREAM 0
-#define ARDUINOJSON_ENABLE_STD_STRING 0
-#include "ArduinoJson.hpp"
 #include "bresenham.h"
 #include "encoders_pico.h"
 #include "mot_pap.h"
@@ -39,8 +36,8 @@ bresenham *tcp_server_command::get_axes(const char *axis) {
   }
 }
 
-json::JsonDocument check_control_and_brakes(bresenham *axes) {
-  json::JsonDocument res;
+json::MyJsonDocument check_control_and_brakes(bresenham *axes) {
+  json::MyJsonDocument res;
     if (!rema::control_enabled_get()) {
         res["ERROR"] = "CONTROL IS DISABLED";
         return res;
@@ -54,8 +51,8 @@ json::JsonDocument check_control_and_brakes(bresenham *axes) {
     return res;  // Indicating no errors
 }
 
-json::JsonDocument tcp_server_command::set_log_level_cmd(json::JsonObject pars) {
-  json::JsonDocument root_value;
+json::MyJsonDocument tcp_server_command::set_log_level_cmd(json::JsonObject pars) {
+  json::MyJsonDocument root_value;
 
   if (pars.containsKey("local_level")) {
     char const *level = pars["local_level"];
@@ -100,10 +97,10 @@ json::JsonDocument tcp_server_command::set_log_level_cmd(json::JsonObject pars) 
   return root_value;
 }
 
-json::JsonDocument tcp_server_command::logs_cmd(json::JsonObject const pars) {
+json::MyJsonDocument tcp_server_command::logs_cmd(json::JsonObject const pars) {
     double quantity = pars["quantity"];
 
-    json::JsonDocument root_value;
+    json::MyJsonDocument root_value;
     auto msg_array = root_value["DEBUG_MSGS"].to<json::JsonArray>();
     int msgs_waiting = uxQueueMessagesWaiting(debug_queue);
     int extract = MIN(quantity, msgs_waiting);
@@ -120,14 +117,14 @@ json::JsonDocument tcp_server_command::logs_cmd(json::JsonObject const pars) {
     return root_value;  
 }
 
-json::JsonDocument tcp_server_command::protocol_version_cmd(json::JsonObject const pars) {
-  json::JsonDocument root_value;
+json::MyJsonDocument tcp_server_command::protocol_version_cmd(json::JsonObject const pars) {
+  json::MyJsonDocument root_value;
   root_value["Version"] = PROTOCOL_VERSION;
   return root_value;
 }
 
-json::JsonDocument tcp_server_command::control_enable_cmd(json::JsonObject const pars) {
-  json::JsonDocument root_value;
+json::MyJsonDocument tcp_server_command::control_enable_cmd(json::JsonObject const pars) {
+  json::MyJsonDocument root_value;
 
   if (pars.containsKey("enabled")) {
     bool enabled = pars["enabled"];
@@ -137,8 +134,8 @@ json::JsonDocument tcp_server_command::control_enable_cmd(json::JsonObject const
   return root_value;
 }
 
-json::JsonDocument tcp_server_command::brakes_mode_cmd(json::JsonObject const pars) {
-  json::JsonDocument root_value;
+json::MyJsonDocument tcp_server_command::brakes_mode_cmd(json::JsonObject const pars) {
+  json::MyJsonDocument root_value;
   if (pars.containsKey("mode")) {
     char const *mode = pars["mode"];
 
@@ -177,8 +174,8 @@ json::JsonDocument tcp_server_command::brakes_mode_cmd(json::JsonObject const pa
   return root_value;
 }
 
-json::JsonDocument tcp_server_command::touch_probe_cmd(json::JsonObject const pars) {
-  json::JsonDocument root_value;
+json::MyJsonDocument tcp_server_command::touch_probe_cmd(json::JsonObject const pars) {
+  json::MyJsonDocument root_value;
   if (pars.containsKey("position")) {
     char const *position = pars["position"];
 
@@ -194,8 +191,8 @@ json::JsonDocument tcp_server_command::touch_probe_cmd(json::JsonObject const pa
   return root_value;
 }
 
-json::JsonDocument tcp_server_command::stall_control_cmd(json::JsonObject const pars) {
-  json::JsonDocument root_value;
+json::MyJsonDocument tcp_server_command::stall_control_cmd(json::JsonObject const pars) {
+  json::MyJsonDocument root_value;
   if (pars.containsKey("enabled")) {
     bool enabled = pars["enabled"];
     rema::stall_control_set(enabled);
@@ -204,7 +201,7 @@ json::JsonDocument tcp_server_command::stall_control_cmd(json::JsonObject const 
   return root_value;
 }
 
-json::JsonDocument tcp_server_command::set_coords_cmd(json::JsonObject const pars) {
+json::MyJsonDocument tcp_server_command::set_coords_cmd(json::JsonObject const pars) {
     if (pars.containsKey("position_x")) {
       double pos_x = pars["position_x"];
       x_y_axes->first_axis->set_position(pos_x);
@@ -219,13 +216,13 @@ json::JsonDocument tcp_server_command::set_coords_cmd(json::JsonObject const par
       double pos_z = pars["position_z"];
       z_dummy_axes->first_axis->set_position(pos_z);
     }
-  json::JsonDocument root_value;
+  json::MyJsonDocument root_value;
   root_value["ACK"] =  true;
   return root_value;
 }
 
-json::JsonDocument tcp_server_command::kp_set_tunings_cmd(json::JsonObject const pars) {
-  json::JsonDocument root_value;
+json::MyJsonDocument tcp_server_command::kp_set_tunings_cmd(json::JsonObject const pars) {
+  json::MyJsonDocument root_value;
   char const *axes = pars["axes"];
   double kp = pars["kp"];
   int update = pars["update"];
@@ -248,24 +245,24 @@ json::JsonDocument tcp_server_command::kp_set_tunings_cmd(json::JsonObject const
   return root_value;
 }
 
-json::JsonDocument tcp_server_command::axes_hard_stop_all_cmd(json::JsonObject const pars) {
+json::MyJsonDocument tcp_server_command::axes_hard_stop_all_cmd(json::JsonObject const pars) {
   x_y_axes->send({mot_pap::TYPE_HARD_STOP});
   z_dummy_axes->send({mot_pap::TYPE_HARD_STOP});
 
-  json::JsonDocument root_value;
+  json::MyJsonDocument root_value;
   root_value["ACK"] = true;
   return root_value;
 }
 
-json::JsonDocument tcp_server_command::axes_soft_stop_all_cmd(json::JsonObject const pars) {
+json::MyJsonDocument tcp_server_command::axes_soft_stop_all_cmd(json::JsonObject const pars) {
   x_y_axes->send({mot_pap::TYPE_SOFT_STOP});
   z_dummy_axes->send({mot_pap::TYPE_SOFT_STOP});
-  json::JsonDocument root_value;
+  json::MyJsonDocument root_value;
   root_value["ACK"] = true;
   return root_value;
 }
 
-json::JsonDocument tcp_server_command::network_settings_cmd(json::JsonObject const pars) {
+json::MyJsonDocument tcp_server_command::network_settings_cmd(json::JsonObject const pars) {
   char const *ipaddr = pars["ipaddr"];
   char const *netmask = pars["netmask"];
   char const *gw = pars["gw"];
@@ -317,28 +314,28 @@ json::JsonDocument tcp_server_command::network_settings_cmd(json::JsonObject con
     Chip_RGU_TriggerReset(RGU_CORE_RST);
   }
 
-  json::JsonDocument root_value;
+  json::MyJsonDocument root_value;
   root_value["ACK"] = true;
   return root_value;
 }
 
-json::JsonDocument tcp_server_command::mem_info_cmd(json::JsonObject const pars) {
-  auto root_value = json::JsonDocument();
+json::MyJsonDocument tcp_server_command::mem_info_cmd(json::JsonObject const pars) {
+  auto root_value = json::MyJsonDocument();
   root_value["MEM_TOTAL"] = configTOTAL_HEAP_SIZE;
   root_value["MEM_FREE"] = xPortGetFreeHeapSize();
   root_value["MEM_MIN_FREE"] = xPortGetMinimumEverFreeHeapSize();
   return root_value;
 }
 
-json::JsonDocument tcp_server_command::temperature_info_cmd(json::JsonObject const pars) {
-  json::JsonDocument root_value;
+json::MyJsonDocument tcp_server_command::temperature_info_cmd(json::JsonObject const pars) {
+  json::MyJsonDocument root_value;
   root_value["TEMP X"] = static_cast<double>(temperature_ds18b20_get(0)) / 10;
   root_value["TEMP Y"] = static_cast<double>(temperature_ds18b20_get(1)) / 10;
   root_value["TEMP Z"] = static_cast<double>(temperature_ds18b20_get(2)) / 10;
   return root_value;
 }
 
-json::JsonDocument tcp_server_command::move_closed_loop_cmd(json::JsonObject const pars) {  
+json::MyJsonDocument tcp_server_command::move_closed_loop_cmd(json::JsonObject const pars) {  
     char const *axes = pars["axes"];
     bresenham *axes_ = get_axes(axes);
 
@@ -362,12 +359,12 @@ json::JsonDocument tcp_server_command::move_closed_loop_cmd(json::JsonObject con
     lDebug(Info, "AXIS_BRESENHAM FIRST AXIS SETPOINT= %f, SECOND AXIS SETPOINT=%f",
            first_axis_setpoint, second_axis_setpoint);
 
-    json::JsonDocument root_value;
+    json::MyJsonDocument root_value;
     root_value["ACK"] = true;
     return root_value;
 }
 
-json::JsonDocument tcp_server_command::move_free_run_cmd(json::JsonObject const pars) {
+json::MyJsonDocument tcp_server_command::move_free_run_cmd(json::JsonObject const pars) {
     char const *axes = pars["axes"];
     bresenham *axes_ = get_axes(axes);
 
@@ -397,12 +394,12 @@ json::JsonDocument tcp_server_command::move_free_run_cmd(json::JsonObject const 
     // lDebug(Info, "AXIS_BRESENHAM First Axis Setpoint= %i, Second Axis Setpoint=%i",
     //        first_axis_setpoint, second_axis_setpoint);
 
-    json::JsonDocument root_value;
+    json::MyJsonDocument root_value;
     root_value["ACK"] = true;
     return root_value;
   }
 
- json::JsonDocument tcp_server_command::move_incremental_cmd(json::JsonObject const pars) {  
+ json::MyJsonDocument tcp_server_command::move_incremental_cmd(json::JsonObject const pars) {  
     char const *axes = pars["axes"];
     bresenham *axes_ = get_axes(axes);
     
@@ -436,13 +433,13 @@ json::JsonDocument tcp_server_command::move_free_run_cmd(json::JsonObject const 
     axes_->send(msg);
     // lDebug(Info, "AXIS_BRESENHAM First Axis Setpoint=%i, Second Axis Setpoint=%i",
     //        msg.first_axis_setpoint, msg.second_axis_setpoint);  
-    json::JsonDocument root_value;
+    json::MyJsonDocument root_value;
     root_value["ACK"] = true;
     return root_value;
 }
 
-json::JsonDocument tcp_server_command::read_encoders_cmd(json::JsonObject const pars) {
-  json::JsonDocument root_value;
+json::MyJsonDocument tcp_server_command::read_encoders_cmd(json::JsonObject const pars) {
+  json::MyJsonDocument root_value;
   
   if (pars.containsKey("axis")) {
     char const *axis = pars["axis"];
@@ -465,8 +462,8 @@ json::JsonDocument tcp_server_command::read_encoders_cmd(json::JsonObject const 
   }
 }
 
-json::JsonDocument tcp_server_command::read_limits_cmd(json::JsonObject const pars) {
-  json::JsonDocument root_value;
+json::MyJsonDocument tcp_server_command::read_limits_cmd(json::JsonObject const pars) {
+  json::MyJsonDocument root_value;
   root_value["ACK"] = encoders->read_limits().hard;
   return root_value;
 }
@@ -560,7 +557,7 @@ const tcp_server_command::cmd_entry tcp_server_command::cmds_table[] = {
  * @param   *pars   :JSON object containing the passed parameters to the called
  * function
  */
-json::JsonDocument tcp_server_command::cmd_execute(char const *cmd, json::JsonObject const pars) {
+json::MyJsonDocument tcp_server_command::cmd_execute(char const *cmd, json::JsonObject const pars) {
   bool cmd_found = false;
   for (unsigned int i = 0; i < (sizeof(cmds_table) / sizeof(cmds_table[0]));
        i++) {
@@ -572,7 +569,7 @@ json::JsonDocument tcp_server_command::cmd_execute(char const *cmd, json::JsonOb
   if (!cmd_found) {
     lDebug(Error, "No matching command found");
   }
-  return json::JsonDocument();
+  return json::MyJsonDocument();
 };
 
 /**
@@ -620,10 +617,10 @@ json::JsonDocument tcp_server_command::cmd_execute(char const *cmd, json::JsonOb
  * @returns	the length of the allocated response buffer
  */
 int tcp_server_command::json_wp(char *rx_buff, char **tx_buff) {
-  auto rx_JSON_value = json::JsonDocument();
+  auto rx_JSON_value = json::MyJsonDocument();
   json::DeserializationError error = json::deserializeJson(rx_JSON_value,  rx_buff);
 
-  auto tx_JSON_value = json::JsonDocument();
+  auto tx_JSON_value = json::MyJsonDocument();
   *tx_buff = NULL;
   int buff_len = 0;
 

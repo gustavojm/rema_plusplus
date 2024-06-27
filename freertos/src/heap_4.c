@@ -34,7 +34,6 @@
  * memory management pages of http://www.FreeRTOS.org for more information.
  */
 #include <stdlib.h>
-#include <string.h>
 
 /* Defining MPU_WRAPPERS_INCLUDED_FROM_API_FILE prevents task.h from redefining
 all the API functions to use the MPU wrappers.  That should only be done when
@@ -535,26 +534,6 @@ BlockLink_t *pxLink;
 			mtCOVERAGE_TEST_MARKER();
 		}
 	}
-}
-/*-----------------------------------------------------------*/
-
-void *pvPortRealloc(void *mem, size_t newsize)
-{
-    if (newsize == 0) {
-        vPortFree(mem);
-        return NULL;
-    }
-
-    void *p;
-    p = pvPortMalloc(newsize);
-    if (p) {
-        /* zero the memory */
-        if (mem != NULL) {
-            memcpy(p, mem, newsize);
-            vPortFree(mem);
-        }
-    }
-    return p;
 }
 /*-----------------------------------------------------------*/
 

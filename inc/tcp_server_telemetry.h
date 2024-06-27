@@ -13,7 +13,7 @@
 
 #include "debug.h"
 
-#include "ArduinoJson.hpp"
+#include "arduinojson_cust_alloc.h"
 #include "rema.h"
 #include "tcp_server.h"
 #include "temperature_ds18b20.h"
@@ -32,7 +32,7 @@ public:
   void reply_fn(int sock) override {
     const int buf_len = 1024;
     char tx_buffer[buf_len];
-    json::JsonDocument ans;    
+    json::MyJsonDocument ans;    
 
     int times = 0;
 
