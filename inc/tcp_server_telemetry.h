@@ -23,6 +23,8 @@
 extern bresenham *x_y_axes, *z_dummy_axes;
 extern encoders_pico *encoders;
 
+namespace json = ArduinoJson;
+
 class tcp_server_telemetry : public tcp_server {
 public:
   tcp_server_telemetry(int port) : tcp_server("telemetry", port) {}
@@ -30,7 +32,7 @@ public:
   void reply_fn(int sock) override {
     const int buf_len = 1024;
     char tx_buffer[buf_len];
-    ArduinoJson::JsonDocument ans;    
+    json::JsonDocument ans;    
 
     int times = 0;
 
@@ -83,7 +85,7 @@ public:
       } 
       times++;
 
-      size_t msg_len = ArduinoJson::serializeJson(ans, tx_buffer, sizeof(tx_buffer) - 1);
+      size_t msg_len = json::serializeJson(ans, tx_buffer, sizeof(tx_buffer) - 1);
       
       tx_buffer[msg_len] = '\0';  //null terminate
       msg_len++;     

@@ -20,6 +20,8 @@
 
 extern bresenham *x_y_axes, *z_dummy_axes;
 
+namespace json = ArduinoJson;
+
 class tcp_server_command : public tcp_server {
 public:
   tcp_server_command(int port) : tcp_server("command", port) {}
@@ -83,35 +85,32 @@ public:
   }
 
   bresenham *get_axes(const char *axis);
+  json::JsonDocument logs_cmd(json::JsonObject const pars);
+  json::JsonDocument set_log_level_cmd(json::JsonObject const pars);  
+  json::JsonDocument protocol_version_cmd(json::JsonObject const pars);
+  json::JsonDocument control_enable_cmd(json::JsonObject const pars);
+  json::JsonDocument stall_control_cmd(json::JsonObject const pars);
+  json::JsonDocument set_coords_cmd(json::JsonObject const pars);
+  json::JsonDocument kp_set_tunings_cmd(json::JsonObject const pars);
+  json::JsonDocument axes_hard_stop_all_cmd(json::JsonObject const pars);
+  json::JsonDocument axes_soft_stop_all_cmd(json::JsonObject const pars);
+  json::JsonDocument network_settings_cmd(json::JsonObject const pars);
+  json::JsonDocument mem_info_cmd(json::JsonObject const pars);
+  json::JsonDocument temperature_info_cmd(json::JsonObject const pars);
+  json::JsonDocument move_closed_loop_cmd(json::JsonObject const pars);
+  json::JsonDocument move_free_run_cmd(json::JsonObject const pars);
+  json::JsonDocument move_incremental_cmd(json::JsonObject const pars);
+  json::JsonDocument brakes_mode_cmd(json::JsonObject const pars);
+  json::JsonDocument touch_probe_cmd(json::JsonObject const pars);
+  json::JsonDocument read_encoders_cmd(json::JsonObject const pars);
+  json::JsonDocument read_limits_cmd(json::JsonObject const pars);
+  json::JsonDocument cmd_execute(char const *cmd, json::JsonObject const pars);
 
-  ArduinoJson::JsonDocument logs_cmd(ArduinoJson::JsonObject const pars);
-  ArduinoJson::JsonDocument set_log_level_cmd(ArduinoJson::JsonObject const pars);  
-  ArduinoJson::JsonDocument protocol_version_cmd(ArduinoJson::JsonObject const pars);
-  ArduinoJson::JsonDocument control_enable_cmd(ArduinoJson::JsonObject const pars);
-  // ArduinoJson::JsonDocument stall_control_cmd(ArduinoJson::JsonObject const pars);
-  // ArduinoJson::JsonDocument set_coords_cmd(ArduinoJson::JsonObject const pars);
-  // ArduinoJson::JsonDocument kp_set_tunings_cmd(ArduinoJson::JsonObject const pars);
-  ArduinoJson::JsonDocument axes_hard_stop_all_cmd(ArduinoJson::JsonObject const pars);
-  ArduinoJson::JsonDocument axes_soft_stop_all_cmd(ArduinoJson::JsonObject const pars);
-  // ArduinoJson::JsonDocument network_settings_cmd(ArduinoJson::JsonObject const pars);
-  ArduinoJson::JsonDocument mem_info_cmd(ArduinoJson::JsonObject const pars);
-  // ArduinoJson::JsonDocument temperature_info_cmd(ArduinoJson::JsonObject const pars);
-  // ArduinoJson::JsonDocument move_closed_loop_cmd(ArduinoJson::JsonObject const pars);
-  // ArduinoJson::JsonDocument move_free_run_cmd(ArduinoJson::JsonObject const pars);
-  // ArduinoJson::JsonDocument move_incremental_cmd(ArduinoJson::JsonObject const pars);
-  // ArduinoJson::JsonDocument brakes_mode_cmd(ArduinoJson::JsonObject const pars);
-  ArduinoJson::JsonDocument touch_probe_cmd(ArduinoJson::JsonObject const pars);
-  // ArduinoJson::JsonDocument read_encoders_cmd(ArduinoJson::JsonObject const pars);
-  ArduinoJson::JsonDocument read_limits_cmd(ArduinoJson::JsonObject const pars);
-
-  //ArduinoJson::JsonDocument cmd_execute(char const *cmd, ArduinoJson::JsonDocument const pars);
-  ArduinoJson::JsonDocument cmd_execute(char const *cmd, ArduinoJson::JsonObject const pars);
-  
   int json_wp(char *rx_buff, char **tx_buff);
 
   // FredMemFn points to a member of Fred that takes (char,float)
-  typedef ArduinoJson::JsonDocument (tcp_server_command::*cmd_function_ptr)(
-      ArduinoJson::JsonObject pars);
+  typedef json::JsonDocument (tcp_server_command::*cmd_function_ptr)(
+      json::JsonObject pars);
 
   typedef struct {
     const char *cmd_name;
