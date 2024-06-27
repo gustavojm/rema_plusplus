@@ -135,11 +135,22 @@ void encoders_pico::task(void *pars) {
 
       x_y_axes->first_axis->already_there = limits.targets & (1 << 0);
       x_y_axes->second_axis->already_there = limits.targets & (1 << 1);
-      z_dummy_axes->first_axis->already_there = limits.targets & (1 << 2);
+      if (x_y_axes->first_axis->already_there && x_y_axes->second_axis->already_there) {
+        x_y_axes->already_there = true;
+        x_y_axes->stop();
+        lDebug(Info, "%s: already there", x_y_axes->name);
+      } else {
+        x_y_axes->resume();     // Motors were paused by ISR to be able to read encoders information
+      }
 
-      // Motors were paused by ISR to be able to read encoders information
-      x_y_axes->resume();
-      z_dummy_axes->resume();
+      z_dummy_axes->first_axis->already_there = limits.targets & (1 << 2);
+      if (z_dummy_axes->first_axis->already_there) {
+        z_dummy_axes->already_there = true;
+        z_dummy_axes->stop();
+        lDebug(Info, "%s: already there", z_dummy_axes->name);
+      } else {
+        z_dummy_axes->resume();    // Motors were paused by ISR to be able to read encoders information
+      }
     }
   }
 }

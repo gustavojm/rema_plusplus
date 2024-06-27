@@ -159,7 +159,6 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
     }
     lDebug(Debug, "Control output = %i: ", current_freq);
 
-
     ticks_last_time = xTaskGetTickCount();
     tmr.change_freq(current_freq);
   }  
@@ -194,19 +193,11 @@ void bresenham::supervise() {
       first_axis->read_pos_from_encoder();
       second_axis->read_pos_from_encoder();
 
-      if (already_there) {
-        lDebug(Info, "%s: position reached", name);
-        stop();
-        goto end;
-      }
-
       if (rema::stall_control_get()) {
-        bool x_stalled = first_axis->check_for_stall();  // make sure both stall
-                                                         // checks are executed;
-        bool y_stalled = second_axis->check_for_stall(); // make sure both stall
-                                                         // checks are executed;
+        bool first_axis_stalled = first_axis->check_for_stall();   // make sure that both stall
+        bool second_axis_stalled = second_axis->check_for_stall(); // checks are executed
 
-        if (x_stalled || y_stalled) {
+        if (first_axis_stalled || second_axis_stalled) {
           stop();
           rema::control_enabled_set(false);
           goto end;
