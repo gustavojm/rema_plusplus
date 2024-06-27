@@ -75,8 +75,8 @@ int main(void) {
 
   prvSetupHardware();
 
-  printf("    --- NASA GSPC ---\n");
-  printf("REMA Remote Terminal Unit.\n");
+  //printf("    --- NASA GSPC ---\n");
+  //printf("REMA Remote Terminal Unit.\n");
 
   settings::init();
 

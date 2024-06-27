@@ -265,7 +265,7 @@ SECTIONS
 
     PROVIDE(_pvHeapStart = DEFINED(__user_heap_base) ? __user_heap_base : .);
 
-    PROVIDE(_pvHeapEnd = DEFINED(__user_stack_top) ? __user_stack_top : __top_RamLoc32 - 0);
+    PROVIDE(_pvHeapEnd = _pvHeapStart + (8 * 1024)); /* 8K Heap for newlib? */
 
     PROVIDE(_vStackTop = DEFINED(__user_stack_top) ? __user_stack_top : __top_RamLoc32 - 0);    
 

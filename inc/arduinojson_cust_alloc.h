@@ -40,7 +40,7 @@ struct FreeRTOSAllocator : ArduinoJson::Allocator {
 namespace ArduinoJson {
     class MyJsonDocument : public ArduinoJson::JsonDocument {
     public: 
-        MyJsonDocument() : ArduinoJson::JsonDocument(&allocator) {            
+        MyJsonDocument() : ArduinoJson::JsonDocument(&allocator) {
         };
 
     private:

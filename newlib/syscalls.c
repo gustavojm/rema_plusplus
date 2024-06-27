@@ -85,6 +85,7 @@ WEAK void sbrkFailedHook( ptrdiff_t size )
 }
 
 void *_sbrk(ptrdiff_t size) {
+  //Chip_UART_SendBlocking(DEBUG_UART, "S\n", 2);       // unable to use print here... will recurse 
   void* returnValue;
   
   if (currentHeapPos + size > &_pvHeapEnd) {
@@ -103,6 +104,7 @@ void *_sbrk(ptrdiff_t size) {
 // doesn't enforce a limit in heap size.  This implementation does.
 //
 void* _sbrk_r(struct _reent *reent, ptrdiff_t size) {
+  //Chip_UART_SendBlocking(DEBUG_UART, "SR\n", 3);    // unable to use print here... will recurse 
    void* returnValue;
 
    if (currentHeapPos + size > &_pvHeapEnd) {
@@ -126,12 +128,12 @@ void* _sbrk_r(struct _reent *reent, ptrdiff_t size) {
 // via pvPortMalloc(), which has already suspended the scheduler, so the
 // call here is redundant most of the time.  That's OK.
 //
-void __malloc_lock(struct _reent *r)
-{
-   vTaskSuspendAll();
+void __malloc_lock(struct _reent *r) {
+  //Chip_UART_SendBlocking(DEBUG_UART, "ML\n", 3);      // unable to use print here... will recurse 
+  vTaskSuspendAll();
 }
 
-void __malloc_unlock(struct _reent *r)
-{
-   xTaskResumeAll();
+void __malloc_unlock(struct _reent *r) {
+  //Chip_UART_SendBlocking(DEBUG_UART, "MU\n", 3);      // unable to use print here... will recurse 
+  xTaskResumeAll();
 }
