@@ -364,7 +364,7 @@ json::MyJsonDocument tcp_server_command::move_closed_loop_cmd(json::JsonObject c
     return root_value;
 }
 
-json::MyJsonDocument tcp_server_command::move_free_run_cmd(json::JsonObject const pars) {
+json::MyJsonDocument tcp_server_command::move_joystick_cmd(json::JsonObject const pars) {
     char const *axes = pars["axes"];
     bresenham *axes_ = get_axes(axes);
 
@@ -528,8 +528,8 @@ const tcp_server_command::cmd_entry tcp_server_command::cmds_table[] = {
         &tcp_server_command::set_coords_cmd,
     },
     {
-        "MOVE_FREE_RUN",
-        &tcp_server_command::move_free_run_cmd,
+        "MOVE_JOYSTICK",
+        &tcp_server_command::move_joystick_cmd,
     },
     {
         "MOVE_CLOSED_LOOP",
@@ -575,8 +575,8 @@ json::MyJsonDocument tcp_server_command::cmd_execute(char const *cmd, json::Json
 /**
  * @brief Defines a simple wire protocol base on JavaScript Object Notation
  (JSON)
- * @details Receives an JSON object containing an array of commands under the
- * "commands" key. Every command entry in this array must be a JSON object,
+ * @details Receives an JSON array of commands
+ * Every command entry in this array must be a JSON object,
  containing
  * a "command" string specifying the name of the called command, and a nested
  JSON object
@@ -585,21 +585,19 @@ json::MyJsonDocument tcp_server_command::cmd_execute(char const *cmd, json::Json
  *
  * Example of the received JSON object:
  *
- * {
-     "commands" : [
-         {"command": "ARM_FREE_RUN",
-             "pars": {
-                 "dir": "CW",
-                 "speed": 8
-             }
-         },
-         {"command": "LOGS",
-             "pars": {
-                 "quantity": 10
-             }
-         }
-     ]
-   }
+ * [
+      {"cmd": "MOVE_JOYSTICK",
+       "pars": {
+          "first_axis_setpoint": 500,
+          "second_axis_setpoint": 100
+       }
+      },
+      {"cmd": "LOGS",
+       "pars": {
+          "quantity": 10
+       }
+      }
+   ]
 
  * Every executed command has the chance of returning a JSON object that will be
  inserted
@@ -627,9 +625,8 @@ int tcp_server_command::json_wp(char *rx_buff, char **tx_buff) {
   if (error) {
       lDebug(Error, "Error json parse. %s", error.c_str());
   } else {
-    json::JsonArray commands = rx_JSON_value["commands"];
-    for (json::JsonVariant command : commands) {
-      char const *command_name = command["command"];
+    for (json::JsonVariant command : rx_JSON_value.as<json::JsonArray>()) {
+      char const *command_name = command["cmd"];
       lDebug(InfoLocal, "Command Found: %s", command_name);
       auto pars = command["pars"];
 

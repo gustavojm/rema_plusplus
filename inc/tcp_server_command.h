@@ -98,7 +98,7 @@ public:
   json::MyJsonDocument mem_info_cmd(json::JsonObject const pars);
   json::MyJsonDocument temperature_info_cmd(json::JsonObject const pars);
   json::MyJsonDocument move_closed_loop_cmd(json::JsonObject const pars);
-  json::MyJsonDocument move_free_run_cmd(json::JsonObject const pars);
+  json::MyJsonDocument move_joystick_cmd(json::JsonObject const pars);
   json::MyJsonDocument move_incremental_cmd(json::JsonObject const pars);
   json::MyJsonDocument brakes_mode_cmd(json::JsonObject const pars);
   json::MyJsonDocument touch_probe_cmd(json::JsonObject const pars);
