@@ -20,7 +20,7 @@ void bresenham::task() {
       lDebug(Info, "%s: command received", name);
 
       switch (msg_rcv->type) {
-      case mot_pap::TYPE_BRESENHAM:
+      case mot_pap::type::MOVE:
         vTaskSuspend(supervisor_task_handle);
         was_stopped_by_probe = false;
         was_soft_stopped = false;
@@ -28,7 +28,7 @@ void bresenham::task() {
         vTaskResume(supervisor_task_handle);
         break;
 
-      case mot_pap::TYPE_SOFT_STOP:
+      case mot_pap::type::SOFT_STOP:
         if (is_moving) {
           int x2 = kp.out_max;
           int x1 = kp.out_min;
@@ -71,7 +71,7 @@ void bresenham::task() {
         }
         break;
 
-      case mot_pap::TYPE_HARD_STOP:
+      case mot_pap::HARD_STOP:
       default:
         stop();
         lDebug(Info, "Hard stop %s", name);

@@ -27,15 +27,15 @@ extern encoders_pico *encoders;
 class mot_pap {
 public:
   enum direction {
-    DIRECTION_CW,
-    DIRECTION_CCW,
-    DIRECTION_NONE,
+    CW,
+    CCW,
+    NONE,
   };
 
   enum type {
-    TYPE_BRESENHAM,
-    TYPE_SOFT_STOP,
-    TYPE_HARD_STOP
+    MOVE,
+    SOFT_STOP,
+    HARD_STOP
   };
 
   /**
@@ -96,8 +96,8 @@ public:
 
 public:
   const char name;
-  enum type type = TYPE_HARD_STOP;
-  volatile enum direction dir = DIRECTION_NONE;
+  enum type type = HARD_STOP;
+  volatile enum direction dir = direction::NONE;
   volatile int last_pos = 0;
   int inches_to_counts_factor = 0;
   int motor_resolution = 0;
@@ -105,7 +105,7 @@ public:
   volatile int stalled_counter = 0;
   volatile int delta = 0;
   struct gpios gpios;
-  enum direction last_dir = DIRECTION_NONE;
+  enum direction last_dir = direction::NONE;
   unsigned int half_pulses_stall =
       0; // counts steps from the last call to stall control
   volatile unsigned int half_pulses = 0; // counts steps for encoder simulation

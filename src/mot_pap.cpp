@@ -16,16 +16,14 @@ extern encoders_pico *encoders;
  * @brief	returns the direction of movement depending if the error is
  * positive or negative
  * @param 	error : the current position error in closed loop positioning
- * @returns	DIRECTION_CW if error is positive
- * @returns	DIRECTION_CCW if error is negative
  */
 enum mot_pap::direction mot_pap::direction_calculate(int error) {
   if (reversed_direction) {
-    return error < 0 ? mot_pap::direction::DIRECTION_CCW
-                     : mot_pap::direction::DIRECTION_CW;
+    return error < 0 ? mot_pap::direction::CCW
+                     : mot_pap::direction::CW;
   } else {
-    return error < 0 ? mot_pap::direction::DIRECTION_CW
-                     : mot_pap::direction::DIRECTION_CCW;
+    return error < 0 ? mot_pap::direction::CW
+                     : mot_pap::direction::CCW;
   }
 }
 
@@ -34,9 +32,9 @@ void mot_pap::set_direction(enum direction direction) {
   if (is_dummy) {
     return;
   }
-  // gpios.direction.set(dir == DIRECTION_CW ? 0 : 1);
-  encoders->set_direction(name, dir == DIRECTION_CW ? 0 : 1);
-  // lDebug(InfoLocal, "%c, %s", name, (dir == DIRECTION_CW ? "+" : "-"));
+  // gpios.direction.set(dir == direction::CW ? 0 : 1);
+  encoders->set_direction(name, dir == direction::CW ? 0 : 1);
+  // lDebug(InfoLocal, "%c, %s", name, (dir == direction::CW ? "+" : "-"));
 }
 
 void mot_pap::set_direction() {
@@ -101,9 +99,9 @@ bool mot_pap::check_already_there() {
  */
 void mot_pap::update_position() {
   if (reversed_direction) {
-    (dir == DIRECTION_CW) ? current_counts++ : current_counts--;
+    (dir == direction::CW) ? current_counts++ : current_counts--;
   } else {
-    (dir == DIRECTION_CW) ? current_counts-- : current_counts++;
+    (dir == direction::CW) ? current_counts-- : current_counts++;
   }
 }
 

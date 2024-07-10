@@ -246,8 +246,8 @@ json::MyJsonDocument tcp_server_command::kp_set_tunings_cmd(json::JsonObject con
 }
 
 json::MyJsonDocument tcp_server_command::axes_hard_stop_all_cmd(json::JsonObject const pars) {
-  x_y_axes->send({mot_pap::TYPE_HARD_STOP});
-  z_dummy_axes->send({mot_pap::TYPE_HARD_STOP});
+  x_y_axes->send({mot_pap::HARD_STOP});
+  z_dummy_axes->send({mot_pap::HARD_STOP});
 
   json::MyJsonDocument root_value;
   root_value["ACK"] = true;
@@ -255,8 +255,8 @@ json::MyJsonDocument tcp_server_command::axes_hard_stop_all_cmd(json::JsonObject
 }
 
 json::MyJsonDocument tcp_server_command::axes_soft_stop_all_cmd(json::JsonObject const pars) {
-  x_y_axes->send({mot_pap::TYPE_SOFT_STOP});
-  z_dummy_axes->send({mot_pap::TYPE_SOFT_STOP});
+  x_y_axes->send({mot_pap::SOFT_STOP});
+  z_dummy_axes->send({mot_pap::SOFT_STOP});
   json::MyJsonDocument root_value;
   root_value["ACK"] = true;
   return root_value;
@@ -348,7 +348,7 @@ json::MyJsonDocument tcp_server_command::move_closed_loop_cmd(json::JsonObject c
     double second_axis_setpoint = pars["second_axis_setpoint"];
 
     bresenham_msg msg;
-    msg.type = mot_pap::TYPE_BRESENHAM;
+    msg.type = mot_pap::type::MOVE;
     msg.first_axis_setpoint = static_cast<int>(
         first_axis_setpoint * axes_->first_axis->inches_to_counts_factor);
     msg.second_axis_setpoint = static_cast<int>(
@@ -356,7 +356,7 @@ json::MyJsonDocument tcp_server_command::move_closed_loop_cmd(json::JsonObject c
 
     axes_->send(msg);
 
-    lDebug(Info, "AXIS_BRESENHAM FIRST AXIS SETPOINT= %f, SECOND AXIS SETPOINT=%f",
+    lDebug(Info, "MOVE_CLOSED_LOOP First Axis Setpoint= %f, Second Axis Setpoint= %f",
            first_axis_setpoint, second_axis_setpoint);
 
     json::MyJsonDocument root_value;
@@ -387,11 +387,11 @@ json::MyJsonDocument tcp_server_command::move_joystick_cmd(json::JsonObject cons
     }
 
     bresenham_msg msg;
-    msg.type = mot_pap::TYPE_BRESENHAM;
+    msg.type = mot_pap::type::MOVE;
     msg.first_axis_setpoint = first_axis_setpoint;
     msg.second_axis_setpoint = second_axis_setpoint;
     axes_->send(msg);
-    // lDebug(Info, "AXIS_BRESENHAM First Axis Setpoint= %i, Second Axis Setpoint=%i",
+    // lDebug(Info, "MOVE_JOYSTICK First Axis Setpoint= %i, Second Axis Setpoint= %i",
     //        first_axis_setpoint, second_axis_setpoint);
 
     json::MyJsonDocument root_value;
@@ -423,7 +423,7 @@ json::MyJsonDocument tcp_server_command::move_joystick_cmd(json::JsonObject cons
     }
 
     bresenham_msg msg;
-    msg.type = mot_pap::TYPE_BRESENHAM;
+    msg.type = mot_pap::type::MOVE;
     msg.first_axis_setpoint =
         axes_->first_axis->current_counts +
         (first_axis_delta * axes_->first_axis->inches_to_counts_factor);
@@ -431,7 +431,7 @@ json::MyJsonDocument tcp_server_command::move_joystick_cmd(json::JsonObject cons
         axes_->second_axis->current_counts +
         (second_axis_delta * axes_->first_axis->inches_to_counts_factor);
     axes_->send(msg);
-    // lDebug(Info, "AXIS_BRESENHAM First Axis Setpoint=%i, Second Axis Setpoint=%i",
+    // lDebug(Info, "MOVE_INCREMENTAL First Axis Setpoint= %i, Second Axis Setpoint= %i",
     //        msg.first_axis_setpoint, msg.second_axis_setpoint);  
     json::MyJsonDocument root_value;
     root_value["ACK"] = true;
