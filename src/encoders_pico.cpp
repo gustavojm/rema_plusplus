@@ -95,6 +95,8 @@ struct limits encoders_pico::read_limits() const {
   return {rx[0], rx[1]};
 }
 
+
+
 /**
  * @brief 	reads limits. (Used in IRQ)
  * @returns	status of the limits
@@ -129,8 +131,8 @@ void encoders_pico::task(void *pars) {
       struct limits limits = encoders->read_limits_and_ack();
       if (limits.hard) {
         rema::hard_limits_reached();
-        x_y_axes->was_stopped_by_probe = limits.hard & 1 << 6;
-        z_dummy_axes->was_stopped_by_probe = limits.hard & 1 << 6;
+        x_y_axes->was_stopped_by_probe = limits.hard & 1 << TOUCH_PROBE_BIT;
+        z_dummy_axes->was_stopped_by_probe = limits.hard & 1 << TOUCH_PROBE_BIT;
       }
 
       x_y_axes->first_axis->already_there = limits.targets & (1 << 0);

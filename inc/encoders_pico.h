@@ -47,7 +47,10 @@ static void cs_function(bool state) {
  * @brief    Raspberry-pi Pico device instance specific state.
  */
 class encoders_pico {
+ 
 public:
+  static const int TOUCH_PROBE_BIT = 6;
+
   encoders_pico() {
     Chip_SCU_PinMuxSet(
         6, 7,

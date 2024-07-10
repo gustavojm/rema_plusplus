@@ -16,7 +16,6 @@
 
 #define MOT_PAP_POS_THRESHOLD 1
 #define MOT_PAP_STALL_THRESHOLD 5
-#define MOT_PAP_STALL_MAX_COUNT 5
 
 extern encoders_pico *encoders;
 
@@ -103,6 +102,7 @@ public:
   int motor_resolution = 0;
   int encoder_resolution = 0;
   volatile int stalled_counter = 0;
+  int stall_max_count = 5;
   volatile int delta = 0;
   struct gpios gpios;
   enum direction last_dir = direction::NONE;

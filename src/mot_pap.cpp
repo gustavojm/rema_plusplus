@@ -54,7 +54,7 @@ bool mot_pap::check_for_stall() {
 
   if (pos_diff < expected_counts) {
     stalled_counter++;
-    if (stalled_counter >= MOT_PAP_STALL_MAX_COUNT) {
+    if (stalled_counter >= stall_max_count) {
       stalled_counter = 0;
       stalled = true;
       lDebug(Warn, "%c: stalled", name);

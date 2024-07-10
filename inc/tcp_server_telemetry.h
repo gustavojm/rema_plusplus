@@ -56,7 +56,7 @@ public:
       ans["telemetry"]["limits"]["probe"] = static_cast<bool>(limits.hard & 1 << 6);
 
       ans["telemetry"]["control_enabled"] = rema::control_enabled;
-      ans["telemetry"]["stall_control"] = rema::stall_control_get();
+      ans["telemetry"]["stall_control"] = rema::stall_control;
       ans["telemetry"]["brakes_mode"] = static_cast<int>(rema::brakes_mode);
 
       ans["telemetry"]["stalled"]["x"] = x_y_axes->first_axis->stalled;

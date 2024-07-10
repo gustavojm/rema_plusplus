@@ -130,6 +130,7 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
   already_there = false;
   first_axis->stall_reset();
   second_axis->stall_reset();
+  touching_counter = 0;
   first_axis->read_pos_from_encoder();
   second_axis->read_pos_from_encoder();
   first_axis->set_destination_counts(first_axis_setpoint);
@@ -161,7 +162,7 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
 
     ticks_last_time = xTaskGetTickCount();
     tmr.change_freq(current_freq);
-  }  
+  }
 }
 
 void bresenham::step() {
@@ -193,22 +194,36 @@ void bresenham::supervise() {
       first_axis->read_pos_from_encoder();
       second_axis->read_pos_from_encoder();
 
-      if (rema::stall_control_get()) {
+      if (rema::stall_control) {
         bool first_axis_stalled = first_axis->check_for_stall();   // make sure that both stall
         bool second_axis_stalled = second_axis->check_for_stall(); // checks are executed
 
         if (first_axis_stalled || second_axis_stalled) {
           stop();
           rema::control_enabled_set(false);
-          goto end;
+          continue;
         }
       }
 
-      //            if (rema::is_watchdog_expired()) {
-      //                stop();
-      //                lDebug(Info, "Watchdog expired");
-      //                goto end;
-      //            }
+      if (rema::touch_probe_protection) {
+        if (rema::is_touch_probe_touching()) {
+          touching_counter++;
+          if (touching_counter >= touching_max_count) {
+            touching_counter = 0;
+            stop();
+            lDebug(Warn, "%s: touch probe protection", name);
+            continue;
+          }
+        } else {
+          touching_counter = 0;
+        }
+      }
+
+      // if (rema::is_watchdog_expired()) {
+      //     stop();
+      //     lDebug(Info, "Watchdog expired");
+      //     continue;
+      // }
 
       calculate(); // recalculate to compensate for encoder errors
                    // if didn't stop for proximity to set point, avoid going to
@@ -227,7 +242,6 @@ void bresenham::supervise() {
       lDebug(Debug, "Control output = %i: ", current_freq);     
       tmr.change_freq(current_freq);
     }
-  end:;
   }
 }
 

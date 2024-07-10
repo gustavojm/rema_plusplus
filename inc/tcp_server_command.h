@@ -26,6 +26,8 @@ class tcp_server_command : public tcp_server {
 public:
   tcp_server_command(int port) : tcp_server("command", port) {}
 
+  static bresenham *get_axes(const char *axis);
+
   void stop_all() {
     x_y_axes->stop();
     z_dummy_axes->stop();
@@ -83,13 +85,13 @@ public:
       }
     } while (len > 0);
   }
-
-  bresenham *get_axes(const char *axis);
+  
   json::MyJsonDocument logs_cmd(json::JsonObject const pars);
   json::MyJsonDocument set_log_level_cmd(json::JsonObject const pars);  
   json::MyJsonDocument protocol_version_cmd(json::JsonObject const pars);
   json::MyJsonDocument control_enable_cmd(json::JsonObject const pars);
   json::MyJsonDocument stall_control_cmd(json::JsonObject const pars);
+  json::MyJsonDocument touch_probe_protection_control_cmd(json::JsonObject const pars);
   json::MyJsonDocument set_coords_cmd(json::JsonObject const pars);
   json::MyJsonDocument kp_set_tunings_cmd(json::JsonObject const pars);
   json::MyJsonDocument axes_hard_stop_all_cmd(json::JsonObject const pars);

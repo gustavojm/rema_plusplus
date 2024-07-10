@@ -30,9 +30,7 @@ public:
 
   static void touch_probe_retract();
 
-  static void stall_control_set(bool status);
-
-  static bool stall_control_get();
+  static bool is_touch_probe_touching();
 
   static void update_watchdog_timer();
 
@@ -41,7 +39,8 @@ public:
   static void hard_limits_reached();
 
   static bool control_enabled;
-  static bool stall_detection;
+  static bool stall_control;
+  static bool touch_probe_protection;
   static brakes_mode_t brakes_mode;
   static TickType_t lastKeepAliveTicks;
 };
