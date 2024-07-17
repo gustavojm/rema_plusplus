@@ -100,6 +100,7 @@ public:
   volatile bool already_there = false;
   volatile bool was_soft_stopped = false;
   volatile bool was_stopped_by_probe = false;
+  volatile bool was_stopped_by_probe_protection = false;
   volatile int touching_counter = 0;
   int touching_max_count = 3;
   bool has_brakes = false;

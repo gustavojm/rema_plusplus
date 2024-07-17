@@ -11,19 +11,19 @@ public:
       : scu_port(scu_port), scu_pin(scu_pin), scu_mode(scu_mode),
         gpio_port(gpio_port), gpio_bit(gpio_bit) {}
 
-  gpio &init_output();
+  gpio& init_output();
 
-  gpio &init_input();
+  gpio& init_input();
 
-  gpio &toggle();
+  gpio& toggle();
 
-  gpio &set();
+  gpio& set();
 
-  gpio &reset();
+  gpio& reset();
 
-  gpio &set(bool state);
+  gpio& set(bool state);
 
-  bool read();
+  bool read() const;
 
   int scu_port;
   int scu_pin;
@@ -46,40 +46,40 @@ public:
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(irq));
   };
 
-  gpio_pinint &int_low() {
+  gpio_pinint& int_low() {
     int irq = static_cast<int>(IRQn) - PIN_INT0_IRQn;
     Chip_PININT_EnableIntLow(LPC_GPIO_PIN_INT, PININTCH(irq));
     return *this;
   }
 
-  gpio_pinint &int_high() {
+  gpio_pinint& int_high() {
     int irq = static_cast<int>(IRQn) - PIN_INT0_IRQn;
     Chip_PININT_EnableIntHigh(LPC_GPIO_PIN_INT, PININTCH(irq));
     return *this;
   }
 
-  gpio_pinint &mode_edge() {
+  gpio_pinint& mode_edge() {
     int irq = static_cast<int>(IRQn) - PIN_INT0_IRQn;
     Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(irq));
     return *this;
   }
 
-  gpio_pinint &clear_pending() {
+  gpio_pinint& clear_pending() {
     NVIC_ClearPendingIRQ(IRQn);
     return *this;
   }
 
-  gpio_pinint &enable() {
+  gpio_pinint& enable() {
     NVIC_EnableIRQ(IRQn);
     return *this;
   }
 
-  gpio_pinint &disable() {
+  gpio_pinint& disable() {
     NVIC_DisableIRQ(IRQn);
     return *this;
   }
 
-  gpio_pinint &init_input() {
+  gpio_pinint& init_input() {
     gpio::init_input();
     return *this;
   }

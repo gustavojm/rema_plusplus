@@ -6,7 +6,7 @@
  * @brief	 inits one gpio passed as output
  * @returns nothing
  */
-gpio &gpio::init_output() {
+gpio& gpio::init_output() {
   Chip_SCU_PinMuxSet(scu_port, scu_pin, scu_mode);
   Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, gpio_port, gpio_bit);
   return *this;
@@ -16,7 +16,7 @@ gpio &gpio::init_output() {
  * @brief	 inits one gpio passed as output
  * @returns nothing
  */
-gpio &gpio::init_input() {
+gpio& gpio::init_input() {
   Chip_SCU_PinMuxSet(scu_port, scu_pin, scu_mode);
   Chip_GPIO_SetPinDIRInput(LPC_GPIO_PORT, gpio_port, gpio_bit);
   return *this;
@@ -26,7 +26,7 @@ gpio &gpio::init_input() {
  * @brief    GPIO sets pin passed to high
  * @returns nothing
  */
-gpio &gpio::set() {
+gpio& gpio::set() {
   Chip_GPIO_SetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit, true);
   return *this;
 }
@@ -35,7 +35,7 @@ gpio &gpio::set() {
  * @brief    GPIO sets pin passed to low
  * @returns nothing
  */
-gpio &gpio::reset() {
+gpio& gpio::reset() {
   Chip_GPIO_SetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit, false);
   return *this;
 }
@@ -44,7 +44,7 @@ gpio &gpio::reset() {
  * @brief	 GPIO sets pin passed to the state specified
  * @returns nothing
  */
-gpio &gpio::set(bool state) {
+gpio& gpio::set(bool state) {
   Chip_GPIO_SetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit, state);
   return *this;
 }
@@ -53,7 +53,7 @@ gpio &gpio::set(bool state) {
  * @brief    GPIO sets pin passed as parameter to the state specified
  * @returns nothing
  */
-bool gpio::read() {
+bool gpio::read() const {
   return Chip_GPIO_GetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit);
 }
 
@@ -61,7 +61,7 @@ bool gpio::read() {
  * @brief	toggles GPIO corresponding pin passed as parameter
  * @returns nothing
  */
-gpio &gpio::toggle() {
+gpio& gpio::toggle() {
   Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, gpio_port, gpio_bit);
   return *this;
 }

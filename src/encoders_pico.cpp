@@ -117,7 +117,7 @@ struct limits encoders_pico::read_limits_and_ack() const {
   return {rx[0], rx[1]};
 }
 
-void encoders_pico::task(void *pars) {
+void encoders_pico::task([[maybe_unused]] void *pars) {
   NVIC_SetPriority(PIN_INT0_IRQn, ENCODERS_PICO_INTERRUPT_PRIORITY);
   gpio_pinint encoders_irq_pin = {
       6, 1, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLDOWN | SCU_MODE_FUNC0),

@@ -23,6 +23,7 @@ void bresenham::task() {
       case mot_pap::type::MOVE:
         vTaskSuspend(supervisor_task_handle);
         was_stopped_by_probe = false;
+        was_stopped_by_probe_protection = false;
         was_soft_stopped = false;
         move(msg_rcv->first_axis_setpoint, msg_rcv->second_axis_setpoint);
         vTaskResume(supervisor_task_handle);
@@ -209,7 +210,8 @@ void bresenham::supervise() {
         if (rema::is_touch_probe_touching()) {
           touching_counter++;
           if (touching_counter >= touching_max_count) {
-            touching_counter = 0;
+            touching_counter = 0;            
+            was_stopped_by_probe_protection = true;
             stop();
             lDebug(Warn, "%s: touch probe protection", name);
             continue;

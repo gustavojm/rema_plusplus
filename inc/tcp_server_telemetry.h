@@ -65,7 +65,7 @@ public:
 
       ans["telemetry"]["probe"]["x_y"] = x_y_axes->was_stopped_by_probe;
       ans["telemetry"]["probe"]["z"] =  z_dummy_axes->was_stopped_by_probe;
-
+      ans["telemetry"]["probe_protected"] =  x_y_axes->was_stopped_by_probe_protection || z_dummy_axes->was_stopped_by_probe_protection;
 
       ans["telemetry"]["on_condition"]["x_y"] =
         (x_y_axes->already_there &&

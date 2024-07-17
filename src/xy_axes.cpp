@@ -20,7 +20,7 @@ bresenham *x_y_axes = nullptr;
  * @brief   initializes the stepper motors for bresenham control
  * @returns	nothing
  */
-bresenham &xy_axes_init() {
+bresenham& xy_axes_init() {
   static mot_pap x_axis('X',
         25000,      // motor resolution
         500,        // encoder resolution

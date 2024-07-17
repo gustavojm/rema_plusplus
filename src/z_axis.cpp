@@ -20,7 +20,7 @@ bresenham *z_dummy_axes = nullptr;
  * @brief 	initializes the stepper motors for bresenham control
  * @returns	nothing
  */
-bresenham &z_axis_init() {
+bresenham& z_axis_init() {
   static mot_pap z_axis('Z', 
         25000,      // motor resolution
         500,        // encoder resolution
