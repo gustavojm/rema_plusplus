@@ -78,7 +78,8 @@ public:
     if (is_dummy) {
       return;
     }
-    encoders->set_target(name, target);
+
+    encoders->set_target(name, reversed_encoder ? -target : target);    
   }
 
   void step();
