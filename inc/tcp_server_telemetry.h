@@ -45,6 +45,10 @@ public:
       ans["telemetry"]["coords"]["y"] = x_y_axes->second_axis->current_counts / static_cast<double>(x_y_axes->second_axis->inches_to_counts_factor);
       ans["telemetry"]["coords"]["z"] = z_dummy_axes->first_axis->current_counts / static_cast<double>(z_dummy_axes->first_axis->inches_to_counts_factor);
 
+      ans["telemetry"]["targets"]["x"] = x_y_axes->first_axis->destination_counts / static_cast<double>(x_y_axes->first_axis->inches_to_counts_factor);
+      ans["telemetry"]["targets"]["y"] = x_y_axes->second_axis->destination_counts / static_cast<double>(x_y_axes->second_axis->inches_to_counts_factor);
+      ans["telemetry"]["targets"]["z"] = z_dummy_axes->first_axis->destination_counts / static_cast<double>(z_dummy_axes->first_axis->inches_to_counts_factor);
+
       struct limits limits = encoders->read_limits();
 
       ans["telemetry"]["limits"]["left"] = static_cast<bool>(limits.hard & 1 << 0);
