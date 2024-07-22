@@ -39,12 +39,12 @@ bresenham *tcp_server_command::get_axes(const char *axis) {
 json::MyJsonDocument check_control_and_brakes(bresenham *axes) {
   json::MyJsonDocument res;
     if (!rema::control_enabled_get()) {
-        res["ERROR"] = "CONTROL IS DISABLED";
+        res["ERROR"] = "Control is disabled";
         return res;
     }
 
     if (axes->has_brakes && rema::brakes_mode == rema::brakes_mode_t::ON) {
-        res["ERROR"] = "BRAKES ARE APPLIED";
+        res["ERROR"] = "Brakes are applied";
         return res;        
     }
 
@@ -283,7 +283,7 @@ json::MyJsonDocument tcp_server_command::kp_set_tunings_cmd(json::JsonObject con
     axes_->kp.set_output_limits(min, max);
     axes_->kp.set_sample_period(axes_->step_time);
     axes_->kp.set_tunings(kp);
-    lDebug(Debug, "KP Settings set");
+    lDebug(Debug, "KP settings set");
     res["ACK"] = true;
   }
   return res;
