@@ -59,8 +59,6 @@ public:
     uint8_t tx_buffer[buf_len];
     json::MyJsonDocument ans;    
 
-    int times = 0;
-
     while (true) {
       x_y_axes->first_axis->read_pos_from_encoder();
       x_y_axes->second_axis->read_pos_from_encoder();
@@ -110,19 +108,13 @@ public:
       
       telemetry.has_on_condition = true;
 
-
-      if (!(times % 50)) {
-        telemetry.temps.x = 
-            (static_cast<double>(temperature_ds18b20_get(0))) / 10;
-        telemetry.temps.y =
-            (static_cast<double>(temperature_ds18b20_get(1))) / 10;
-        telemetry.temps.z =
-            (static_cast<double>(temperature_ds18b20_get(2))) / 10;
-        telemetry.has_temps = true;
-      } else {
-        telemetry.has_temps = false;
-      }
-      times++;
+      telemetry.temps.x = 
+        (static_cast<double>(temperature_ds18b20_get(0))) / 10;
+      telemetry.temps.y =
+        (static_cast<double>(temperature_ds18b20_get(1))) / 10;
+      telemetry.temps.z =
+        (static_cast<double>(temperature_ds18b20_get(2))) / 10;
+      telemetry.has_temps = true;
 
       size_t msg_len;
       if (!serialize_telemetry(&telemetry, tx_buffer, sizeof(tx_buffer), &msg_len)) {

@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package telemetry_proto;
+
+message Point3D {
+    double x = 1;
+    double y = 2;
+    double z = 3;
+}
+
+message Temps {
+    double x = 1;
+    double y = 2;
+    double z = 3;
+}
+
+message IndividualAxes {
+    bool x = 1;
+    bool y = 2;
+    bool z = 3;
+}
+
+message Limits {
+    bool left = 1;
+    bool right = 2;
+    bool up = 3;
+    bool down = 4;
+    bool in = 5;
+    bool out = 6;
+    bool probe = 7;
+}
+
+message CompoundAxes {
+    bool x_y = 1;
+    bool z = 2;
+}
+
+message Telemetry {
+    Point3D coords = 1;
+    Point3D targets = 2;
+    CompoundAxes on_condition = 3;
+    CompoundAxes probe = 4;
+    IndividualAxes stalled = 5;
+    Limits limits = 6;
+    bool control_enabled = 7;
+    bool stall_control = 8;
+    int32 brakes_mode = 9;
+    bool probe_protected = 10;
+    Temps temps = 11;
+}
