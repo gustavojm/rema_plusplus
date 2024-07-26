@@ -19,9 +19,34 @@
 #include "temperature_ds18b20.h"
 #include "xy_axes.h"
 #include "z_axis.h"
+#include "pb_encode.h"
+#include "pb_decode.h"
+#include "telemetry.pb.h"
 
 extern bresenham *x_y_axes, *z_dummy_axes;
 extern encoders_pico *encoders;
+
+// Function to serialize telemetry data
+bool serialize_telemetry(const Telemetry *telemetry, uint8_t *buffer, size_t buffer_size, size_t *message_length) {
+    pb_ostream_t stream = pb_ostream_from_buffer(buffer, buffer_size);
+    if (!pb_encode(&stream, Telemetry_fields, telemetry)) {
+        fprintf(stderr, "Encoding failed: %s\n", PB_GET_ERROR(&stream));
+        return false;
+    }
+    *message_length = stream.bytes_written;
+    return true;
+}
+
+// Function to deserialize telemetry data
+bool deserialize_telemetry(const uint8_t *buffer, size_t message_length, Telemetry *telemetry) {
+    pb_istream_t stream = pb_istream_from_buffer(buffer, message_length);
+    if (!pb_decode(&stream, Telemetry_fields, telemetry)) {
+        fprintf(stderr, "Decoding failed: %s\n", PB_GET_ERROR(&stream));
+        return false;
+    }
+    return true;
+}
+
 
 namespace json = ArduinoJson;
 
@@ -31,7 +56,7 @@ public:
 
   void reply_fn(int sock) override {
     const int buf_len = 1024;
-    char tx_buffer[buf_len];
+    uint8_t tx_buffer[buf_len];
     json::MyJsonDocument ans;    
 
     int times = 0;
@@ -41,60 +66,73 @@ public:
       x_y_axes->second_axis->read_pos_from_encoder();
       z_dummy_axes->first_axis->read_pos_from_encoder();
 
-      ans["telemetry"]["coords"]["x"] = x_y_axes->first_axis->current_counts / static_cast<double>(x_y_axes->first_axis->inches_to_counts_factor);
-      ans["telemetry"]["coords"]["y"] = x_y_axes->second_axis->current_counts / static_cast<double>(x_y_axes->second_axis->inches_to_counts_factor);
-      ans["telemetry"]["coords"]["z"] = z_dummy_axes->first_axis->current_counts / static_cast<double>(z_dummy_axes->first_axis->inches_to_counts_factor);
+      Telemetry telemetry = Telemetry_init_zero;
+      telemetry.coords.x = x_y_axes->first_axis->current_counts / static_cast<double>(x_y_axes->first_axis->inches_to_counts_factor);
+      telemetry.coords.y = x_y_axes->second_axis->current_counts / static_cast<double>(x_y_axes->second_axis->inches_to_counts_factor);
+      telemetry.coords.z = z_dummy_axes->first_axis->current_counts / static_cast<double>(z_dummy_axes->first_axis->inches_to_counts_factor);
+      telemetry.has_coords = true;
 
-      ans["telemetry"]["targets"]["x"] = x_y_axes->first_axis->destination_counts / static_cast<double>(x_y_axes->first_axis->inches_to_counts_factor);
-      ans["telemetry"]["targets"]["y"] = x_y_axes->second_axis->destination_counts / static_cast<double>(x_y_axes->second_axis->inches_to_counts_factor);
-      ans["telemetry"]["targets"]["z"] = z_dummy_axes->first_axis->destination_counts / static_cast<double>(z_dummy_axes->first_axis->inches_to_counts_factor);
+      telemetry.targets.x = x_y_axes->first_axis->destination_counts / static_cast<double>(x_y_axes->first_axis->inches_to_counts_factor);
+      telemetry.targets.y = x_y_axes->second_axis->destination_counts / static_cast<double>(x_y_axes->second_axis->inches_to_counts_factor);
+      telemetry.targets.z = z_dummy_axes->first_axis->destination_counts / static_cast<double>(z_dummy_axes->first_axis->inches_to_counts_factor);
+      telemetry.has_targets = true;
 
       struct limits limits = encoders->read_limits();
 
-      ans["telemetry"]["limits"]["left"] = static_cast<bool>(limits.hard & 1 << 0);
-      ans["telemetry"]["limits"]["right"] = static_cast<bool>(limits.hard & 1 << 1);
-      ans["telemetry"]["limits"]["up"] = static_cast<bool>(limits.hard & 1 << 2);
-      ans["telemetry"]["limits"]["down"] = static_cast<bool>(limits.hard & 1 << 3);
-      ans["telemetry"]["limits"]["in"] = static_cast<bool>(limits.hard & 1 << 4);
-      ans["telemetry"]["limits"]["out"] = static_cast<bool>(limits.hard & 1 << 5);
-      ans["telemetry"]["limits"]["probe"] = static_cast<bool>(limits.hard & 1 << 6);
+      telemetry.limits.left = static_cast<bool>(limits.hard & 1 << 0);
+      telemetry.limits.right = static_cast<bool>(limits.hard & 1 << 1);
+      telemetry.limits.up = static_cast<bool>(limits.hard & 1 << 2);
+      telemetry.limits.down = static_cast<bool>(limits.hard & 1 << 3);
+      telemetry.limits.in = static_cast<bool>(limits.hard & 1 << 4);
+      telemetry.limits.out = static_cast<bool>(limits.hard & 1 << 5);
+      telemetry.limits.probe = static_cast<bool>(limits.hard & 1 << 6);
+      telemetry.has_limits = true;
+      
+      telemetry.control_enabled = rema::control_enabled;
+      telemetry.stall_control = rema::stall_control;
+      telemetry.brakes_mode = static_cast<int>(rema::brakes_mode);
 
-      ans["telemetry"]["control_enabled"] = rema::control_enabled;
-      ans["telemetry"]["stall_control"] = rema::stall_control;
-      ans["telemetry"]["brakes_mode"] = static_cast<int>(rema::brakes_mode);
+      telemetry.stalled.x = x_y_axes->first_axis->stalled;
+      telemetry.stalled.y = x_y_axes->second_axis->stalled;
+      telemetry.stalled.z = z_dummy_axes->first_axis->stalled;
 
-      ans["telemetry"]["stalled"]["x"] = x_y_axes->first_axis->stalled;
-      ans["telemetry"]["stalled"]["y"] = x_y_axes->second_axis->stalled;
-      ans["telemetry"]["stalled"]["z"] = z_dummy_axes->first_axis->stalled;
+      telemetry.probe.x_y = x_y_axes->was_stopped_by_probe;
+      telemetry.probe.z =  z_dummy_axes->was_stopped_by_probe;
+      telemetry.probe_protected =  x_y_axes->was_stopped_by_probe_protection || z_dummy_axes->was_stopped_by_probe_protection;
 
-      ans["telemetry"]["probe"]["x_y"] = x_y_axes->was_stopped_by_probe;
-      ans["telemetry"]["probe"]["z"] =  z_dummy_axes->was_stopped_by_probe;
-      ans["telemetry"]["probe_protected"] =  x_y_axes->was_stopped_by_probe_protection || z_dummy_axes->was_stopped_by_probe_protection;
-
-      ans["telemetry"]["on_condition"]["x_y"] =
+      telemetry.on_condition.x_y =
         (x_y_axes->already_there &&
           !x_y_axes
               ->was_soft_stopped); // Soft stops are only sent by joystick,
                                     // so no ON_CONDITION reported
-      ans["telemetry"]["on_condition"]["z"] =
+      telemetry.on_condition.z =
         (z_dummy_axes->already_there && !z_dummy_axes->was_soft_stopped);
+      
+      telemetry.has_on_condition = true;
+
 
       if (!(times % 50)) {
-        ans["temps"]["x"] = 
+        telemetry.temps.x = 
             (static_cast<double>(temperature_ds18b20_get(0))) / 10;
-        ans["temps"]["y"] =
+        telemetry.temps.y =
             (static_cast<double>(temperature_ds18b20_get(1))) / 10;
-        ans["temps"]["z"] =
+        telemetry.temps.z =
             (static_cast<double>(temperature_ds18b20_get(2))) / 10;
-      } 
+        telemetry.has_temps = true;
+      } else {
+        telemetry.has_temps = false;
+      }
       times++;
 
-      size_t msg_len = json::serializeJson(ans, tx_buffer, sizeof(tx_buffer) - 1);
+      size_t msg_len;
+      if (!serialize_telemetry(&telemetry, tx_buffer, sizeof(tx_buffer), &msg_len)) {
+        lDebug(Error, "NANOPB Serialize error");
+      }
       
       tx_buffer[msg_len] = '\0';  //null terminate
       msg_len++;     
 
-      //lDebug(InfoLocal, "To send %d bytes: %s", msg_len, tx_buffer);
+      lDebug(InfoLocal, "To send %d bytes: %s", msg_len, tx_buffer);
 
       if (msg_len > 0) {
         // send() can return less bytes than supplied length.

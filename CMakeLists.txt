@@ -119,6 +119,7 @@ file(GLOB_RECURSE SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/newlib/*.c
     ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/src/sysinit.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/nanopb/src/*.c 
 )
 
 file(GLOB_RECURSE EXTERNAL_SOURCES
@@ -139,6 +140,7 @@ set(EXTERNAL_HEADERS_DIR
     lwip/inc
     lwip/inc/ipv4
     freertos/inc
+    nanopb/inc
     ../../encoders/inc
     #/usr/local/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/arm-none-eabi/include
     ../lpc_chip_43xx/inc
