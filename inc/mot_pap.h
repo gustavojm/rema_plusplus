@@ -15,7 +15,6 @@
 #define MOT_PAP_DIRECTION_CHANGE_DELAY_MS 500
 
 #define MOT_PAP_POS_THRESHOLD 1
-#define MOT_PAP_STALL_THRESHOLD 5
 
 extern encoders_pico *encoders;
 

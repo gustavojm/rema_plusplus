@@ -48,8 +48,7 @@ bool mot_pap::check_for_stall() {
   }
 
   const int expected_counts =
-      ((half_pulses_stall >> 1) * encoder_resolution / motor_resolution) -
-      MOT_PAP_STALL_THRESHOLD;
+      ((half_pulses_stall >> 1) * encoder_resolution / motor_resolution);
   const int pos_diff = std::abs((int)(current_counts - last_pos));
 
   if (pos_diff < expected_counts) {
