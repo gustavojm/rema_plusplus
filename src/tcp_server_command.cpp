@@ -16,6 +16,7 @@
 #include "xy_axes.h"
 #include "z_axis.h"
 #include "debug.h"
+#include "expected.hpp"
 
 #define PROTOCOL_VERSION "JSON_1.0"
 
@@ -36,19 +37,16 @@ bresenham *tcp_server_command::get_axes(const char *axis) {
   }
 }
 
-json::MyJsonDocument check_control_and_brakes(bresenham *axes) {
-  json::MyJsonDocument res;
+tl::expected<void, const char *> check_control_and_brakes(bresenham *axes) {
     if (!rema::control_enabled_get()) {
-        res["ERROR"] = "Control is disabled";
-        return res;
+        return tl::make_unexpected("Control is disabled");
     }
 
     if (axes->has_brakes && rema::brakes_mode == rema::brakes_mode_t::ON) {
-        res["ERROR"] = "Brakes are applied";
-        return res;        
+        return tl::make_unexpected("Brakes are applied");
     }
 
-    return res;  // Indicating no errors
+    return {};  // Indicating no errors
 }
 
 json::MyJsonDocument tcp_server_command::set_log_level_cmd(json::JsonObject pars) {
@@ -382,10 +380,12 @@ json::MyJsonDocument tcp_server_command::temperature_info_cmd(json::JsonObject c
 json::MyJsonDocument tcp_server_command::move_closed_loop_cmd(json::JsonObject const pars) {  
     char const *axes = pars["axes"];
     bresenham *axes_ = get_axes(axes);
+    json::MyJsonDocument res;
 
-    auto  error = check_control_and_brakes(axes_);
-    if (!error.isNull()) {
-      return error;
+    auto  check_result = check_control_and_brakes(axes_);
+    if (!check_result) {
+      res["ERROR"] = check_result.error();
+      return res;
     }
 
     double first_axis_setpoint = pars["first_axis_setpoint"];
@@ -403,7 +403,6 @@ json::MyJsonDocument tcp_server_command::move_closed_loop_cmd(json::JsonObject c
     lDebug(Info, "MOVE_CLOSED_LOOP First Axis Setpoint= %f, Second Axis Setpoint= %f",
            first_axis_setpoint, second_axis_setpoint);
 
-    json::MyJsonDocument res;
     res["ACK"] = true;
     return res;
 }
@@ -411,10 +410,12 @@ json::MyJsonDocument tcp_server_command::move_closed_loop_cmd(json::JsonObject c
 json::MyJsonDocument tcp_server_command::move_joystick_cmd(json::JsonObject const pars) {
     char const *axes = pars["axes"];
     bresenham *axes_ = get_axes(axes);
+    json::MyJsonDocument res;
 
-    auto error = check_control_and_brakes(axes_);
-    if (!error.isNull()) {
-      return error;
+    auto check_result = check_control_and_brakes(axes_);
+    if (!check_result) {
+      res["ERROR"] = check_result.error();
+      return res;
     }
 
     int first_axis_setpoint, second_axis_setpoint;
@@ -437,8 +438,7 @@ json::MyJsonDocument tcp_server_command::move_joystick_cmd(json::JsonObject cons
     axes_->send(msg);
     // lDebug(Info, "MOVE_JOYSTICK First Axis Setpoint= %i, Second Axis Setpoint= %i",
     //        first_axis_setpoint, second_axis_setpoint);
-
-    json::MyJsonDocument res;
+    
     res["ACK"] = true;
     return res;
   }
@@ -446,10 +446,12 @@ json::MyJsonDocument tcp_server_command::move_joystick_cmd(json::JsonObject cons
  json::MyJsonDocument tcp_server_command::move_incremental_cmd(json::JsonObject const pars) {  
     char const *axes = pars["axes"];
     bresenham *axes_ = get_axes(axes);
+    json::MyJsonDocument res;
     
-    auto error = check_control_and_brakes(axes_);
-    if (!error.isNull()) {
-      return error;
+    auto check_result = check_control_and_brakes(axes_);
+    if (!check_result) {
+      res["ERROR"] = check_result.error();
+      return res;
     }
 
     double first_axis_delta, second_axis_delta;
@@ -476,8 +478,7 @@ json::MyJsonDocument tcp_server_command::move_joystick_cmd(json::JsonObject cons
         (second_axis_delta * axes_->first_axis->inches_to_counts_factor);
     axes_->send(msg);
     // lDebug(Info, "MOVE_INCREMENTAL First Axis Setpoint= %i, Second Axis Setpoint= %i",
-    //        msg.first_axis_setpoint, msg.second_axis_setpoint);  
-    json::MyJsonDocument res;
+    //        msg.first_axis_setpoint, msg.second_axis_setpoint);      
     res["ACK"] = true;
     return res;
 }
