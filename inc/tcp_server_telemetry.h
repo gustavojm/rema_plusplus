@@ -89,7 +89,7 @@ public:
       } 
       times++;
 
-      size_t msg_len = json::serializeJson(ans, tx_buffer, sizeof(tx_buffer) - 1);
+      size_t msg_len = json::serializeMsgPack(ans, tx_buffer, sizeof(tx_buffer) - 1);
       
       tx_buffer[msg_len] = '\0';  //null terminate
       msg_len++;     
