@@ -33,8 +33,8 @@ void bresenham::task() {
         if (is_moving) {
           int x2 = kp.out_max;
           int x1 = kp.out_min;
-          int y2 = 500;
-          int y1 = 100;
+          int y2 = 1000;
+          int y1 = 200;
           int x = current_freq;
           int y = ((static_cast<float>(y2 - y1) / (x2 - x1)) * (x - x1)) + y1;
 

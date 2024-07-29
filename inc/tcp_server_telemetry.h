@@ -114,7 +114,7 @@ public:
           lDebug(Error, "buffer too small");
       }
 
-      vTaskDelay(pdMS_TO_TICKS(100));
+      vTaskDelay(pdMS_TO_TICKS(50));
     }
   }
 };
