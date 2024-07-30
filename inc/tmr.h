@@ -1,5 +1,4 @@
-#ifndef TMR_H_
-#define TMR_H_
+#pragma once
 
 #include <cstdint>
 
@@ -30,4 +29,3 @@ private:
   IRQn_Type timer_IRQn;
 };
 
-#endif /* TMR_H_ */

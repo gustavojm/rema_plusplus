@@ -1,5 +1,4 @@
-#ifndef TCP_SERVER_H_
-#define TCP_SERVER_H_
+#pragma once
 
 #include <cstdint>
 
@@ -20,4 +19,3 @@ public:
   int port;
 };
 
-#endif /* TCP_SERVER_H_ */

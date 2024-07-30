@@ -1,8 +1,6 @@
-#ifndef XY_AXES_H_
-#define XY_AXES_H_
+#pragma once
 
 #include "bresenham.h"
 
 bresenham& xy_axes_init();
 
-#endif /* XY_AXES_H_ */

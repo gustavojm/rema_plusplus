@@ -1,5 +1,4 @@
-#ifndef ENCODERS_PICO_H_
-#define ENCODERS_PICO_H_
+#pragma once
 
 #include <new>
 #include <stdbool.h>
@@ -119,4 +118,3 @@ public:
 
 void encoders_pico_init();
 
-#endif /* ENCODERS_PICO_H_ */

@@ -1,5 +1,4 @@
-#ifndef ARDUINOJSON_CUST_ALLOC_H_
-#define ARDUINOJSON_CUST_ALLOC_H_
+#pragma once
 
 #include "FreeRTOS.h"
 #include "stdio.h"
@@ -52,4 +51,3 @@ namespace ArduinoJson {
 // Define the static allocator outside the class
 inline FreeRTOSAllocator ArduinoJson::MyJsonDocument::allocator;
 
-#endif /* ARDUINOJSON_CUST_ALLOC_H_ */

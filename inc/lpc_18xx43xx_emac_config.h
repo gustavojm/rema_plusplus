@@ -29,8 +29,7 @@
  * this code.
  */
 
-#ifndef __LPC_18XX43XX_EMAC_CONFIG_H_
-#define __LPC_18XX43XX_EMAC_CONFIG_H_
+#pragma once
 
 #include "lwip/opt.h"
 
@@ -75,4 +74,3 @@ extern "C" {
 }
 #endif
 
-#endif /* __LPC_EMAC_CONFIG_H */

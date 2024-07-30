@@ -1,5 +1,4 @@
-#ifndef TCP_SERVER_COMMAND_H_
-#define TCP_SERVER_COMMAND_H_
+#pragma once
 
 #include <cstdint>
 
@@ -122,4 +121,3 @@ public:
   static const cmd_entry cmds_table[];
 };
 
-#endif /* TCP_SERVER_COMMAND_H_ */

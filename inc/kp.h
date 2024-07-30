@@ -1,5 +1,4 @@
-#ifndef KP_H_
-#define KP_H_
+#pragma once
 
 #include <chrono>
 
@@ -76,4 +75,3 @@ public:
   int get_kp();
 };
 
-#endif /* KP_H_ */

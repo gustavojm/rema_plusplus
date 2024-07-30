@@ -1,5 +1,4 @@
-#ifndef MOT_PAP_H_
-#define MOT_PAP_H_
+#pragma once
 
 #include <cstdint>
 #include <cstdlib>
@@ -118,4 +117,3 @@ public:
   bool is_dummy;
 };
 
-#endif /* MOT_PAP_H_ */

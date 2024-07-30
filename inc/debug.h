@@ -1,5 +1,4 @@
-#ifndef DEBUG_H_
-#define DEBUG_H_
+#pragma once
 
 /**
  * @file debug.h
@@ -230,5 +229,4 @@ do {                                                                         \
     lDebug_uart_semihost(level, fmt, ##__VA_ARGS__)                            \
     lDebug_network(level, fmt, ##__VA_ARGS__)                                  \
   } while (0)
-#endif
 #endif

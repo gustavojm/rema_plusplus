@@ -1,5 +1,4 @@
-#ifndef CUSTOM_ALLOC_H_
-#define CUSTOM_ALLOC_H_
+#pragma once
 
 #include "FreeRTOS.h"
 
@@ -28,4 +27,3 @@
 #define vPortFree_debug(size) vPortFree(size)
 #endif
 
-#endif /*  CUSTOM_ALLOC_H_  */

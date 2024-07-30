@@ -1,5 +1,4 @@
-#ifndef SETTINGS_H_
-#define SETTINGS_H_
+#pragma once
 
 #include "eeprom.h"
 #include "gpio_templ.h"
@@ -30,4 +29,3 @@ public:
   static void read();
 };
 
-#endif /* SETTINGS_H_ */

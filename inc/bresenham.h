@@ -1,5 +1,4 @@
-#ifndef BRESENHAM_H_
-#define BRESENHAM_H_
+#pragma once
 
 #include <chrono>
 #include <cstdint>
@@ -120,4 +119,3 @@ private:
   //       before deleted status
 };
 
-#endif /* BRESENHAM_H_ */

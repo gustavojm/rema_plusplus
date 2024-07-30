@@ -1,5 +1,4 @@
-#ifndef GPIO_TEMPL_H_
-#define GPIO_TEMPL_H_
+#pragma once
 
 #include "board.h"
 
@@ -87,4 +86,3 @@ public:
   }
 };
 
-#endif /* GPIO_TEMPL_H_ */

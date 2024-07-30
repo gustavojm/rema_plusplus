@@ -1,5 +1,4 @@
-#ifndef SPI_H_
-#define SPI_H_
+#pragma once
 
 #include <stdint.h>
 
@@ -108,4 +107,3 @@ static inline int spi_read(void *buf, size_t len, void (*cs)(bool)) {
 }
 #endif
 
-#endif /* SPI_H_ */

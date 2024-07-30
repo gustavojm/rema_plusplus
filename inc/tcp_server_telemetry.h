@@ -1,5 +1,4 @@
-#ifndef TCP_SERVER_TELEMETRY_H_
-#define TCP_SERVER_TELEMETRY_H_
+#pragma once
 
 #include <cstdint>
 
@@ -119,4 +118,3 @@ public:
   }
 };
 
-#endif /* TCP_SERVER_TELEMETRY_H_ */

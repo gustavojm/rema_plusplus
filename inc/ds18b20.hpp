@@ -10,8 +10,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 // ----------------------------------------------------------------------------
-#ifndef DS18B20_HPP
-#define DS18B20_HPP
+#pragma once
 
 #include <cstring>
 #include "one-wire_bitbang_master.hpp"
@@ -176,4 +175,3 @@ protected:
   static OneWire ow;
 };
 
-#endif // DS18B20_HPP

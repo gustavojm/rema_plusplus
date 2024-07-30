@@ -1,5 +1,4 @@
-#ifndef TEMPERATURE_DS18B20_H_
-#define TEMPERATURE_DS18B20_H_
+#pragma once
 
 #include "ds18b20.hpp"
 #include "gpio_templ.h"
@@ -9,4 +8,3 @@ void temperature_ds18b20_init();
 
 int16_t temperature_ds18b20_get(uint8_t sensor);
 
-#endif /* TEMPERATURE_DS18B20_H_ */

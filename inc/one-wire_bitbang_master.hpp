@@ -10,8 +10,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 // ----------------------------------------------------------------------------
-#ifndef ONE_WIRE_BITBANG_MASTER_H_
-#define ONE_WIRE_BITBANG_MASTER_H_
+#pragma once
 
 #include "wait.h"
 #include <chrono>
@@ -470,4 +469,3 @@ constexpr std::chrono::microseconds one_wire::BitBangOneWireMaster<Pin>::J;
 
 } // namespace one_wire
 
-#endif // ONE-WIRE_BITBANG_MASTER_H_

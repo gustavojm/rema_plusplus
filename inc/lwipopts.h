@@ -29,8 +29,7 @@
  * this code.
  */
 
-#ifndef __LWIPOPTS_H_
-#define __LWIPOPTS_H_
+#pragma once
 
 /* RTOS build */
 #define NO_SYS                          0
@@ -138,4 +137,3 @@
 /* Needed for malloc/free */
 #include "FreeRTOS.h"
 
-#endif /* __LWIPOPTS_H_ */

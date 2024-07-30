@@ -1,5 +1,4 @@
-#ifndef WAIT_H_
-#define WAIT_H_
+#pragma once
 
 #include "board.h"
 #include <cstdint>
@@ -44,4 +43,3 @@ void wait_cycles(uint32_t cycles);
 
 void wait_ms(uint32_t ms);
 
-#endif /* WAIT_H_ */

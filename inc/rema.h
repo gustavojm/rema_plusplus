@@ -1,5 +1,4 @@
-#ifndef REMA_H_
-#define REMA_H_
+#pragma once
 
 #include "FreeRTOS.h"
 #include "bresenham.h"
@@ -45,4 +44,3 @@ public:
   static TickType_t lastKeepAliveTicks;
 };
 
-#endif /* REMA_H_ */
