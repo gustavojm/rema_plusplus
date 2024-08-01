@@ -3,8 +3,8 @@
 #include <stdio.h>
 
 void debugInit() {
-  uart_mutex = xSemaphoreCreateMutex();
-  debug_queue = xQueueCreate(NET_DEBUG_QUEUE_SIZE, sizeof(char *));
+    uart_mutex = xSemaphoreCreateMutex();
+    debug_queue = xQueueCreate(NET_DEBUG_QUEUE_SIZE, sizeof(char *));
 }
 
 /**
@@ -13,8 +13,8 @@ void debugInit() {
  * @param 	lvl 	:minimum level to print
  */
 void debugLocalSetLevel(bool enable, enum debugLevels lvl) {
-  debug_to_uart = enable;
-  debugLocalLevel = lvl;
+    debug_to_uart = enable;
+    debugLocalLevel = lvl;
 }
 
 /**
@@ -23,8 +23,8 @@ void debugLocalSetLevel(bool enable, enum debugLevels lvl) {
  * @param 	lvl 	:minimum level to print
  */
 void debugNetSetLevel(bool enable, enum debugLevels lvl) {
-  debug_to_network = enable;
-  debugNetLevel = lvl;
+    debug_to_network = enable;
+    debugNetLevel = lvl;
 }
 
 /**
@@ -32,19 +32,19 @@ void debugNetSetLevel(bool enable, enum debugLevels lvl) {
  * @param fileName name of file to send output to
  */
 void debugToFile(const char *fileName) {
-  debugClose();
+    debugClose();
 
-  FILE *file = fopen(fileName, "w"); // "w+" ?
+    FILE *file = fopen(fileName, "w"); // "w+" ?
 
-  if (file) {
-    debugFile = file;
-  }
+    if (file) {
+        debugFile = file;
+    }
 }
 
 /** Close the output file if it was set in <tt>toFile()</tt> */
 void debugClose() {
-  if (debugFile && (debugFile != stderr)) {
-    fclose(debugFile);
-    debugFile = stderr;
-  }
+    if (debugFile && (debugFile != stderr)) {
+        fclose(debugFile);
+        debugFile = stderr;
+    }
 }

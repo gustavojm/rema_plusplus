@@ -2,17 +2,12 @@
 #include "board.h"
 #include "gpio.h"
 
-gpio_templ<2, 1, SCU_MODE_FUNC4, 5, 1>
-    brakes_out; // DOUT0 P2_1    PIN81   GPIO5[1] Bornes 4 y 5
-gpio_templ<4, 6, SCU_MODE_FUNC0, 2, 6>
-    touch_probe_actuator_out; // DOUT1 P4_6    PIN11   GPIO2[6] Bornes 6 y 7
-gpio_templ<4, 5, SCU_MODE_FUNC0, 2, 5>
-    relay_DOUT2; // DOUT2 P4_5    PIN10   GPIO2[5] Bornes 8 y 9
-gpio_templ<4, 4, SCU_MODE_FUNC0, 2, 4>
-    relay_DOUT3; // DOUT3 P4_4    PIN9    GPIO2[4] Bornes 10 y 11
+gpio_templ<2, 1, SCU_MODE_FUNC4, 5, 1> brakes_out;               // DOUT0 P2_1    PIN81   GPIO5[1] Bornes 4 y 5
+gpio_templ<4, 6, SCU_MODE_FUNC0, 2, 6> touch_probe_actuator_out; // DOUT1 P4_6    PIN11   GPIO2[6] Bornes 6 y 7
+gpio_templ<4, 5, SCU_MODE_FUNC0, 2, 5> relay_DOUT2;              // DOUT2 P4_5    PIN10   GPIO2[5] Bornes 8 y 9
+gpio_templ<4, 4, SCU_MODE_FUNC0, 2, 4> relay_DOUT3;              // DOUT3 P4_4    PIN9    GPIO2[4] Bornes 10 y 11
 
-gpio_templ<1, 5, SCU_MODE_FUNC0, 1, 8>
-    shut_down_out; // DOUT7 P1_5    PIN48   GPIO1[8]
+gpio_templ<1, 5, SCU_MODE_FUNC0, 1, 8> shut_down_out; // DOUT7 P1_5    PIN48   GPIO1[8]
 
 bool rema::control_enabled = false;
 bool rema::stall_control = true;
@@ -22,61 +17,68 @@ rema::brakes_mode_t rema::brakes_mode = rema::brakes_mode_t::AUTO;
 TickType_t rema::lastKeepAliveTicks;
 
 void rema::init_outputs() {
-  brakes_out.init_output();
-  brakes_apply();
+    brakes_out.init_output();
+    brakes_apply();
 
-  touch_probe_actuator_out.init_output();
-  relay_DOUT2.init_output();
-  relay_DOUT3.init_output();
+    touch_probe_actuator_out.init_output();
+    relay_DOUT2.init_output();
+    relay_DOUT3.init_output();
 
-  shut_down_out.init_output();
-  shut_down_out.set(1);
+    shut_down_out.init_output();
+    shut_down_out.set(1);
 }
 
 void rema::control_enabled_set(bool status) {
-  control_enabled = status;
-  shut_down_out.set(!status);
-  if (status) {
-    x_y_axes->first_axis->stall_reset();
-    x_y_axes->second_axis->stall_reset();
-    z_dummy_axes->first_axis->stall_reset();
-  }
+    control_enabled = status;
+    shut_down_out.set(!status);
+    if (status) {
+        x_y_axes->first_axis->stall_reset();
+        x_y_axes->second_axis->stall_reset();
+        z_dummy_axes->first_axis->stall_reset();
+    }
 }
 
-bool rema::control_enabled_get() { return control_enabled; }
+bool rema::control_enabled_get() {
+    return control_enabled;
+}
 
 void rema::brakes_release() {
-  if (brakes_mode == brakes_mode_t::AUTO || brakes_mode == brakes_mode_t::OFF) {
-    brakes_out.set(true);
-    vTaskDelay(pdMS_TO_TICKS(BRAKES_RELEASE_DELAY_MS));
-  }
+    if (brakes_mode == brakes_mode_t::AUTO || brakes_mode == brakes_mode_t::OFF) {
+        brakes_out.set(true);
+        vTaskDelay(pdMS_TO_TICKS(BRAKES_RELEASE_DELAY_MS));
+    }
 }
 
 void rema::brakes_apply() {
-  if (brakes_mode == brakes_mode_t::AUTO || brakes_mode == brakes_mode_t::ON) {
-    brakes_out.set(false);
-  }
+    if (brakes_mode == brakes_mode_t::AUTO || brakes_mode == brakes_mode_t::ON) {
+        brakes_out.set(false);
+    }
 }
 
-void rema::touch_probe_extend() { touch_probe_actuator_out.set(0); }
+void rema::touch_probe_extend() {
+    touch_probe_actuator_out.set(0);
+}
 
-void rema::touch_probe_retract() { touch_probe_actuator_out.set(1); }
+void rema::touch_probe_retract() {
+    touch_probe_actuator_out.set(1);
+}
 
 bool rema::is_touch_probe_touching() {
-  struct limits limits = encoders->read_limits();
-  return limits.hard & 1 << encoders_pico::TOUCH_PROBE_BIT;
+    struct limits limits = encoders->read_limits();
+    return limits.hard & 1 << encoders_pico::TOUCH_PROBE_BIT;
 }
 
-void rema::update_watchdog_timer() { lastKeepAliveTicks = xTaskGetTickCount(); }
+void rema::update_watchdog_timer() {
+    lastKeepAliveTicks = xTaskGetTickCount();
+}
 
 bool rema::is_watchdog_expired() {
-  return ((xTaskGetTickCount() - lastKeepAliveTicks) >
-          pdMS_TO_TICKS(WATCHDOG_TIME_MS));
+    return ((xTaskGetTickCount() - lastKeepAliveTicks) > pdMS_TO_TICKS(WATCHDOG_TIME_MS));
 }
 
 void rema::hard_limits_reached() {
-  /* TODO Read input pins to determine which limit has been reached and stop
-   * only one motor*/
-  z_dummy_axes->stop();
-  x_y_axes->stop();
+    /* TODO Read input pins to determine which limit has been reached and stop
+     * only one motor*/
+    z_dummy_axes->stop();
+    x_y_axes->stop();
 }

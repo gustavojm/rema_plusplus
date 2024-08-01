@@ -33,7 +33,7 @@ extern void __libc_init_array(void);
 #endif
 #endif
 
-#define WEAK __attribute__((weak))
+#define WEAK     __attribute__((weak))
 #define ALIAS(f) __attribute__((weak, alias(#f)))
 
 //*****************************************************************************
@@ -169,8 +169,7 @@ WEAK extern void __valid_user_code_checksum();
 //
 //*****************************************************************************
 extern void (*const g_pfnVectors[])(void);
-__attribute__((used,
-               section(".isr_vector"))) void (*const g_pfnVectors[])(void) = {
+__attribute__((used, section(".isr_vector"))) void (*const g_pfnVectors[])(void) = {
     // Core Level - CM4
     &_vStackTop,                // The initial stack pointer
     ResetISR,                   // The reset handler
@@ -260,21 +259,19 @@ __attribute__((used,
 // ResetISR() function in order to cope with MCUs with multiple banks of
 // memory.
 //*****************************************************************************
-__attribute__((section(".after_vectors"))) void
-data_init(unsigned int romstart, unsigned int start, unsigned int len) {
-  unsigned int *pulDest = (unsigned int *)start;
-  unsigned int *pulSrc = (unsigned int *)romstart;
-  unsigned int loop;
-  for (loop = 0; loop < len; loop = loop + 4)
-    *pulDest++ = *pulSrc++;
+__attribute__((section(".after_vectors"))) void data_init(unsigned int romstart, unsigned int start, unsigned int len) {
+    unsigned int *pulDest = (unsigned int *)start;
+    unsigned int *pulSrc = (unsigned int *)romstart;
+    unsigned int loop;
+    for (loop = 0; loop < len; loop = loop + 4)
+        *pulDest++ = *pulSrc++;
 }
 
-__attribute__((section(".after_vectors"))) void bss_init(unsigned int start,
-                                                         unsigned int len) {
-  unsigned int *pulDest = (unsigned int *)start;
-  unsigned int loop;
-  for (loop = 0; loop < len; loop = loop + 4)
-    *pulDest++ = 0;
+__attribute__((section(".after_vectors"))) void bss_init(unsigned int start, unsigned int len) {
+    unsigned int *pulDest = (unsigned int *)start;
+    unsigned int loop;
+    for (loop = 0; loop < len; loop = loop + 4)
+        *pulDest++ = 0;
 }
 
 //*****************************************************************************
@@ -309,127 +306,127 @@ void ResetISR(void) {
 //
 #ifndef DONT_RESET_ON_RESTART
 
-  // Disable interrupts
-  __asm volatile("cpsid i");
-  // equivalent to CMSIS '__disable_irq()' function
+    // Disable interrupts
+    __asm volatile("cpsid i");
+    // equivalent to CMSIS '__disable_irq()' function
 
-  unsigned int *RESET_CONTROL = (unsigned int *)0x40053100;
-  // LPC_RGU->RESET_CTRL0 @ 0x40053100
-  // LPC_RGU->RESET_CTRL1 @ 0x40053104
-  // Note that we do not use the CMSIS register access mechanism,
-  // as there is no guarantee that the project has been configured
-  // to use CMSIS.
+    unsigned int *RESET_CONTROL = (unsigned int *)0x40053100;
+    // LPC_RGU->RESET_CTRL0 @ 0x40053100
+    // LPC_RGU->RESET_CTRL1 @ 0x40053104
+    // Note that we do not use the CMSIS register access mechanism,
+    // as there is no guarantee that the project has been configured
+    // to use CMSIS.
 
-  // Write to LPC_RGU->RESET_CTRL0
-  *(RESET_CONTROL + 0) = 0x10DF1000;
-  // GPIO_RST|AES_RST|ETHERNET_RST|SDIO_RST|DMA_RST|
-  // USB1_RST|USB0_RST|LCD_RST|M0_SUB_RST
+    // Write to LPC_RGU->RESET_CTRL0
+    *(RESET_CONTROL + 0) = 0x10DF1000;
+    // GPIO_RST|AES_RST|ETHERNET_RST|SDIO_RST|DMA_RST|
+    // USB1_RST|USB0_RST|LCD_RST|M0_SUB_RST
 
-  // Write to LPC_RGU->RESET_CTRL1
-  *(RESET_CONTROL + 1) = 0x01DFF7FF;
-  // M0APP_RST|CAN0_RST|CAN1_RST|I2S_RST|SSP1_RST|SSP0_RST|
-  // I2C1_RST|I2C0_RST|UART3_RST|UART1_RST|UART1_RST|UART0_RST|
-  // DAC_RST|ADC1_RST|ADC0_RST|QEI_RST|MOTOCONPWM_RST|SCT_RST|
-  // RITIMER_RST|TIMER3_RST|TIMER2_RST|TIMER1_RST|TIMER0_RST
+    // Write to LPC_RGU->RESET_CTRL1
+    *(RESET_CONTROL + 1) = 0x01DFF7FF;
+    // M0APP_RST|CAN0_RST|CAN1_RST|I2S_RST|SSP1_RST|SSP0_RST|
+    // I2C1_RST|I2C0_RST|UART3_RST|UART1_RST|UART1_RST|UART0_RST|
+    // DAC_RST|ADC1_RST|ADC0_RST|QEI_RST|MOTOCONPWM_RST|SCT_RST|
+    // RITIMER_RST|TIMER3_RST|TIMER2_RST|TIMER1_RST|TIMER0_RST
 
-  // Clear all pending interrupts in the NVIC
-  volatile unsigned int *NVIC_ICPR = (unsigned int *)0xE000E280;
-  unsigned int irqpendloop;
-  for (irqpendloop = 0; irqpendloop < 8; irqpendloop++) {
-    *(NVIC_ICPR + irqpendloop) = 0xFFFFFFFF;
-  }
+    // Clear all pending interrupts in the NVIC
+    volatile unsigned int *NVIC_ICPR = (unsigned int *)0xE000E280;
+    unsigned int irqpendloop;
+    for (irqpendloop = 0; irqpendloop < 8; irqpendloop++) {
+        *(NVIC_ICPR + irqpendloop) = 0xFFFFFFFF;
+    }
 
-  // Reenable interrupts
-  __asm volatile("cpsie i");
-  // equivalent to CMSIS '__enable_irq()' function
+    // Reenable interrupts
+    __asm volatile("cpsie i");
+    // equivalent to CMSIS '__enable_irq()' function
 
 #endif // ifndef DONT_RESET_ON_RESTART
-  // *************************************************************
+       // *************************************************************
 
 #if defined(__USE_LPCOPEN)
-  SystemInit();
+    SystemInit();
 #endif
 
-  //
-  // Copy the data sections from flash to SRAM.
-  //
-  unsigned int LoadAddr, ExeAddr, SectionLen;
-  unsigned int *SectionTableAddr;
+    //
+    // Copy the data sections from flash to SRAM.
+    //
+    unsigned int LoadAddr, ExeAddr, SectionLen;
+    unsigned int *SectionTableAddr;
 
-  // Load base address of Global Section Table
-  SectionTableAddr = &__data_section_table;
+    // Load base address of Global Section Table
+    SectionTableAddr = &__data_section_table;
 
-  // Copy the data sections from flash to SRAM.
-  while (SectionTableAddr < &__data_section_table_end) {
-    LoadAddr = *SectionTableAddr++;
-    ExeAddr = *SectionTableAddr++;
-    SectionLen = *SectionTableAddr++;
-    data_init(LoadAddr, ExeAddr, SectionLen);
-  }
-  // At this point, SectionTableAddr = &__bss_section_table;
-  // Zero fill the bss segment
-  while (SectionTableAddr < &__bss_section_table_end) {
-    ExeAddr = *SectionTableAddr++;
-    SectionLen = *SectionTableAddr++;
-    bss_init(ExeAddr, SectionLen);
-  }
+    // Copy the data sections from flash to SRAM.
+    while (SectionTableAddr < &__data_section_table_end) {
+        LoadAddr = *SectionTableAddr++;
+        ExeAddr = *SectionTableAddr++;
+        SectionLen = *SectionTableAddr++;
+        data_init(LoadAddr, ExeAddr, SectionLen);
+    }
+    // At this point, SectionTableAddr = &__bss_section_table;
+    // Zero fill the bss segment
+    while (SectionTableAddr < &__bss_section_table_end) {
+        ExeAddr = *SectionTableAddr++;
+        SectionLen = *SectionTableAddr++;
+        bss_init(ExeAddr, SectionLen);
+    }
 
 #if !defined(__USE_LPCOPEN)
 // LPCOpen init code deals with FP and VTOR initialisation
 #if defined(__VFP_FP__) && !defined(__SOFTFP__)
-  /*
-   * Code to enable the Cortex-M4 FPU only included
-   * if appropriate build options have been selected.
-   * Code taken from Section 7.1, Cortex-M4 TRM (DDI0439C)
-   */
-  // CPACR is located at address 0xE000ED88
-  asm("LDR.W R0, =0xE000ED88");
-  // Read CPACR
-  asm("LDR R1, [R0]");
-  // Set bits 20-23 to enable CP10 and CP11 coprocessors
-  asm(" ORR R1, R1, #(0xF << 20)");
-  // Write back the modified value to the CPACR
-  asm("STR R1, [R0]");
+    /*
+     * Code to enable the Cortex-M4 FPU only included
+     * if appropriate build options have been selected.
+     * Code taken from Section 7.1, Cortex-M4 TRM (DDI0439C)
+     */
+    // CPACR is located at address 0xE000ED88
+    asm("LDR.W R0, =0xE000ED88");
+    // Read CPACR
+    asm("LDR R1, [R0]");
+    // Set bits 20-23 to enable CP10 and CP11 coprocessors
+    asm(" ORR R1, R1, #(0xF << 20)");
+    // Write back the modified value to the CPACR
+    asm("STR R1, [R0]");
 #endif // (__VFP_FP__) && !(__SOFTFP__)
-  // ******************************
-  // Check to see if we are running the code from a non-zero
-  // address (eg RAM, external flash), in which case we need
-  // to modify the VTOR register to tell the CPU that the
-  // vector table is located at a non-0x0 address.
+    // ******************************
+    // Check to see if we are running the code from a non-zero
+    // address (eg RAM, external flash), in which case we need
+    // to modify the VTOR register to tell the CPU that the
+    // vector table is located at a non-0x0 address.
 
-  // Note that we do not use the CMSIS register access mechanism,
-  // as there is no guarantee that the project has been configured
-  // to use CMSIS.
-  unsigned int *pSCB_VTOR = (unsigned int *)0xE000ED08;
-  if ((unsigned int *)g_pfnVectors != (unsigned int *)0x00000000) {
-    // CMSIS : SCB->VTOR = <address of vector table>
-    *pSCB_VTOR = (unsigned int)g_pfnVectors;
-  }
+    // Note that we do not use the CMSIS register access mechanism,
+    // as there is no guarantee that the project has been configured
+    // to use CMSIS.
+    unsigned int *pSCB_VTOR = (unsigned int *)0xE000ED08;
+    if ((unsigned int *)g_pfnVectors != (unsigned int *)0x00000000) {
+        // CMSIS : SCB->VTOR = <address of vector table>
+        *pSCB_VTOR = (unsigned int)g_pfnVectors;
+    }
 #endif
 
 #if defined(__USE_CMSIS)
-  SystemInit();
+    SystemInit();
 #endif
 
 #if defined(__cplusplus)
-  //
-  // Call C++ library initialisation
-  //
-  __libc_init_array();
+    //
+    // Call C++ library initialisation
+    //
+    __libc_init_array();
 #endif
 
 #if defined(__REDLIB__)
-  // Call the Redlib library, which in turn calls main()
-  __main();
+    // Call the Redlib library, which in turn calls main()
+    __main();
 #else
-  main();
+    main();
 #endif
 
-  //
-  // main() shouldn't return, but if it does, we'll just enter an infinite loop
-  //
-  while (1) {
-  }
+    //
+    // main() shouldn't return, but if it does, we'll just enter an infinite loop
+    //
+    while (1) {
+    }
 }
 
 //*****************************************************************************
@@ -437,40 +434,40 @@ void ResetISR(void) {
 // handler routines in your application code.
 //*****************************************************************************
 __attribute__((section(".after_vectors"))) void NMI_Handler(void) {
-  while (1) {
-  }
+    while (1) {
+    }
 }
 __attribute__((section(".after_vectors"))) void HardFault_Handler(void) {
-  while (1) {
-  }
+    while (1) {
+    }
 }
 __attribute__((section(".after_vectors"))) void MemManage_Handler(void) {
-  while (1) {
-  }
+    while (1) {
+    }
 }
 __attribute__((section(".after_vectors"))) void BusFault_Handler(void) {
-  while (1) {
-  }
+    while (1) {
+    }
 }
 __attribute__((section(".after_vectors"))) void UsageFault_Handler(void) {
-  while (1) {
-  }
+    while (1) {
+    }
 }
 __attribute__((section(".after_vectors"))) void SVC_Handler(void) {
-  while (1) {
-  }
+    while (1) {
+    }
 }
 __attribute__((section(".after_vectors"))) void DebugMon_Handler(void) {
-  while (1) {
-  }
+    while (1) {
+    }
 }
 __attribute__((section(".after_vectors"))) void PendSV_Handler(void) {
-  while (1) {
-  }
+    while (1) {
+    }
 }
 __attribute__((section(".after_vectors"))) void SysTick_Handler(void) {
-  while (1) {
-  }
+    while (1) {
+    }
 }
 
 //*****************************************************************************
@@ -480,6 +477,6 @@ __attribute__((section(".after_vectors"))) void SysTick_Handler(void) {
 //
 //*****************************************************************************
 __attribute__((section(".after_vectors"))) void IntDefaultHandler(void) {
-  while (1) {
-  }
+    while (1) {
+    }
 }

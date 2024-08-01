@@ -7,12 +7,12 @@
 #define MEM_CHECK_TASK_PRIORITY (0)
 
 static void mem_check_task(void *par) {
-  while (true) {
-    vPortCheckIntegrity();
-    vPortMemoryScan();
+    while (true) {
+        vPortCheckIntegrity();
+        vPortMemoryScan();
 
-    vTaskDelay(pdMS_TO_TICKS(5000));
-  }
+        vTaskDelay(pdMS_TO_TICKS(5000));
+    }
 }
 
 /**
@@ -20,7 +20,6 @@ static void mem_check_task(void *par) {
  * @return	nothing
  */
 void mem_check_init() {
-  xTaskCreate(mem_check_task, "MemCheck", configMINIMAL_STACK_SIZE * 2, NULL,
-              MEM_CHECK_TASK_PRIORITY, NULL);
-  lDebug(Info, "MemCheck: task created");
+    xTaskCreate(mem_check_task, "MemCheck", configMINIMAL_STACK_SIZE * 2, NULL, MEM_CHECK_TASK_PRIORITY, NULL);
+    lDebug(Info, "MemCheck: task created");
 }

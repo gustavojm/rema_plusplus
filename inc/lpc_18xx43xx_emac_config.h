@@ -61,10 +61,10 @@ extern "C" {
 #define LPC_CHECK_SLOWMEM 1
 
 /* Array of slow memory address ranges for LPC_CHECK_SLOWMEM */
-#define LPC_SLOWMEM_ARRAY                                                      \
-  {                                                                            \
-    { 0x14000000, (0x14000000 + ((8 * 1024 * 1024) - 1)) }                     \
-  }
+#define LPC_SLOWMEM_ARRAY                                                                                                   \
+    {                                                                                                                       \
+        { 0x14000000, (0x14000000 + ((8 * 1024 * 1024) - 1)) }                                                              \
+    }
 
 /**
  * @}

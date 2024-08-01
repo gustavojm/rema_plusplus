@@ -6,60 +6,62 @@
 #include "FreeRTOS.h"
 #include "task.h"
 
-#define WEAK __attribute__((__used__, weak))
+#define WEAK      __attribute__((__used__, weak))
 #define WEAK_INIT __attribute__((__used__, weak, constructor))
-#define USED __attribute__((__used__))
+#define USED      __attribute__((__used__))
 
 #define UNUSED(x) (void)x
 
 #ifndef USE_SEMIHOST
 
-USED void _exit(int code) { UNUSED(code); }
+USED void _exit(int code) {
+    UNUSED(code);
+}
 
 USED int _close(int fd) {
-  UNUSED(fd);
-  return -1;
+    UNUSED(fd);
+    return -1;
 }
 
 USED int _isatty(int fd) {
-  switch (fd) {
-  case 0:
-  case 1:
-  case 2:
-    return 1;
-  default:
-    return -1;
-  }
+    switch (fd) {
+    case 0:
+    case 1:
+    case 2: return 1;
+    default: return -1;
+    }
 }
 
 USED int _kill(int pid, int signal) {
-  UNUSED(pid);
-  UNUSED(signal);
-  return -1;
+    UNUSED(pid);
+    UNUSED(signal);
+    return -1;
 }
 
 USED _off_t _lseek(int fd, _off_t off, int w) {
-  UNUSED(fd);
-  UNUSED(off);
-  UNUSED(w);
-  return -1;
+    UNUSED(fd);
+    UNUSED(off);
+    UNUSED(w);
+    return -1;
 }
 
-USED int _getpid() { return -1; }
+USED int _getpid() {
+    return -1;
+}
 
-struct stat {};
+struct stat { };
 
 USED int _fstat(int fd, struct stat *st) {
-  UNUSED(fd);
-  UNUSED(st);
-  return -1;
+    UNUSED(fd);
+    UNUSED(st);
+    return -1;
 }
 
 USED int _open(const char *name, int f, int m) {
-  UNUSED(name);
-  UNUSED(f);
-  UNUSED(m);
-  return -1;
+    UNUSED(name);
+    UNUSED(f);
+    UNUSED(m);
+    return -1;
 }
 
 #endif
@@ -79,43 +81,45 @@ static uint8_t *currentHeapPos = &_pvHeapStart;
 // "direct" call to malloc(), not via pvPortMalloc(), such as a call made
 // from inside newlib.
 //
-WEAK void sbrkFailedHook(ptrdiff_t size) { configASSERT(0); }
+WEAK void sbrkFailedHook(ptrdiff_t size) {
+    configASSERT(0);
+}
 
 void *_sbrk(ptrdiff_t size) {
-  // Chip_UART_SendBlocking(DEBUG_UART, "S\n", 2);       // unable to use print
-  // here... will recurse
-  void *returnValue;
+    // Chip_UART_SendBlocking(DEBUG_UART, "S\n", 2);       // unable to use print
+    // here... will recurse
+    void *returnValue;
 
-  if (currentHeapPos + size > &_pvHeapEnd) {
-    sbrkFailedHook(size);
-    returnValue = (void *)-1;
-  } else {
-    returnValue = (void *)currentHeapPos;
-    currentHeapPos += size;
-  }
+    if (currentHeapPos + size > &_pvHeapEnd) {
+        sbrkFailedHook(size);
+        returnValue = (void *)-1;
+    } else {
+        returnValue = (void *)currentHeapPos;
+        currentHeapPos += size;
+    }
 
-  return (returnValue);
+    return (returnValue);
 }
 
 //      The implementation of _sbrk_r() included in some builds of newlib
 // doesn't enforce a limit in heap size.  This implementation does.
 //
 void *_sbrk_r(struct _reent *reent, ptrdiff_t size) {
-  // Chip_UART_SendBlocking(DEBUG_UART, "SR\n", 3);    // unable to use print
-  // here... will recurse
-  void *returnValue;
+    // Chip_UART_SendBlocking(DEBUG_UART, "SR\n", 3);    // unable to use print
+    // here... will recurse
+    void *returnValue;
 
-  if (currentHeapPos + size > &_pvHeapEnd) {
-    sbrkFailedHook(size);
+    if (currentHeapPos + size > &_pvHeapEnd) {
+        sbrkFailedHook(size);
 
-    reent->_errno = ENOMEM;
-    returnValue = (void *)-1;
-  } else {
-    returnValue = (void *)currentHeapPos;
-    currentHeapPos += size;
-  }
+        reent->_errno = ENOMEM;
+        returnValue = (void *)-1;
+    } else {
+        returnValue = (void *)currentHeapPos;
+        currentHeapPos += size;
+    }
 
-  return (returnValue);
+    return (returnValue);
 }
 
 //      In the pre-emptive multitasking environment provided by FreeRTOS,
@@ -127,13 +131,13 @@ void *_sbrk_r(struct _reent *reent, ptrdiff_t size) {
 // call here is redundant most of the time.  That's OK.
 //
 void __malloc_lock(struct _reent *r) {
-  // Chip_UART_SendBlocking(DEBUG_UART, "ML\n", 3);      // unable to use print
-  // here... will recurse
-  vTaskSuspendAll();
+    // Chip_UART_SendBlocking(DEBUG_UART, "ML\n", 3);      // unable to use print
+    // here... will recurse
+    vTaskSuspendAll();
 }
 
 void __malloc_unlock(struct _reent *r) {
-  // Chip_UART_SendBlocking(DEBUG_UART, "MU\n", 3);      // unable to use print
-  // here... will recurse
-  xTaskResumeAll();
+    // Chip_UART_SendBlocking(DEBUG_UART, "MU\n", 3);      // unable to use print
+    // here... will recurse
+    xTaskResumeAll();
 }

@@ -7,9 +7,9 @@
  * @returns nothing
  */
 gpio &gpio::init_output() {
-  Chip_SCU_PinMuxSet(scu_port, scu_pin, scu_mode);
-  Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, gpio_port, gpio_bit);
-  return *this;
+    Chip_SCU_PinMuxSet(scu_port, scu_pin, scu_mode);
+    Chip_GPIO_SetPinDIROutput(LPC_GPIO_PORT, gpio_port, gpio_bit);
+    return *this;
 }
 
 /**
@@ -17,9 +17,9 @@ gpio &gpio::init_output() {
  * @returns nothing
  */
 gpio &gpio::init_input() {
-  Chip_SCU_PinMuxSet(scu_port, scu_pin, scu_mode);
-  Chip_GPIO_SetPinDIRInput(LPC_GPIO_PORT, gpio_port, gpio_bit);
-  return *this;
+    Chip_SCU_PinMuxSet(scu_port, scu_pin, scu_mode);
+    Chip_GPIO_SetPinDIRInput(LPC_GPIO_PORT, gpio_port, gpio_bit);
+    return *this;
 }
 
 /**
@@ -27,8 +27,8 @@ gpio &gpio::init_input() {
  * @returns nothing
  */
 gpio &gpio::set() {
-  Chip_GPIO_SetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit, true);
-  return *this;
+    Chip_GPIO_SetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit, true);
+    return *this;
 }
 
 /**
@@ -36,8 +36,8 @@ gpio &gpio::set() {
  * @returns nothing
  */
 gpio &gpio::reset() {
-  Chip_GPIO_SetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit, false);
-  return *this;
+    Chip_GPIO_SetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit, false);
+    return *this;
 }
 
 /**
@@ -45,8 +45,8 @@ gpio &gpio::reset() {
  * @returns nothing
  */
 gpio &gpio::set(bool state) {
-  Chip_GPIO_SetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit, state);
-  return *this;
+    Chip_GPIO_SetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit, state);
+    return *this;
 }
 
 /**
@@ -54,7 +54,7 @@ gpio &gpio::set(bool state) {
  * @returns nothing
  */
 bool gpio::read() const {
-  return Chip_GPIO_GetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit);
+    return Chip_GPIO_GetPinState(LPC_GPIO_PORT, gpio_port, gpio_bit);
 }
 
 /**
@@ -62,6 +62,6 @@ bool gpio::read() const {
  * @returns nothing
  */
 gpio &gpio::toggle() {
-  Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, gpio_port, gpio_bit);
-  return *this;
+    Chip_GPIO_SetPinToggle(LPC_GPIO_PORT, gpio_port, gpio_bit);
+    return *this;
 }

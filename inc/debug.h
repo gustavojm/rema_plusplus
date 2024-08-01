@@ -50,34 +50,24 @@ const int NET_DEBUG_QUEUE_SIZE = 50;
 const int NET_DEBUG_MAX_MSG_SIZE = 255;
 
 enum debugLevels {
-  Debug,
-  Info,
-  InfoLocal,
-  Warn,
-  Error,
+    Debug,
+    Info,
+    InfoLocal,
+    Warn,
+    Error,
 };
 
 static inline const char *levelText(enum debugLevels level) {
-  const char *ret;
-  switch (level) {
-  case Debug:
-    ret = "Debug";
-    break;
-  case Info:
-  case InfoLocal:
-    ret = "Info";
-    break;
-  case Warn:
-    ret = "Warning";
-    break;
-  case Error:
-    ret = "Error";
-    break;
-  default:
-    ret = "";
-    break;
-  }
-  return ret;
+    const char *ret;
+    switch (level) {
+    case Debug: ret = "Debug"; break;
+    case Info:
+    case InfoLocal: ret = "Info"; break;
+    case Warn: ret = "Warning"; break;
+    case Error: ret = "Error"; break;
+    default: ret = ""; break;
+    }
+    return ret;
 }
 
 /**
@@ -126,36 +116,36 @@ void debugClose();
 #define debug(fmt, ...) lDebug(1, fmt, ##__VA_ARGS__)
 
 static inline char *make_message(const char *fmt, ...) {
-  int size = 0;
-  char *p = NULL;
-  va_list ap;
+    int size = 0;
+    char *p = NULL;
+    va_list ap;
 
-  /* Determine required size */
+    /* Determine required size */
 
-  va_start(ap, fmt);
-  size = vsnprintf(p, size, fmt, ap);
-  va_end(ap);
+    va_start(ap, fmt);
+    size = vsnprintf(p, size, fmt, ap);
+    va_end(ap);
 
-  if (size < 0)
-    return NULL;
+    if (size < 0)
+        return NULL;
 
-  if (size > NET_DEBUG_MAX_MSG_SIZE)
-    size = NET_DEBUG_MAX_MSG_SIZE;
+    if (size > NET_DEBUG_MAX_MSG_SIZE)
+        size = NET_DEBUG_MAX_MSG_SIZE;
 
-  size++; /* For '\0' */
-  p = new char[size];
-  if (p == NULL)
-    return NULL;
+    size++; /* For '\0' */
+    p = new char[size];
+    if (p == NULL)
+        return NULL;
 
-  va_start(ap, fmt);
-  size = vsnprintf(p, size, fmt, ap);
-  if (size < 0) {
-    delete[] p;
-    return NULL;
-  }
-  va_end(ap);
+    va_start(ap, fmt);
+    size = vsnprintf(p, size, fmt, ap);
+    if (size < 0) {
+        delete[] p;
+        return NULL;
+    }
+    va_end(ap);
 
-  return p;
+    return p;
 }
 
 /**
@@ -177,45 +167,48 @@ static inline char *make_message(const char *fmt, ...) {
 #endif
 
 #if !defined(NDEBUG)
-#define lDebug_uart_semihost(level, fmt, ...)                                  \
-  do {                                                                         \
-    if (debug_to_uart && debugLocalLevel <= level) {                           \
-      if (uart_mutex != NULL) {                                                \
-        if (xSemaphoreTake(uart_mutex, portMAX_DELAY) == pdTRUE) {             \
-          printf("%lu - %s %s[%d] %s() " fmt "\n", xTaskGetTickCount(),        \
-                 levelText(level), __FILE__, __LINE__, __func__,               \
-                 ##__VA_ARGS__);                                               \
-          xSemaphoreGive(uart_mutex);                                          \
-        }                                                                      \
-      }                                                                        \
-    }                                                                          \
-  } while (0);
+#define lDebug_uart_semihost(level, fmt, ...)                                                                               \
+    do {                                                                                                                    \
+        if (debug_to_uart && debugLocalLevel <= level) {                                                                    \
+            if (uart_mutex != NULL) {                                                                                       \
+                if (xSemaphoreTake(uart_mutex, portMAX_DELAY) == pdTRUE) {                                                  \
+                    printf(                                                                                                 \
+                        "%lu - %s %s[%d] %s() " fmt "\n",                                                                   \
+                        xTaskGetTickCount(),                                                                                \
+                        levelText(level),                                                                                   \
+                        __FILE__,                                                                                           \
+                        __LINE__,                                                                                           \
+                        __func__,                                                                                           \
+                        ##__VA_ARGS__);                                                                                     \
+                    xSemaphoreGive(uart_mutex);                                                                             \
+                }                                                                                                           \
+            }                                                                                                               \
+        }                                                                                                                   \
+    } while (0);
 #endif
 
 /** Network debug logs will be rotated to have the last ones by eliminating
  * the oldest if no space in debug_queue is available
  **/
 #if defined(DEBUG_NETWORK)
-#define lDebug_network(level, fmt, ...)                                        \
-  do {                                                                         \
-    if (debug_to_network && debug_queue != nullptr &&                          \
-        (debugNetLevel <= level) && (level != InfoLocal)) {                    \
-      char *dbg_msg = make_message("%s|%u|%s|%d|%s|" fmt, levelText(level),    \
-                                   xTaskGetTickCount(), __FILE__, __LINE__,    \
-                                   __func__, ##__VA_ARGS__);                   \
-      if (!uxQueueSpacesAvailable(debug_queue)) {                              \
-        char *dbg_msg = NULL;                                                  \
-        if (xQueueReceive(debug_queue, &dbg_msg, (TickType_t)0) == pdPASS) {   \
-          delete[] dbg_msg;                                                    \
-          dbg_msg = NULL;                                                      \
-        }                                                                      \
-      }                                                                        \
-      if (xQueueSend(debug_queue, &dbg_msg, (TickType_t)0) != pdPASS) {        \
-        delete[] dbg_msg;                                                      \
-        dbg_msg = NULL;                                                        \
-      }                                                                        \
-    }                                                                          \
-  } while (0);
+#define lDebug_network(level, fmt, ...)                                                                                     \
+    do {                                                                                                                    \
+        if (debug_to_network && debug_queue != nullptr && (debugNetLevel <= level) && (level != InfoLocal)) {               \
+            char *dbg_msg = make_message(                                                                                   \
+                "%s|%u|%s|%d|%s|" fmt, levelText(level), xTaskGetTickCount(), __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
+            if (!uxQueueSpacesAvailable(debug_queue)) {                                                                     \
+                char *dbg_msg = NULL;                                                                                       \
+                if (xQueueReceive(debug_queue, &dbg_msg, (TickType_t)0) == pdPASS) {                                        \
+                    delete[] dbg_msg;                                                                                       \
+                    dbg_msg = NULL;                                                                                         \
+                }                                                                                                           \
+            }                                                                                                               \
+            if (xQueueSend(debug_queue, &dbg_msg, (TickType_t)0) != pdPASS) {                                               \
+                delete[] dbg_msg;                                                                                           \
+                dbg_msg = NULL;                                                                                             \
+            }                                                                                                               \
+        }                                                                                                                   \
+    } while (0);
 #endif
 
 /**
@@ -224,9 +217,8 @@ static inline char *make_message(const char *fmt, ...) {
  * @param level the level at which this information should be printed
  * @param fmt the formatting string (<b>MUST</b> be a literal
  */
-#define lDebug(level, fmt, ...)                                                \
-  do {                                                                         \
-    lDebug_uart_semihost(level, fmt, ##__VA_ARGS__)                            \
-        lDebug_network(level, fmt, ##__VA_ARGS__)                              \
-  } while (0)
+#define lDebug(level, fmt, ...)                                                                                             \
+    do {                                                                                                                    \
+        lDebug_uart_semihost(level, fmt, ##__VA_ARGS__) lDebug_network(level, fmt, ##__VA_ARGS__)                           \
+    } while (0)
 #endif
