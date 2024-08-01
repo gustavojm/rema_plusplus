@@ -17,8 +17,6 @@
 #include "xy_axes.h"
 #include "z_axis.h"
 
-extern bresenham *x_y_axes, *z_dummy_axes;
-
 namespace json = ArduinoJson;
 
 class tcp_server_command : public tcp_server {

@@ -14,8 +14,6 @@
 #include "gpio.h"
 #include "tmr.h"
 
-bresenham *z_dummy_axes = nullptr;
-
 /**
  * @brief 	initializes the stepper motors for bresenham control
  * @returns	nothing

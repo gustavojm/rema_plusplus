@@ -14,7 +14,7 @@ extern "C" {
 #define LPC_SSP LPC_SSP1
 #define SSP_DATA_BITS (SSP_BITS_8)
 
-extern SemaphoreHandle_t encoders_mutex;
+inline SemaphoreHandle_t encoders_mutex;
 
 /**
  * \brief 	initializes SSP bus to transfer SPI frames as a MASTER.

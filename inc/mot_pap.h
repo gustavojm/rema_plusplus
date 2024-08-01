@@ -15,8 +15,6 @@
 
 #define MOT_PAP_POS_THRESHOLD 1
 
-extern encoders_pico *encoders;
-
 /**
  * @class 	mot_pap
  * @brief	axis structure.

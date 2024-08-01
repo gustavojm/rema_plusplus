@@ -19,7 +19,7 @@
   (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY +                              \
    1) // Has to have higher priority than timers ( now +2 )
 
-extern SemaphoreHandle_t encoders_pico_semaphore;
+inline SemaphoreHandle_t encoders_pico_semaphore;
 
 struct limits {
   uint8_t hard;
@@ -115,6 +115,8 @@ public:
 public:
   void (*cs)(bool) = cs_function; ///< pointer to CS line function handler
 };
+
+inline encoders_pico *encoders = nullptr;
 
 void encoders_pico_init();
 

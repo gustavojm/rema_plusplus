@@ -27,8 +27,6 @@
 #include "xy_axes.h"
 #include "z_axis.h"
 
-extern bresenham *x_y_axes, *z_dummy_axes;
-
 /* GPa 201117 1850 Iss2: agregado de Heap_4.c*/
 uint8_t __attribute__((section("."
                                "data"

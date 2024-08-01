@@ -10,8 +10,6 @@
 #include "encoders_pico.h"
 #include "rema.h"
 
-extern encoders_pico *encoders;
-
 /**
  * @brief	returns the direction of movement depending if the error is
  * positive or negative

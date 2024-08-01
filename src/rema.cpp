@@ -2,8 +2,6 @@
 #include "board.h"
 #include "gpio.h"
 
-extern bresenham *x_y_axes, *z_dummy_axes;
-
 gpio_templ<2, 1, SCU_MODE_FUNC4, 5, 1>
     brakes_out; // DOUT0 P2_1    PIN81   GPIO5[1] Bornes 4 y 5
 gpio_templ<4, 6, SCU_MODE_FUNC0, 2, 6>

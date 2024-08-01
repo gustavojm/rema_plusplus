@@ -14,13 +14,6 @@
 #include "rema.h"
 #include "spi.h"
 
-extern bresenham *x_y_axes, *z_dummy_axes;
-
-SemaphoreHandle_t encoders_pico_semaphore;
-SemaphoreHandle_t encoders_mutex;
-
-encoders_pico *encoders = nullptr;
-
 /**
  * @brief 	writes 1 byte (address or data) to the chip
  * @param 	data	: address or data to write through SPI

@@ -2,5 +2,6 @@
 
 #include "bresenham.h"
 
-bresenham& z_axis_init();
+inline bresenham *z_dummy_axes = nullptr;
 
+bresenham& z_axis_init();

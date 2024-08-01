@@ -2,16 +2,6 @@
 
 #include <stdio.h>
 
-enum debugLevels debugLocalLevel = Info;
-enum debugLevels debugNetLevel = Info;
-
-QueueHandle_t debug_queue = nullptr;
-bool debug_to_uart = false;
-bool debug_to_network = false;
-
-FILE *debugFile = nullptr;
-
-SemaphoreHandle_t uart_mutex;
 
 void debugInit() {
   uart_mutex = xSemaphoreCreateMutex();

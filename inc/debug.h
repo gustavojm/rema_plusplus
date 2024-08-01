@@ -44,6 +44,7 @@
 #include "FreeRTOS.h"
 #include "semphr.h"
 #include "task.h"
+#include "queue.h"
 
 const int NET_DEBUG_QUEUE_SIZE = 50;
 const int NET_DEBUG_MAX_MSG_SIZE = 255;
@@ -83,19 +84,18 @@ static inline const char *levelText(enum debugLevels level) {
  * controls how much debug output is produced. Higher values produce more
  * output. See the use in <tt>lDebug()</tt>.
  */
-extern enum debugLevels debugLocalLevel;
-extern enum debugLevels debugNetLevel;
-extern SemaphoreHandle_t uart_mutex;
-extern QueueHandle_t debug_queue;
-extern bool debug_to_uart;
-extern bool debug_to_network;
+inline enum debugLevels debugLocalLevel = Info;
+inline enum debugLevels debugNetLevel = Info;
+inline QueueHandle_t debug_queue = nullptr;
+inline bool debug_to_uart = false;
+inline bool debug_to_network = false;
+inline FILE *debugFile = nullptr;
+inline SemaphoreHandle_t uart_mutex;
 
 /**
  * The file where debug output is written. Defaults to <tt>stderr</tt>.
  * <tt>debugToFile()</tt> allows output to any file.
  */
-extern FILE *debugFile;
-
 void debugInit();
 
 void debugLocalSetLevel(bool enable, enum debugLevels lvl);

@@ -16,11 +16,9 @@
 #include "rema.h"
 #include "tcp_server.h"
 #include "temperature_ds18b20.h"
+#include "encoders_pico.h"
 #include "xy_axes.h"
 #include "z_axis.h"
-
-extern bresenham *x_y_axes, *z_dummy_axes;
-extern encoders_pico *encoders;
 
 namespace json = ArduinoJson;
 

@@ -20,8 +20,6 @@
 
 #define PROTOCOL_VERSION "JSON_1.0"
 
-extern encoders_pico *encoders;
-
 namespace json = ArduinoJson;
 
 bresenham *tcp_server_command::get_axes(const char *axis) {
