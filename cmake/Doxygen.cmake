@@ -7,5 +7,5 @@ if(${PROJECT_NAME}_ENABLE_DOXYGEN)
     find_package(Doxygen REQUIRED dot)
     doxygen_add_docs(doxygen-docs ${SOURCES} ${HEADERS})
 
-    verbose_message("Doxygen has been setup and documentation is now available.")
+    verbose_message("Doxygen has been setup and documentation is now available. Generate using `doxygen-docs` target (ie: cmake --build build --target doxygen-docs)")
 endif()
