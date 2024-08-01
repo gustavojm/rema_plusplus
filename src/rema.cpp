@@ -22,19 +22,19 @@ rema::brakes_mode_t rema::brakes_mode = rema::brakes_mode_t::AUTO;
 TickType_t rema::lastKeepAliveTicks;
 
 void rema::init_outputs() {
-    brakes_out.init_output();
-    brakes_apply();
+  brakes_out.init_output();
+  brakes_apply();
 
-    touch_probe_actuator_out.init_output();
-    relay_DOUT2.init_output();
-    relay_DOUT3.init_output();
-    
-    shut_down_out.init_output();
-    shut_down_out.set(1);
+  touch_probe_actuator_out.init_output();
+  relay_DOUT2.init_output();
+  relay_DOUT3.init_output();
+
+  shut_down_out.init_output();
+  shut_down_out.set(1);
 }
 
 void rema::control_enabled_set(bool status) {
-  control_enabled = status;  
+  control_enabled = status;
   shut_down_out.set(!status);
   if (status) {
     x_y_axes->first_axis->stall_reset();
@@ -58,13 +58,9 @@ void rema::brakes_apply() {
   }
 }
 
-void rema::touch_probe_extend() {
-  touch_probe_actuator_out.set(0);
-}
+void rema::touch_probe_extend() { touch_probe_actuator_out.set(0); }
 
-void rema::touch_probe_retract() {
-  touch_probe_actuator_out.set(1);
-}
+void rema::touch_probe_retract() { touch_probe_actuator_out.set(1); }
 
 bool rema::is_touch_probe_touching() {
   struct limits limits = encoders->read_limits();

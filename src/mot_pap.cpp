@@ -17,11 +17,9 @@
  */
 enum mot_pap::direction mot_pap::direction_calculate(int error) {
   if (reversed_direction) {
-    return error < 0 ? mot_pap::direction::CCW
-                     : mot_pap::direction::CW;
+    return error < 0 ? mot_pap::direction::CCW : mot_pap::direction::CW;
   } else {
-    return error < 0 ? mot_pap::direction::CW
-                     : mot_pap::direction::CCW;
+    return error < 0 ? mot_pap::direction::CW : mot_pap::direction::CCW;
   }
 }
 

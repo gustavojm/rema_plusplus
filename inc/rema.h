@@ -43,4 +43,3 @@ public:
   static brakes_mode_t brakes_mode;
   static TickType_t lastKeepAliveTicks;
 };
-

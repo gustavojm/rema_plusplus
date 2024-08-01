@@ -18,24 +18,23 @@
  * @brief 	initializes the stepper motors for bresenham control
  * @returns	nothing
  */
-bresenham& z_axis_init() {
-  static mot_pap z_axis('Z', 
-        25000,      // motor resolution
-        500,        // encoder resolution
-        10          // turns_per_inch
-      );      
+bresenham &z_axis_init() {
+  static mot_pap z_axis('Z',
+                        25000, // motor resolution
+                        500,   // encoder resolution
+                        10     // turns_per_inch
+  );
   z_axis.reversed_direction = true;
   z_axis.reversed_encoder = true;
   z_axis.gpios.step = gpio{4, 10, SCU_MODE_FUNC4, 5, 14}
                           .init_output(); // DOUT6 P4_10   PIN35   GPIO5[14]
 
   static mot_pap dummy_axis('D',
-        25000,      // motor resolution
-        500,        // encoder resolution
-        10,         // turns_per_inch
-        true        // is_dummy axis
-      );
-
+                            25000, // motor resolution
+                            500,   // encoder resolution
+                            10,    // turns_per_inch
+                            true   // is_dummy axis
+  );
 
   static tmr z_dummy_axes_tmr =
       tmr(LPC_TIMER1, RGU_TIMER1_RST, CLK_MX_TIMER1, TIMER1_IRQn);

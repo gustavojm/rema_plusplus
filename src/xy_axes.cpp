@@ -18,20 +18,20 @@
  * @brief   initializes the stepper motors for bresenham control
  * @returns	nothing
  */
-bresenham& xy_axes_init() {
+bresenham &xy_axes_init() {
   static mot_pap x_axis('X',
-        25000,      // motor resolution
-        500,        // encoder resolution
-        10          // turns_per_inch
-      );  
+                        25000, // motor resolution
+                        500,   // encoder resolution
+                        10     // turns_per_inch
+  );
   x_axis.gpios.step = gpio{4, 8, SCU_MODE_FUNC4, 5, 12}
                           .init_output(); // DOUT4 P4_8    PIN15   GPIO5[12]
-  
+
   static mot_pap y_axis('Y',
-        25000,      // motor resolution
-        500,        // encoder resolution
-        10          // turns_per_inch
-      );  
+                        25000, // motor resolution
+                        500,   // encoder resolution
+                        10     // turns_per_inch
+  );
   y_axis.gpios.step = gpio{4, 9, SCU_MODE_FUNC4, 5, 13}
                           .init_output(); // DOUT5 P4_9    PIN33   GPIO5[13]
 

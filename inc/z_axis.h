@@ -4,4 +4,4 @@
 
 inline bresenham *z_dummy_axes = nullptr;
 
-bresenham& z_axis_init();
+bresenham &z_axis_init();

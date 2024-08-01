@@ -103,7 +103,7 @@ void bresenham::calculate() {
   }
 }
 
-void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {  
+void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
   // Bresenham error calculation needs to multiply by 2 for the error
   // calculation, thus clamp setpoints to half INT32 min and max
   first_axis_setpoint =
@@ -151,12 +151,12 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
 
     if (!was_soft_stopped) {
       current_freq =
-        kp.run(leader_axis->destination_counts, leader_axis->current_counts);
+          kp.run(leader_axis->destination_counts, leader_axis->current_counts);
     } else {
-      current_freq -= 
-        kp.run(leader_axis->destination_counts, leader_axis->current_counts);
+      current_freq -=
+          kp.run(leader_axis->destination_counts, leader_axis->current_counts);
       if (current_freq < kp.out_min) {
-          current_freq = kp.out_min;
+        current_freq = kp.out_min;
       }
     }
     lDebug(Debug, "Control output = %i: ", current_freq);
@@ -196,8 +196,10 @@ void bresenham::supervise() {
       second_axis->read_pos_from_encoder();
 
       if (rema::stall_control) {
-        bool first_axis_stalled = first_axis->check_for_stall();   // make sure that both stall
-        bool second_axis_stalled = second_axis->check_for_stall(); // checks are executed
+        bool first_axis_stalled =
+            first_axis->check_for_stall(); // make sure that both stall
+        bool second_axis_stalled =
+            second_axis->check_for_stall(); // checks are executed
 
         if (first_axis_stalled || second_axis_stalled) {
           stop();
@@ -210,7 +212,7 @@ void bresenham::supervise() {
         if (rema::is_touch_probe_touching()) {
           touching_counter++;
           if (touching_counter >= touching_max_count) {
-            touching_counter = 0;            
+            touching_counter = 0;
             was_stopped_by_probe_protection = true;
             stop();
             lDebug(Warn, "%s: touch probe protection", name);
@@ -232,16 +234,16 @@ void bresenham::supervise() {
                    // infinity keeps dancing around the setpoint...
 
       if (!was_soft_stopped) {
-        current_freq =
-          kp.run(leader_axis->destination_counts, leader_axis->current_counts);
+        current_freq = kp.run(leader_axis->destination_counts,
+                              leader_axis->current_counts);
       } else {
-        current_freq -= 
-          kp.run(leader_axis->destination_counts, leader_axis->current_counts);
+        current_freq -= kp.run(leader_axis->destination_counts,
+                               leader_axis->current_counts);
         if (current_freq < kp.out_min) {
-            current_freq = kp.out_min;
+          current_freq = kp.out_min;
         }
-      }    
-      lDebug(Debug, "Control output = %i: ", current_freq);     
+      }
+      lDebug(Debug, "Control output = %i: ", current_freq);
       tmr.change_freq(current_freq);
     }
   }

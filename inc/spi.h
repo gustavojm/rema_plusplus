@@ -106,4 +106,3 @@ static inline int spi_read(void *buf, size_t len, void (*cs)(bool)) {
 #ifdef __cplusplus
 }
 #endif
-

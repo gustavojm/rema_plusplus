@@ -18,4 +18,3 @@ public:
   const char *name;
   int port;
 };
-

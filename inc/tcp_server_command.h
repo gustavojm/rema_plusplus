@@ -82,13 +82,14 @@ public:
       }
     } while (len > 0);
   }
-  
+
   json::MyJsonDocument logs_cmd(json::JsonObject const pars);
-  json::MyJsonDocument set_log_level_cmd(json::JsonObject const pars);  
+  json::MyJsonDocument set_log_level_cmd(json::JsonObject const pars);
   json::MyJsonDocument protocol_version_cmd(json::JsonObject const pars);
   json::MyJsonDocument control_enable_cmd(json::JsonObject const pars);
   json::MyJsonDocument stall_control_cmd(json::JsonObject const pars);
-  json::MyJsonDocument touch_probe_protection_control_cmd(json::JsonObject const pars);
+  json::MyJsonDocument
+  touch_probe_protection_control_cmd(json::JsonObject const pars);
   json::MyJsonDocument set_coords_cmd(json::JsonObject const pars);
   json::MyJsonDocument kp_set_tunings_cmd(json::JsonObject const pars);
   json::MyJsonDocument axes_hard_stop_all_cmd(json::JsonObject const pars);
@@ -103,7 +104,8 @@ public:
   json::MyJsonDocument touch_probe_cmd(json::JsonObject const pars);
   json::MyJsonDocument read_encoders_cmd(json::JsonObject const pars);
   json::MyJsonDocument read_limits_cmd(json::JsonObject const pars);
-  json::MyJsonDocument cmd_execute(char const *cmd, json::JsonObject const pars);
+  json::MyJsonDocument cmd_execute(char const *cmd,
+                                   json::JsonObject const pars);
 
   int json_wp(char *rx_buff, char **tx_buff);
 
@@ -118,4 +120,3 @@ public:
 
   static const cmd_entry cmds_table[];
 };
-

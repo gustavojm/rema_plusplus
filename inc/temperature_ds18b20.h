@@ -7,4 +7,3 @@
 void temperature_ds18b20_init();
 
 int16_t temperature_ds18b20_get(uint8_t sensor);
-

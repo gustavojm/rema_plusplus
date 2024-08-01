@@ -85,4 +85,3 @@ public:
     return *this;
   }
 };
-

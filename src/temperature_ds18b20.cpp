@@ -56,13 +56,13 @@ static void temperature_ds18b20_task(void *par) {
 
   sensors[0].ds18b20->startConversions();
 
-  while (true) {    
-    sensors[0].ds18b20->startConversions();    
+  while (true) {
+    sensors[0].ds18b20->startConversions();
     int retries_left = 10;
     while ((!sensors[0].ds18b20->isConversionDone()) & (retries_left--)) {
       vTaskDelay(pdMS_TO_TICKS(100));
     }
-    
+
     if (!retries_left) {
       continue;
     }

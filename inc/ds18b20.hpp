@@ -12,8 +12,8 @@
 // ----------------------------------------------------------------------------
 #pragma once
 
-#include <cstring>
 #include "one-wire_bitbang_master.hpp"
+#include <cstring>
 
 /**
  * \brief Measurement resolution setting
@@ -174,4 +174,3 @@ protected:
 
   static OneWire ow;
 };
-

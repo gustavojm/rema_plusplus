@@ -88,8 +88,6 @@ struct limits encoders_pico::read_limits() const {
   return {rx[0], rx[1]};
 }
 
-
-
 /**
  * @brief 	reads limits. (Used in IRQ)
  * @returns	status of the limits
@@ -130,12 +128,14 @@ void encoders_pico::task([[maybe_unused]] void *pars) {
 
       x_y_axes->first_axis->already_there = limits.targets & (1 << 0);
       x_y_axes->second_axis->already_there = limits.targets & (1 << 1);
-      if (x_y_axes->first_axis->already_there && x_y_axes->second_axis->already_there) {
+      if (x_y_axes->first_axis->already_there &&
+          x_y_axes->second_axis->already_there) {
         x_y_axes->already_there = true;
         x_y_axes->stop();
         lDebug(Info, "%s: already there", x_y_axes->name);
       } else {
-        x_y_axes->resume();     // Motors were paused by ISR to be able to read encoders information
+        x_y_axes->resume(); // Motors were paused by ISR to be able to read
+                            // encoders information
       }
 
       z_dummy_axes->first_axis->already_there = limits.targets & (1 << 2);
@@ -144,7 +144,8 @@ void encoders_pico::task([[maybe_unused]] void *pars) {
         z_dummy_axes->stop();
         lDebug(Info, "%s: already there", z_dummy_axes->name);
       } else {
-        z_dummy_axes->resume();    // Motors were paused by ISR to be able to read encoders information
+        z_dummy_axes->resume(); // Motors were paused by ISR to be able to read
+                                // encoders information
       }
     }
   }

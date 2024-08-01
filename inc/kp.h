@@ -11,8 +11,8 @@ public:
     REVERSE //!< Reverse driver (+error gives -output)
   };
 
-  //! @brief 		The set-point the error proportional -kp- control is trying
-  //! to make the output converge to.
+  //! @brief 		The set-point the error proportional -kp- control is
+  //! trying to make the output converge to.
   int setpoint;
 
   //! @brief		The control output.
@@ -33,10 +33,10 @@ public:
   int out_max; //!< The maximum output value. Anything higher will be limited to
                //!< this ceiling.
 
-  //! @brief		Counts the number of times that Run() has be called. Used
-  //! to stop
-  //!				derivative control from influencing the output on the
-  //!first call.
+  //! @brief		Counts the number of times that Run() has be called.
+  //! Used to stop
+  //!				derivative control from influencing the output on
+  //!the first call.
   //! @details	Safely stops counting once it reaches 2^32-1 (rather than
   //! overflowing).
   int num_times_ran = 0;
@@ -64,8 +64,8 @@ public:
   //! @brief		Changes the sample time
   void set_sample_period(std::chrono::milliseconds new_sample_period_ms);
 
-  //! @brief		This function allows the controller's dynamic performance to
-  //! be adjusted.
+  //! @brief		This function allows the controller's dynamic performance
+  //! to be adjusted.
   //! @details	It's called automatically from the init function, but tunings
   //! can also 			be adjusted on the fly during normal operation
   void set_tunings(float kp);
@@ -74,4 +74,3 @@ public:
   //! constant.
   int get_kp();
 };
-

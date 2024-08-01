@@ -1,7 +1,7 @@
 #include <errno.h>
+#include <malloc.h>
 #include <signal.h>
 #include <sys/reent.h>
-#include <malloc.h>
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -66,10 +66,10 @@ USED int _open(const char *name, int f, int m) {
 
 //      These values come from the linker file.
 //
-extern uint8_t _pvHeapStart;  // located at the first byte of heap
-extern uint8_t _pvHeapEnd;    // located at the first byte after the heap
+extern uint8_t _pvHeapStart; // located at the first byte of heap
+extern uint8_t _pvHeapEnd;   // located at the first byte after the heap
 
-static uint8_t* currentHeapPos = &_pvHeapStart;
+static uint8_t *currentHeapPos = &_pvHeapStart;
 
 // newlib_malloc_helpers
 
@@ -79,45 +79,43 @@ static uint8_t* currentHeapPos = &_pvHeapStart;
 // "direct" call to malloc(), not via pvPortMalloc(), such as a call made
 // from inside newlib.
 //
-WEAK void sbrkFailedHook( ptrdiff_t size )
-{
-   configASSERT(0);
-}
+WEAK void sbrkFailedHook(ptrdiff_t size) { configASSERT(0); }
 
 void *_sbrk(ptrdiff_t size) {
-  //Chip_UART_SendBlocking(DEBUG_UART, "S\n", 2);       // unable to use print here... will recurse 
-  void* returnValue;
-  
-  if (currentHeapPos + size > &_pvHeapEnd) {
-      sbrkFailedHook(size);
-      returnValue = (void*)-1;
-   } else {
-      returnValue = (void*)currentHeapPos;
-      currentHeapPos += size;
-   }
-   
-   return (returnValue);
-}
+  // Chip_UART_SendBlocking(DEBUG_UART, "S\n", 2);       // unable to use print
+  // here... will recurse
+  void *returnValue;
 
+  if (currentHeapPos + size > &_pvHeapEnd) {
+    sbrkFailedHook(size);
+    returnValue = (void *)-1;
+  } else {
+    returnValue = (void *)currentHeapPos;
+    currentHeapPos += size;
+  }
+
+  return (returnValue);
+}
 
 //      The implementation of _sbrk_r() included in some builds of newlib
 // doesn't enforce a limit in heap size.  This implementation does.
 //
-void* _sbrk_r(struct _reent *reent, ptrdiff_t size) {
-  //Chip_UART_SendBlocking(DEBUG_UART, "SR\n", 3);    // unable to use print here... will recurse 
-   void* returnValue;
+void *_sbrk_r(struct _reent *reent, ptrdiff_t size) {
+  // Chip_UART_SendBlocking(DEBUG_UART, "SR\n", 3);    // unable to use print
+  // here... will recurse
+  void *returnValue;
 
-   if (currentHeapPos + size > &_pvHeapEnd) {
-      sbrkFailedHook(size);
+  if (currentHeapPos + size > &_pvHeapEnd) {
+    sbrkFailedHook(size);
 
-      reent->_errno = ENOMEM;
-      returnValue = (void*)-1;
-   } else {
-      returnValue = (void*)currentHeapPos;
-      currentHeapPos += size;
-   }
+    reent->_errno = ENOMEM;
+    returnValue = (void *)-1;
+  } else {
+    returnValue = (void *)currentHeapPos;
+    currentHeapPos += size;
+  }
 
-   return (returnValue);
+  return (returnValue);
 }
 
 //      In the pre-emptive multitasking environment provided by FreeRTOS,
@@ -129,11 +127,13 @@ void* _sbrk_r(struct _reent *reent, ptrdiff_t size) {
 // call here is redundant most of the time.  That's OK.
 //
 void __malloc_lock(struct _reent *r) {
-  //Chip_UART_SendBlocking(DEBUG_UART, "ML\n", 3);      // unable to use print here... will recurse 
+  // Chip_UART_SendBlocking(DEBUG_UART, "ML\n", 3);      // unable to use print
+  // here... will recurse
   vTaskSuspendAll();
 }
 
 void __malloc_unlock(struct _reent *r) {
-  //Chip_UART_SendBlocking(DEBUG_UART, "MU\n", 3);      // unable to use print here... will recurse 
+  // Chip_UART_SendBlocking(DEBUG_UART, "MU\n", 3);      // unable to use print
+  // here... will recurse
   xTaskResumeAll();
 }

@@ -468,4 +468,3 @@ template <typename Pin>
 constexpr std::chrono::microseconds one_wire::BitBangOneWireMaster<Pin>::J;
 
 } // namespace one_wire
-

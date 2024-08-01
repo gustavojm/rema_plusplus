@@ -42,4 +42,3 @@ __attribute__((naked, no_instrument_function)) void wait_10cycles(void);
 void wait_cycles(uint32_t cycles);
 
 void wait_ms(uint32_t ms);
-

@@ -17,4 +17,3 @@ void EEPROM_Erase(uint32_t pageAddr);
 /* size must be multiple of 4 bytes */
 void EEPROM_Write(uint32_t pageOffset, uint32_t pageAddr, void *ptr,
                   uint32_t size);
-

@@ -28,4 +28,3 @@ private:
   CHIP_CCU_CLK_T clk_mx_timer;
   IRQn_Type timer_IRQn;
 };
-

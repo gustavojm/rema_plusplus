@@ -52,11 +52,11 @@
 #endif
 
 #if !defined(TL_ASSERT)
-//can't have assert in constexpr in C++11 and GCC 4.9 has a compiler bug
+// can't have assert in constexpr in C++11 and GCC 4.9 has a compiler bug
 #if (__cplusplus > 201103L) && !defined(TL_EXPECTED_GCC49)
 #include <cassert>
 #define TL_ASSERT(x) assert(x)
-#else 
+#else
 #define TL_ASSERT(x)
 #endif
 #endif
@@ -623,13 +623,13 @@ template <class T, class E> struct expected_storage_base<T, E, false, true> {
 
 // `T` is `void`, `E` is trivially-destructible
 template <class E> struct expected_storage_base<void, E, false, true> {
-  #if __GNUC__ <= 5
-  //no constexpr for GCC 4/5 bug
-  #else
+#if __GNUC__ <= 5
+// no constexpr for GCC 4/5 bug
+#else
   TL_EXPECTED_MSVC2015_CONSTEXPR
-  #endif 
+#endif
   expected_storage_base() : m_has_val(true) {}
-     
+
   constexpr expected_storage_base(no_init_t) : m_val(), m_has_val(false) {}
 
   constexpr expected_storage_base(in_place_t) : m_has_val(true) {}

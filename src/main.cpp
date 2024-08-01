@@ -31,7 +31,8 @@
 uint8_t __attribute__((section("."
                                "data"
                                ".$"
-                               "RamAHB32_48_64"))) ucHeap[configTOTAL_HEAP_SIZE];
+                               "RamAHB32_48_64")))
+ucHeap[configTOTAL_HEAP_SIZE];
 
 /* Sets up system hardware */
 static void prvSetupHardware(void) {
@@ -73,8 +74,8 @@ int main(void) {
 
   prvSetupHardware();
 
-  //printf("    --- NASA GSPC ---\n");
-  //printf("REMA Remote Terminal Unit.\n");
+  // printf("    --- NASA GSPC ---\n");
+  // printf("REMA Remote Terminal Unit.\n");
 
   settings::init();
 
@@ -176,7 +177,7 @@ extern "C" void prvGetRegistersFromStack(uint32_t *pulFaultStackAddress) {
 void HardFault_Handler(void) {
   while (1) {
     gpio_templ<4, 4, SCU_MODE_FUNC0, 2, 4>
-    relay_DOUT3; // DOUT3 P4_4    PIN9    GPIO2[4] Bornes 10 y 11
+        relay_DOUT3; // DOUT3 P4_4    PIN9    GPIO2[4] Bornes 10 y 11
     relay_DOUT3.set(1);
     udelay(1000000);
     relay_DOUT3.set(0);
