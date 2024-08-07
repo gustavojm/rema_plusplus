@@ -46,7 +46,7 @@
 /* pbuf buffers in pool. In zero-copy mode, these buffers are
    located in peripheral RAM. In copied mode, they are located in
    internal IRAM */
-#define PBUF_POOL_SIZE 17
+#define PBUF_POOL_SIZE 32
 
 /* No padding needed */
 #define ETH_PAD_SIZE 0
@@ -133,6 +133,11 @@
 
 #define MEM_LIBC_MALLOC 0
 #define MEMP_MEM_MALLOC 1
+
+#define MEMP_NUM_TCP_PCB   6
+#define MEMP_NUM_NETBUF    6
+#define MEMP_NUM_NETCONN   6
+
 
 /* Needed for malloc/free */
 #include "FreeRTOS.h"

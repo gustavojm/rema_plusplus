@@ -11,6 +11,8 @@
         "sstream": "cpp",
         "type_traits": "cpp",
         "tuple": "cpp",
-        "memory": "cpp"
+        "memory": "cpp",
+        "system_error": "c",
+        "lwipopts.h": "c"
     }
 }

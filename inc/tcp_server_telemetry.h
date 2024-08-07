@@ -93,7 +93,7 @@ class tcp_server_telemetry : public tcp_server {
             tx_buffer[msg_len] = '\0'; // null terminate
             msg_len++;
 
-            // lDebug(InfoLocal, "To send %d bytes: %s", msg_len, tx_buffer);
+            //lDebug(InfoLocal, "To send %d bytes: %s", msg_len, tx_buffer);
 
             if (msg_len > 0) {
                 // send() can return less bytes than supplied length.

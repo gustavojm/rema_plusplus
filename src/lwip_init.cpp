@@ -22,6 +22,7 @@
 #include "settings.h"
 #include "tcp_server_command.h"
 #include "tcp_server_telemetry.h"
+#include "tcp_server_logs.h"
 #include "xy_axes.h"
 #include "z_axis.h"
 
@@ -83,7 +84,7 @@ void vStackIpSetup(void *pvParameters) {
 
     /* Add netif interface  */
     if (!netif_add(&lpc_netif, &ipaddr, &netmask, &gw, NULL, lpc_enetif_init, tcpip_input)) {
-        LWIP_ASSERT("Net interface failed to initialize\r\n", 0);
+        //LWIP_ASSERT("Net interface failed to initialize\r\n", 0);
     }
     netif_set_default(&lpc_netif);
     netif_set_up(&lpc_netif);
@@ -99,6 +100,7 @@ void vStackIpSetup(void *pvParameters) {
     /* Initialize and start application */
     tcp_server_command cmd(settings::network.port);
     tcp_server_telemetry tlmtry(settings::network.port + 1);
+    tcp_server_logs logs(settings::network.port + 2);
 
     /* This loop monitors the PHY link and will handle cable events
      via the PHY driver. */
