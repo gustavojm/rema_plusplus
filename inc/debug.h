@@ -130,7 +130,7 @@ static inline char *make_message(const char *fmt, ...) {
         return NULL;
 
     if (size > NET_DEBUG_MAX_MSG_SIZE)
-        size = NET_DEBUG_MAX_MSG_SIZE;
+        size = NET_DEBUG_MAX_MSG_SIZE - 1;
 
     size++; /* For '\0' */
     p = new char[size];
@@ -144,6 +144,7 @@ static inline char *make_message(const char *fmt, ...) {
         return NULL;
     }
     va_end(ap);
+    p[size+1] = '\0';
 
     return p;
 }
@@ -184,7 +185,7 @@ static inline char *make_message(const char *fmt, ...) {
                 }                                                                                                           \
             }                                                                                                               \
         }                                                                                                                   \
-    } while (0);
+    } while (0);    
 #endif
 
 /** Network debug logs will be rotated to have the last ones by eliminating
