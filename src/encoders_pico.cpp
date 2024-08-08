@@ -104,22 +104,22 @@ void encoders_pico::task([[maybe_unused]] void *pars) {
     NVIC_SetPriority(PIN_INT0_IRQn, ENCODERS_PICO_INTERRUPT_PRIORITY);
     gpio_pinint encoders_irq_pin = {
         6, 1, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLDOWN | SCU_MODE_FUNC0), 3, 0, PIN_INT0_IRQn
-    }; // GPIO5 P6_1     PIN74   GPIO3[0]
+    }; // GPIO0 P6_1     PIN74   GPIO3[0]
     encoders_irq_pin.init_input().mode_edge().int_high().clear_pending().enable();
 
     encoders->set_thresholds(MOT_PAP_POS_THRESHOLD);
+    encoders->read_limits_and_ack();    // to start with irq acknowledged
 
     while (true) {
         if (xSemaphoreTake(encoders_pico_semaphore, portMAX_DELAY) == pdPASS) {
             struct limits limits = encoders->read_limits_and_ack();
-            if (limits.hard) {
+            if (limits.hard & ENABLED_INPUTS_MASK) {
                 rema::hard_limits_reached();
-                x_y_axes->was_stopped_by_probe = limits.hard & 1 << TOUCH_PROBE_BIT;
-                z_dummy_axes->was_stopped_by_probe = limits.hard & 1 << TOUCH_PROBE_BIT;
             }
 
             x_y_axes->first_axis->already_there = limits.targets & (1 << 0);
             x_y_axes->second_axis->already_there = limits.targets & (1 << 1);
+            
             if (x_y_axes->first_axis->already_there && x_y_axes->second_axis->already_there) {
                 x_y_axes->already_there = true;
                 x_y_axes->stop();

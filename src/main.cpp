@@ -80,7 +80,7 @@ int main(void) {
 
     settings::init();
 
-    rema::init_outputs();
+    rema::init_input_outputs();
     xy_axes_init();
     z_axis_init();
     encoders_pico_init();

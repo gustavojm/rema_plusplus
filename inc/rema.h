@@ -10,12 +10,21 @@
 
 #define WATCHDOG_TIME_MS 1000
 
+#define TOUCH_PROBE_INTERRUPT_PRIORITY                                                                                    \
+    (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1) // Has to have higher priority than timers ( now +2 )
+
+inline gpio_pinint touch_probe_irq_pin = {
+    4, 0, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLDOWN | SCU_MODE_FUNC0), 2, 0, PIN_INT1_IRQn
+}; // DIN0 P4_0     PIN1   GPIO2[0]
+
+constexpr int ENABLED_INPUTS_MASK = 0b0011'1111;
+
 class rema {
   public:
     static const int BRAKES_RELEASE_DELAY_MS = 200;
     enum class brakes_mode_t { OFF, AUTO, ON };
 
-    static void init_outputs();
+    static void init_input_outputs();
 
     static void control_enabled_set(bool status);
 

@@ -61,7 +61,7 @@ class tcp_server_telemetry : public tcp_server {
             ans["telemetry"]["limits"]["down"] = static_cast<bool>(limits.hard & 1 << 3);
             ans["telemetry"]["limits"]["in"] = static_cast<bool>(limits.hard & 1 << 4);
             ans["telemetry"]["limits"]["out"] = static_cast<bool>(limits.hard & 1 << 5);
-            ans["telemetry"]["limits"]["probe"] = static_cast<bool>(limits.hard & 1 << 6);
+            ans["telemetry"]["limits"]["probe"] = touch_probe_irq_pin.read();
 
             ans["telemetry"]["control_enabled"] = rema::control_enabled;
             ans["telemetry"]["stall_control"] = rema::stall_control;
@@ -111,7 +111,7 @@ class tcp_server_telemetry : public tcp_server {
                 lDebug(Error, "buffer too small");
             }
 
-            vTaskDelay(pdMS_TO_TICKS(50));
+            vTaskDelay(pdMS_TO_TICKS(100));
         }
     }
 };

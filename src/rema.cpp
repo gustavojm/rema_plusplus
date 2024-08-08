@@ -16,7 +16,7 @@ bool rema::touch_probe_protection = true;
 rema::brakes_mode_t rema::brakes_mode = rema::brakes_mode_t::AUTO;
 TickType_t rema::lastKeepAliveTicks;
 
-void rema::init_outputs() {
+void rema::init_input_outputs() {
     brakes_out.init_output();
     brakes_apply();
 
@@ -26,6 +26,10 @@ void rema::init_outputs() {
 
     shut_down_out.init_output();
     shut_down_out.set(1);
+
+    NVIC_SetPriority(PIN_INT1_IRQn, TOUCH_PROBE_INTERRUPT_PRIORITY);
+    touch_probe_irq_pin.init_input().mode_edge().int_high().clear_pending().enable();
+
 }
 
 void rema::control_enabled_set(bool status) {
@@ -64,8 +68,7 @@ void rema::touch_probe_retract() {
 }
 
 bool rema::is_touch_probe_touching() {
-    struct limits limits = encoders->read_limits();
-    return limits.hard & 1 << encoders_pico::TOUCH_PROBE_BIT;
+    return touch_probe_irq_pin.read();
 }
 
 void rema::update_watchdog_timer() {
@@ -81,4 +84,22 @@ void rema::hard_limits_reached() {
      * only one motor*/
     z_dummy_axes->stop();
     x_y_axes->stop();
+}
+
+// IRQ Handler for Touch Probe
+extern "C" void GPIO1_IRQHandler(void) {
+    Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
+    
+    if (x_y_axes->is_moving) {
+        x_y_axes->was_stopped_by_probe = true;
+    }
+
+    if (z_dummy_axes->is_moving) {
+        z_dummy_axes->was_stopped_by_probe = true;
+    }
+
+    x_y_axes->stop();
+    z_dummy_axes->stop();
+
+
 }
