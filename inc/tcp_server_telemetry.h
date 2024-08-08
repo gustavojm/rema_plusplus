@@ -93,6 +93,7 @@ class tcp_server_telemetry : public tcp_server {
             tx_buffer[msg_len] = '\0'; // null terminate
             msg_len++;
 
+            //
             //lDebug(InfoLocal, "To send %d bytes: %s", msg_len, tx_buffer);
 
             if (msg_len > 0) {
@@ -102,13 +103,13 @@ class tcp_server_telemetry : public tcp_server {
                 while (to_write > 0) {
                     int written = lwip_send(sock, tx_buffer + (msg_len - to_write), to_write, 0);
                     if (written < 0) {
-                        lDebug(Error, "Error occurred during sending telemetry: errno %d", errno);
+                        //lDebug(Error, "Error occurred during sending telemetry: errno %d", errno);
                         return;
                     }
                     to_write -= written;
                 }
             } else {
-                lDebug(Error, "buffer too small");
+                //lDebug(Error, "buffer too small");
             }
 
             vTaskDelay(pdMS_TO_TICKS(100));
