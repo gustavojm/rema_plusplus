@@ -28,16 +28,14 @@ class tcp_server_logs : public tcp_server {
     }
 
     void reply_fn(int sock) override {
-        while (true) {
-            char *debug_msg;            
-            if (xQueueReceive(debug_queue, &debug_msg, portMAX_DELAY) == pdPASS) {
+        while (true) {           
+            char *debug_msg;  
+                if (xQueueReceive(debug_queue, &debug_msg, portMAX_DELAY) == pdPASS) {
                 size_t msg_len = strlen(debug_msg);
-
-                //tx_buffer[msg_len] = '\0'; // null terminate
 
                 if (msg_len > 0) {                    
                     msg_len++;
-                    //lDebug(InfoLocal, "To send %d bytes: %s", msg_len, tx_buffer);
+                    lDebug_uart_semihost(Info, "To send %d bytes: %s", msg_len, debug_msg);
                     
                     // send() can return less bytes than supplied length.
                     // Walk-around for robust implementation.
@@ -48,13 +46,11 @@ class tcp_server_logs : public tcp_server {
                         debug_msg = nullptr;
 
                         if (written < 0) {
-                            //lDebug(Error, "Error occurred during sending logs: errno %d", errno);
+                            lDebug_uart_semihost(Error, "Error occurred during sending logs: errno %d", errno);
                             return;
                         }
                         to_write -= written;
                     }
-                } else {
-                    //lDebug(Error, "buffer too small");
                 }
             }
         }

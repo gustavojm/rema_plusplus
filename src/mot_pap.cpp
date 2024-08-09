@@ -30,7 +30,7 @@ void mot_pap::set_direction(enum direction direction) {
     }
     // gpios.direction.set(dir == direction::CW ? 0 : 1);
     encoders->set_direction(name, dir == direction::CW ? 0 : 1);
-    // lDebug(InfoLocal, "%c, %s", name, (dir == direction::CW ? "+" : "-"));
+    // lDebug_uart_semihost(Info, "%c, %s", name, (dir == direction::CW ? "+" : "-"));
 }
 
 void mot_pap::set_direction() {

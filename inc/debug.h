@@ -81,6 +81,7 @@ inline bool debug_to_uart = false;
 inline bool debug_to_network = false;
 inline FILE *debugFile = nullptr;
 inline SemaphoreHandle_t uart_mutex;
+inline SemaphoreHandle_t network_mutex;
 
 /**
  * The file where debug output is written. Defaults to <tt>stderr</tt>.
@@ -168,23 +169,21 @@ static inline char *make_message(const char *fmt, ...) {
 #endif
 
 #if !defined(NDEBUG)
-#define lDebug_uart_semihost(level, fmt, ...)                                                                               \
-    do {                                                                                                                    \
-        if (debug_to_uart && debugLocalLevel <= level) {                                                                    \
-            if (uart_mutex != NULL) {                                                                                       \
-                if (xSemaphoreTake(uart_mutex, portMAX_DELAY) == pdTRUE) {                                                  \
-                    printf(                                                                                                 \
-                        "%lu - %s %s[%d] %s() " fmt "\n",                                                                   \
-                        xTaskGetTickCount(),                                                                                \
-                        levelText(level),                                                                                   \
-                        __FILE__,                                                                                           \
-                        __LINE__,                                                                                           \
-                        __func__,                                                                                           \
-                        ##__VA_ARGS__);                                                                                     \
-                    xSemaphoreGive(uart_mutex);                                                                             \
-                }                                                                                                           \
-            }                                                                                                               \
-        }                                                                                                                   \
+#define lDebug_uart_semihost(level, fmt, ...)                                                                           \
+    do {                                                                                                                \
+        if (debug_to_uart && debugLocalLevel <= level) {                                                                \
+            if (uart_mutex != NULL && xSemaphoreTake(uart_mutex, portMAX_DELAY) == pdTRUE) {                            \
+                printf(                                                                                                 \
+                    "%lu - %s %s[%d] %s() " fmt "\n",                                                                   \
+                    xTaskGetTickCount(),                                                                                \
+                    levelText(level),                                                                                   \
+                    __FILE__,                                                                                           \
+                    __LINE__,                                                                                           \
+                    __func__,                                                                                           \
+                    ##__VA_ARGS__);                                                                                     \
+                xSemaphoreGive(uart_mutex);                                                                             \
+            }                                                                                                           \
+        }                                                                                                               \
     } while (0);    
 #endif
 
@@ -192,23 +191,26 @@ static inline char *make_message(const char *fmt, ...) {
  * the oldest if no space in debug_queue is available
  **/
 #if defined(DEBUG_NETWORK)
-#define lDebug_network(level, fmt, ...)                                                                                     \
-    do {                                                                                                                    \
-        if (debug_to_network && debug_queue != nullptr && (debugNetLevel <= level) && (level != InfoLocal)) {               \
-            char *dbg_msg = make_message(                                                                                   \
-                "%s|%u|%s|%d|%s|" fmt, levelText(level), xTaskGetTickCount(), __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
-            if (!uxQueueSpacesAvailable(debug_queue)) {                                                                     \
-                char *dbg_msg = NULL;                                                                                       \
-                if (xQueueReceive(debug_queue, &dbg_msg, (TickType_t)0) == pdPASS) {                                        \
-                    delete[] dbg_msg;                                                                                       \
-                    dbg_msg = NULL;                                                                                         \
-                }                                                                                                           \
-            }                                                                                                               \
-            if (xQueueSend(debug_queue, &dbg_msg, (TickType_t)0) != pdPASS) {                                               \
-                delete[] dbg_msg;                                                                                           \
-                dbg_msg = NULL;                                                                                             \
-            }                                                                                                               \
-        }                                                                                                                   \
+#define lDebug_network(level, fmt, ...)                                                                                         \
+    do {                                                                                                                        \
+        if (debug_to_network && debug_queue != nullptr && (debugNetLevel <= level) && (level != InfoLocal)) {                   \
+            char *dbg_msg;                                                                                                      \
+            if (network_mutex != NULL && xSemaphoreTake(network_mutex, portMAX_DELAY) == pdTRUE) {                              \
+                if (!uxQueueSpacesAvailable(debug_queue)) {                                                                     \
+                    if (xQueueReceive(debug_queue, &dbg_msg, (TickType_t)0) == pdPASS) {                                        \
+                        delete[] dbg_msg;                                                                                       \
+                        dbg_msg = NULL;                                                                                         \
+                    }                                                                                                           \
+                }                                                                                                               \
+                dbg_msg = make_message(                                                                                         \
+                    "%s|%u|%s|%d|%s|" fmt, levelText(level), xTaskGetTickCount(), __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
+                if (xQueueSend(debug_queue, &dbg_msg, (TickType_t)0) != pdPASS) {                                               \
+                    delete[] dbg_msg;                                                                                           \
+                    dbg_msg = NULL;                                                                                             \
+                }                                                                                                               \
+                xSemaphoreGive(network_mutex);                                                                                  \
+            }                                                                                                                   \
+        }                                                                                                                       \
     } while (0);
 #endif
 

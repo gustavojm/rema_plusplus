@@ -261,7 +261,7 @@ json::MyJsonDocument tcp_server_command::kp_set_tunings_cmd(json::JsonObject con
         axes_->kp.set_output_limits(min, max);
         axes_->kp.set_sample_period(axes_->step_time);
         axes_->kp.set_tunings(kp);
-        lDebug(Debug, "KP settings set");
+        lDebug_uart_semihost(Debug, "KP settings set");
         res["ACK"] = true;
     }
     return res;
@@ -291,7 +291,7 @@ json::MyJsonDocument tcp_server_command::network_settings_cmd(json::JsonObject c
     uint16_t port = static_cast<uint16_t>(pars["port"]);
 
     if (gw && ipaddr && netmask && port != 0) {
-        lDebug(Info, "Received network settings: ipaddr:%s, netmask:%s, gw:%s, port:%d", ipaddr, netmask, gw, port);
+        lDebug_uart_semihost(Info, "Received network settings: ipaddr:%s, netmask:%s, gw:%s, port:%d", ipaddr, netmask, gw, port);
 
         int octet1, octet2, octet3, octet4;
         unsigned char *ipaddr_bytes = reinterpret_cast<unsigned char *>(&(settings::network.ipaddr.addr));
@@ -322,7 +322,7 @@ json::MyJsonDocument tcp_server_command::network_settings_cmd(json::JsonObject c
         settings::network.port = port;
 
         settings::save();
-        lDebug(Info, "Settings saved. Restarting...");
+        lDebug_uart_semihost(Info, "Settings saved. Restarting...");
 
         Chip_UART_SendBlocking(DEBUG_UART, "\n\n", 2);
 
@@ -371,7 +371,7 @@ json::MyJsonDocument tcp_server_command::move_closed_loop_cmd(json::JsonObject c
 
     axes_->send(msg);
 
-    lDebug(
+    lDebug_uart_semihost(
         Info,
         "MOVE_CLOSED_LOOP First Axis Setpoint= %f, Second Axis Setpoint= %f",
         first_axis_setpoint,
@@ -410,7 +410,7 @@ json::MyJsonDocument tcp_server_command::move_joystick_cmd(json::JsonObject cons
     msg.first_axis_setpoint = first_axis_setpoint;
     msg.second_axis_setpoint = second_axis_setpoint;
     axes_->send(msg);
-    // lDebug(Info, "MOVE_JOYSTICK First Axis Setpoint= %i, Second Axis Setpoint=
+    // lDebug_uart_semihost(Info, "MOVE_JOYSTICK First Axis Setpoint= %i, Second Axis Setpoint=
     // %i",
     //        first_axis_setpoint, second_axis_setpoint);
 
@@ -449,7 +449,7 @@ json::MyJsonDocument tcp_server_command::move_incremental_cmd(json::JsonObject c
     msg.second_axis_setpoint =
         axes_->second_axis->current_counts + (second_axis_delta * axes_->first_axis->inches_to_counts_factor);
     axes_->send(msg);
-    // lDebug(Info, "MOVE_INCREMENTAL First Axis Setpoint= %i, Second Axis
+    // lDebug_uart_semihost(Info, "MOVE_INCREMENTAL First Axis Setpoint= %i, Second Axis
     // Setpoint= %i",
     //        msg.first_axis_setpoint, msg.second_axis_setpoint);
     res["ACK"] = true;
@@ -587,7 +587,7 @@ json::MyJsonDocument tcp_server_command::cmd_execute(char const *cmd, json::Json
         }
     }
     if (!cmd_found) {
-        lDebug(Error, "No matching command found");
+        lDebug_uart_semihost(Error, "No matching command found");
     }
     return json::MyJsonDocument();
 };
@@ -643,11 +643,11 @@ int tcp_server_command::json_wp(char *rx_buff, char **tx_buff) {
     int buff_len = 0;
 
     if (error) {
-        lDebug(Error, "Error json parse. %s", error.c_str());
+        lDebug_uart_semihost(Error, "Error json parse. %s", error.c_str());
     } else {
         for (json::JsonVariant command : rx_JSON_value.as<json::JsonArray>()) {
             char const *command_name = command["cmd"];
-            lDebug(InfoLocal, "Command Found: %s", command_name);
+            lDebug_uart_semihost(Info, "Command Found: %s", command_name);
             auto pars = command["pars"];
 
             auto ans = cmd_execute(command_name, pars);
@@ -660,11 +660,11 @@ int tcp_server_command::json_wp(char *rx_buff, char **tx_buff) {
         buff_len++;
         *tx_buff = new char[buff_len];
         if (!(*tx_buff)) {
-            lDebug(Error, "Out Of Memory");
+            lDebug_uart_semihost(Error, "Out Of Memory");
             buff_len = 0;
         } else {
             json::serializeJson(tx_JSON_value, *tx_buff, buff_len);
-            lDebug(InfoLocal, "%s", *tx_buff);
+            lDebug_uart_semihost(Info, "%s", *tx_buff);
         }
     }
     return buff_len;

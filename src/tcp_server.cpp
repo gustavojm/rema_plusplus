@@ -25,7 +25,7 @@ tcp_server::tcp_server(const char *name, int port) : name(name), port(port) {
     strncat(task_name, "_task", sizeof(task_name) - strlen(task_name) - 1);
     xTaskCreate([](void *me) { static_cast<tcp_server *>(me)->task(); }, task_name, 1024, this, configMAX_PRIORITIES, NULL);
 
-    lDebug(Info, "%s: created", task_name);
+    lDebug_uart_semihost(Info, "%s: created", task_name);
 }
 
 void tcp_server::task() {
@@ -45,37 +45,37 @@ void tcp_server::task() {
 
     int listen_sock = lwip_socket(AF_INET, SOCK_STREAM, ip_protocol);
     if (listen_sock < 0) {
-        lDebug(Error, "Unable to create %s socket: errno %d", name, errno);
+        lDebug_uart_semihost(Error, "Unable to create %s socket: errno %d", name, errno);
         vTaskDelete(NULL);
         return;
     }
     int opt = 1;
     lwip_setsockopt(listen_sock, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 
-    lDebug(Info, "%s socket created", name);
+    lDebug_uart_semihost(Info, "%s socket created", name);
 
     int err = lwip_bind(listen_sock, (struct sockaddr *)&dest_addr, sizeof(dest_addr));
     if (err != 0) {
-        lDebug(Error, "%s socket unable to bind: errno %d", name, errno);
-        lDebug(Error, "IPPROTO: %d", AF_INET);
+        lDebug_uart_semihost(Error, "%s socket unable to bind: errno %d", name, errno);
+        lDebug_uart_semihost(Error, "IPPROTO: %d", AF_INET);
         goto CLEAN_UP;
     }
-    lDebug(Info, "%s socket bound, port %d", name, port);
+    lDebug_uart_semihost(Info, "%s socket bound, port %d", name, port);
 
     err = lwip_listen(listen_sock, 1);
     if (err != 0) {
-        lDebug(Error, "Error occurred during %s listen: errno %d", name, errno);
+        lDebug_uart_semihost(Error, "Error occurred during %s listen: errno %d", name, errno);
         goto CLEAN_UP;
     }
 
     while (1) {
-        lDebug(Info, "%s socket listening", name);
+        lDebug_uart_semihost(Info, "%s socket listening", name);
 
         struct sockaddr source_addr;
         socklen_t addr_len = sizeof(source_addr);
         int sock = lwip_accept(listen_sock, (struct sockaddr *)&source_addr, &addr_len);
         if (sock < 0) {
-            lDebug(Error, "Unable to accept %s connection: errno %d", name, errno);
+            lDebug_uart_semihost(Error, "Unable to accept %s connection: errno %d", name, errno);
             break;
         }
 
@@ -88,7 +88,7 @@ void tcp_server::task() {
         if (source_addr.sa_family == PF_INET) {
             inet_ntoa_r(((struct sockaddr_in *)&source_addr)->sin_addr, addr_str, sizeof(addr_str) - 1);
         }
-        // lDebug(Info, "%s socket accepted ip address: %s", name, addr_str);
+        //lDebug_uart_semihost(Info, "%s socket accepted ip address: %s", name, addr_str);
 
         reply_fn(sock);
 

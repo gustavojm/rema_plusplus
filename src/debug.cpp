@@ -4,6 +4,7 @@
 
 void debugInit() {
     uart_mutex = xSemaphoreCreateMutex();
+    network_mutex = xSemaphoreCreateMutex();
     debug_queue = xQueueCreate(NET_DEBUG_QUEUE_SIZE, sizeof(char *));
 }
 
