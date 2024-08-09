@@ -29,7 +29,7 @@ class tcp_server_telemetry : public tcp_server {
 
     void reply_fn(int sock) override {
         const int buf_len = 1024;
-        char tx_buffer[buf_len];
+        uint8_t tx_buffer[buf_len];
         json::MyJsonDocument ans;
 
         int times = 0;
@@ -90,12 +90,9 @@ class tcp_server_telemetry : public tcp_server {
 
             size_t msg_len = json::serializeMsgPack(ans, tx_buffer, sizeof(tx_buffer) - 1);
 
-            tx_buffer[msg_len] = '\0'; // null terminate
-
             //lDebug_uart_semihost(Info, "To send %d bytes: %s", msg_len, tx_buffer);
 
             if (msg_len > 0) {
-                msg_len++;
                 // send() can return less bytes than supplied length.
                 // Walk-around for robust implementation.
                 int to_write = msg_len;
