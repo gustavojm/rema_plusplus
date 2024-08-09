@@ -58,6 +58,8 @@ class kp {
     //! structure.
     int run(int setpoint, int input);
 
+    int run_unattenuated(int setpoint, int input);
+
     void set_output_limits(int min, int max);
 
     //! @brief		Changes the sample time

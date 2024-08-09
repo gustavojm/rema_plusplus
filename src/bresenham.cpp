@@ -142,15 +142,12 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
         lDebug(Info, "%s: already there", name);
     } else {
         // rema::update_watchdog_timer();
-        kp.restart();
 
         if (!was_soft_stopped) {
+            kp.restart();
             current_freq = kp.run(leader_axis->destination_counts, leader_axis->current_counts);
         } else {
-            current_freq -= kp.run(leader_axis->destination_counts, leader_axis->current_counts);
-            if (current_freq < kp.out_min) {
-                current_freq = kp.out_min;
-            }
+            current_freq = kp.run_unattenuated(leader_axis->destination_counts, leader_axis->current_counts);
         }
         lDebug(Debug, "Control output = %i: ", current_freq);
 
@@ -227,10 +224,7 @@ void bresenham::supervise() {
             if (!was_soft_stopped) {
                 current_freq = kp.run(leader_axis->destination_counts, leader_axis->current_counts);
             } else {
-                current_freq -= kp.run(leader_axis->destination_counts, leader_axis->current_counts);
-                if (current_freq < kp.out_min) {
-                    current_freq = kp.out_min;
-                }
+                current_freq = kp.run_unattenuated(leader_axis->destination_counts, leader_axis->current_counts);
             }
             lDebug(Debug, "Control output = %i: ", current_freq);
             tmr.change_freq(current_freq);

@@ -51,6 +51,25 @@ int kp::run(int setpoint, int input) {
     return out;
 }
 
+int kp::run_unattenuated(int setpoint, int input) {
+
+    int error = std::abs(setpoint - input);
+
+    // PROPORTIONAL CALCS
+    p_term = kp_ * error;
+
+    output = p_term;
+
+    // Limit output
+    if (output > out_max)
+        output = out_max;
+    else if (output < out_min)
+        output = out_min;
+
+    return output;
+}
+
+
 //! @brief		Sets the KP tunings.
 //! @warning	Make sure samplePeriodMs is set before calling this function.
 void kp::set_tunings(float kp) {

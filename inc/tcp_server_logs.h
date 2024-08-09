@@ -35,7 +35,7 @@ class tcp_server_logs : public tcp_server {
 
                 if (msg_len > 0) {                    
                     msg_len++;
-                    lDebug_uart_semihost(Info, "To send %d bytes: %s", msg_len, debug_msg);
+                    //lDebug_uart_semihost(Info, "To send %d bytes: %s", msg_len, debug_msg);
                     
                     // send() can return less bytes than supplied length.
                     // Walk-around for robust implementation.
