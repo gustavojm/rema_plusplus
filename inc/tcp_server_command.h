@@ -26,12 +26,6 @@ class tcp_server_command : public tcp_server {
 
     static bresenham *get_axes(const char *axis);
 
-    void stop_all() {
-        x_y_axes->stop();
-        z_dummy_axes->stop();
-        lDebug(Warn, "Stopping all");
-    }
-
     void reply_fn(int sock) override {
         int len;
         char rx_buffer[1024];
@@ -39,11 +33,11 @@ class tcp_server_command : public tcp_server {
         do {
             len = lwip_recv(sock, rx_buffer, sizeof(rx_buffer) - 1, 0);
             if (len < 0) {
-                stop_all();
                 lDebug(Error, "Error occurred during receiving command: errno %d", errno);
+                return;
             } else if (len == 0) {
-                stop_all();
                 lDebug(Warn, "Command connection closed");
+                return;
             } else {
                 // rema::update_watchdog_timer();
                 rx_buffer[len] = 0; // Null-terminate whatever is received and treat it like a string
@@ -63,14 +57,16 @@ class tcp_server_command : public tcp_server {
                     while (to_write > 0) {
                         int written = lwip_send(sock, tx_buffer + (ack_len - to_write), to_write, 0);
                         if (written < 0) {
-                            stop_all();
                             lDebug(Error, "Error occurred during sending command: errno %d", errno);
-                            goto free_buffer;
+                            if (tx_buffer) {
+                                delete[] tx_buffer;
+                                tx_buffer = NULL;
+                            }
+                            return;         // Returning here will recreate the socket
                         }
                         to_write -= written;
                     }
 
-                free_buffer:
                     if (tx_buffer) {
                         delete[] tx_buffer;
                         tx_buffer = NULL;

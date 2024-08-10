@@ -10,12 +10,20 @@
 #include "rema.h"
 #include "tcp_server.h"
 #include "temperature_ds18b20.h"
+#include "xy_axes.h"
 #include "z_axis.h"
 #include <lwip/netdb.h>
 
 #define KEEPALIVE_IDLE     (5)
 #define KEEPALIVE_INTERVAL (5)
 #define KEEPALIVE_COUNT    (3)
+
+static void stop_all() {
+    x_y_axes->stop();
+    z_dummy_axes->stop();
+    lDebug(Warn, "Stopping all");
+}
+
 
 tcp_server::tcp_server(const char *name, int port) : name(name), port(port) {
 
@@ -91,6 +99,7 @@ void tcp_server::task() {
         //lDebug_uart_semihost(Info, "%s socket accepted ip address: %s", name, addr_str);
 
         reply_fn(sock);
+        stop_all();
 
         lwip_shutdown(sock, 0);
         lwip_close(sock);
