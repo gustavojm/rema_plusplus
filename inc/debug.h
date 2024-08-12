@@ -52,7 +52,6 @@ const int NET_DEBUG_MAX_MSG_SIZE = 255;
 enum debugLevels {
     Debug,
     Info,
-    InfoLocal,
     Warn,
     Error,
 };
@@ -61,8 +60,7 @@ static inline const char *levelText(enum debugLevels level) {
     const char *ret;
     switch (level) {
     case Debug: ret = "Debug"; break;
-    case Info:
-    case InfoLocal: ret = "Info"; break;
+    case Info: ret = "Info"; break;
     case Warn: ret = "Warning"; break;
     case Error: ret = "Error"; break;
     default: ret = ""; break;
@@ -193,7 +191,7 @@ static inline char *make_message(const char *fmt, ...) {
 #if defined(DEBUG_NETWORK)
 #define lDebug_network(level, fmt, ...)                                                                                         \
     do {                                                                                                                        \
-        if (debug_to_network && debug_queue != nullptr && (debugNetLevel <= level) && (level != InfoLocal)) {                   \
+        if (debug_to_network && debug_queue != nullptr && (debugNetLevel <= level)) {                                           \
             char *dbg_msg;                                                                                                      \
             if (network_mutex != NULL && xSemaphoreTake(network_mutex, portMAX_DELAY) == pdTRUE) {                              \
                 if (!uxQueueSpacesAvailable(debug_queue)) {                                                                     \

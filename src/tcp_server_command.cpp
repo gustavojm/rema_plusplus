@@ -17,6 +17,7 @@
 #include "temperature_ds18b20.h"
 #include "xy_axes.h"
 #include "z_axis.h"
+#include "ip_fns.h"
 
 #define PROTOCOL_VERSION "JSON_1.0"
 
@@ -43,7 +44,7 @@ tl::expected<void, const char *> check_control_and_brakes(bresenham *axes) {
     return {}; // Indicating no errors
 }
 
-json::MyJsonDocument tcp_server_command::set_log_level_cmd(json::JsonObject pars) {
+json::MyJsonDocument tcp_server_command::log_level_cmd(json::JsonObject pars) {
     json::MyJsonDocument res;
 
     if (pars.containsKey("local_level")) {
@@ -86,6 +87,8 @@ json::MyJsonDocument tcp_server_command::set_log_level_cmd(json::JsonObject pars
         }
     }
 
+    res["local_level"] = levelText(debugLocalLevel);
+    res["net_level"] = levelText(debugNetLevel);
     return res;
 }
 
@@ -243,26 +246,32 @@ json::MyJsonDocument tcp_server_command::set_coords_cmd(json::JsonObject const p
     return res;
 }
 
-json::MyJsonDocument tcp_server_command::kp_set_tunings_cmd(json::JsonObject const pars) {
+json::MyJsonDocument tcp_server_command::axes_settings_cmd(json::JsonObject const pars) {
     json::MyJsonDocument res;
-    char const *axes = pars["axes"];
-    double kp = pars["kp"];
+    double prop_gain = pars["prop_gain"];
     int update = pars["update"];
     int min = pars["min"];
     int max = pars["max"];
 
-    bresenham *axes_ = get_axes(axes);
-
-    if (axes_ == nullptr) {
-        res["ACK"] = false;
-        res["ERROR"] = "No axis specified";
-    } else {
+    if (pars.containsKey("axes")) {
+        char const *axes = pars["axes"];
+        bresenham *axes_ = get_axes(axes);
         axes_->step_time = std::chrono::milliseconds(update);
         axes_->kp.set_output_limits(min, max);
         axes_->kp.set_sample_period(axes_->step_time);
-        axes_->kp.set_tunings(kp);
-        lDebug_uart_semihost(Debug, "KP settings set");
+        axes_->kp.set_tunings(prop_gain);
+        lDebug_uart_semihost(Debug, "%s settings set", axes_->name);
         res["ACK"] = true;
+    } else {
+        res["XY"]["min_freq"] = x_y_axes->kp.out_min;
+        res["XY"]["max_freq"] = x_y_axes->kp.out_max;
+        res["XY"]["update_time"] = x_y_axes->step_time.count();
+        res["XY"]["prop_gain"] = x_y_axes->kp.kp_;
+
+        res["Z"]["min_freq"] = z_dummy_axes->kp.out_min;
+        res["Z"]["max_freq"] = z_dummy_axes->kp.out_max;
+        res["Z"]["update_time"] = z_dummy_axes->step_time.count();
+        res["Z"]["prop_gain"] = z_dummy_axes->kp.kp_;
     }
     return res;
 }
@@ -294,29 +303,16 @@ json::MyJsonDocument tcp_server_command::network_settings_cmd(json::JsonObject c
         lDebug_uart_semihost(Info, "Received network settings: ipaddr:%s, netmask:%s, gw:%s, port:%d", ipaddr, netmask, gw, port);
 
         int octet1, octet2, octet3, octet4;
-        unsigned char *ipaddr_bytes = reinterpret_cast<unsigned char *>(&(settings::network.ipaddr.addr));
-
         if (sscanf(ipaddr, "%d.%d.%d.%d", &octet1, &octet2, &octet3, &octet4) == 4) {
-            ipaddr_bytes[0] = static_cast<unsigned char>(octet1);
-            ipaddr_bytes[1] = static_cast<unsigned char>(octet2);
-            ipaddr_bytes[2] = static_cast<unsigned char>(octet3);
-            ipaddr_bytes[3] = static_cast<unsigned char>(octet4);
+            IP4_ADDR(&(settings::network.ipaddr), octet1, octet2, octet3, octet4);
         }
 
-        unsigned char *netmask_bytes = reinterpret_cast<unsigned char *>(&(settings::network.netmask.addr));
         if (sscanf(netmask, "%d.%d.%d.%d", &octet1, &octet2, &octet3, &octet4) == 4) {
-            netmask_bytes[0] = static_cast<unsigned char>(octet1);
-            netmask_bytes[1] = static_cast<unsigned char>(octet2);
-            netmask_bytes[2] = static_cast<unsigned char>(octet3);
-            netmask_bytes[3] = static_cast<unsigned char>(octet4);
+            IP4_ADDR(&(settings::network.netmask), octet1, octet2, octet3, octet4);
         }
 
-        unsigned char *gw_bytes = reinterpret_cast<unsigned char *>(&(settings::network.gw.addr));
         if (sscanf(gw, "%d.%d.%d.%d", &octet1, &octet2, &octet3, &octet4) == 4) {
-            gw_bytes[0] = static_cast<unsigned char>(octet1);
-            gw_bytes[1] = static_cast<unsigned char>(octet2);
-            gw_bytes[2] = static_cast<unsigned char>(octet3);
-            gw_bytes[3] = static_cast<unsigned char>(octet4);
+            IP4_ADDR(&(settings::network.gw), octet1, octet2, octet3, octet4);
         }
 
         settings::network.port = port;
@@ -330,7 +326,17 @@ json::MyJsonDocument tcp_server_command::network_settings_cmd(json::JsonObject c
     }
 
     json::MyJsonDocument res;
-    res["ACK"] = true;
+    char ip_dot_format[15];
+    ipaddr_to_dot_format(settings::network.ipaddr, ip_dot_format);
+    res["ipaddr"] = ip_dot_format;
+
+    ipaddr_to_dot_format(settings::network.netmask, ip_dot_format);
+    res["netmask"] = ip_dot_format;
+
+    ipaddr_to_dot_format(settings::network.gw, ip_dot_format);
+    res["gw"] = ip_dot_format;
+
+    res["port"] = settings::network.port;
     return res;
 }
 
@@ -524,13 +530,13 @@ const tcp_server_command::cmd_entry tcp_server_command::cmds_table[] = {
         &tcp_server_command::logs_cmd,
     },
     {
-        "SET_LOG_LEVEL",
-        &tcp_server_command::set_log_level_cmd,
+        "LOG_LEVEL",
+        &tcp_server_command::log_level_cmd,
     },
 
     {
-        "KP_SET_TUNINGS",
-        &tcp_server_command::kp_set_tunings_cmd,
+        "AXES_SETTINGS",
+        &tcp_server_command::axes_settings_cmd,
     },
     {
         "NETWORK_SETTINGS",

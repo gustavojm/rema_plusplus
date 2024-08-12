@@ -5,8 +5,6 @@
 /* Page used for storage */
 #define PAGE_ADDR 0x01 /* Page number */
 
-network_settings settings::network;
-
 /**
  * @brief 	default hardcoded settings
  * @returns	copy of settings structure

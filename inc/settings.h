@@ -28,3 +28,5 @@ class settings {
 
     static void read();
 };
+
+inline network_settings settings::network;

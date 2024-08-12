@@ -13,6 +13,7 @@
         "tuple": "cpp",
         "memory": "cpp",
         "system_error": "c",
-        "lwipopts.h": "c"
+        "lwipopts.h": "c",
+        "cstdint": "cpp"
     }
 }

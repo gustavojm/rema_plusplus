@@ -41,13 +41,13 @@ class tcp_server_command : public tcp_server {
             } else {
                 // rema::update_watchdog_timer();
                 rx_buffer[len] = 0; // Null-terminate whatever is received and treat it like a string
-                lDebug(InfoLocal, "Command received %s", rx_buffer);
+                lDebug_uart_semihost(Info, "Command received %s", rx_buffer);
 
                 char *tx_buffer;
 
                 int ack_len = json_wp(rx_buffer, &tx_buffer);
 
-                // lDebug(InfoLocal, "To send %d bytes: %s", ack_len, tx_buffer);
+                // lDebug_uart_semihost(Info, "To send %d bytes: %s", ack_len, tx_buffer);
 
                 if (ack_len > 0) {
                     // send() can return less bytes than supplied length.
@@ -77,13 +77,13 @@ class tcp_server_command : public tcp_server {
     }
 
     json::MyJsonDocument logs_cmd(json::JsonObject const pars);
-    json::MyJsonDocument set_log_level_cmd(json::JsonObject const pars);
+    json::MyJsonDocument log_level_cmd(json::JsonObject const pars);
     json::MyJsonDocument protocol_version_cmd(json::JsonObject const pars);
     json::MyJsonDocument control_enable_cmd(json::JsonObject const pars);
     json::MyJsonDocument stall_control_cmd(json::JsonObject const pars);
     json::MyJsonDocument touch_probe_protection_control_cmd(json::JsonObject const pars);
     json::MyJsonDocument set_coords_cmd(json::JsonObject const pars);
-    json::MyJsonDocument kp_set_tunings_cmd(json::JsonObject const pars);
+    json::MyJsonDocument axes_settings_cmd(json::JsonObject const pars);
     json::MyJsonDocument axes_hard_stop_all_cmd(json::JsonObject const pars);
     json::MyJsonDocument axes_soft_stop_all_cmd(json::JsonObject const pars);
     json::MyJsonDocument network_settings_cmd(json::JsonObject const pars);
