@@ -51,4 +51,5 @@ class rema {
     static bool touch_probe_protection;
     static brakes_mode_t brakes_mode;
     static TickType_t lastKeepAliveTicks;
+    static TickType_t touch_probe_debounce_time_ms;
 };

@@ -12,6 +12,7 @@ gpio_templ<1, 5, SCU_MODE_FUNC0, 1, 8> shut_down_out; // DOUT7 P1_5    PIN48   G
 bool rema::control_enabled = false;
 bool rema::stall_control = true;
 bool rema::touch_probe_protection = true;
+TickType_t rema::touch_probe_debounce_time_ms = 0;
 
 rema::brakes_mode_t rema::brakes_mode = rema::brakes_mode_t::AUTO;
 TickType_t rema::lastKeepAliveTicks;
@@ -28,7 +29,7 @@ void rema::init_input_outputs() {
     shut_down_out.set(1);
 
     NVIC_SetPriority(PIN_INT1_IRQn, TOUCH_PROBE_INTERRUPT_PRIORITY);
-    touch_probe_irq_pin.init_input().mode_edge().int_high().clear_pending().enable();
+    touch_probe_irq_pin.init_input().mode_edge().int_high().int_low().clear_pending().enable();
 
 }
 
@@ -89,17 +90,33 @@ void rema::hard_limits_reached() {
 // IRQ Handler for Touch Probe
 extern "C" void GPIO1_IRQHandler(void) {
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
-    
-    if (x_y_axes->is_moving) {
-        x_y_axes->was_stopped_by_probe = true;
+
+    static TickType_t ticks_last_release_time = 0;
+    TickType_t ticks_now = xTaskGetTickCountFromISR();
+    bool debounce_time_exceeded = (ticks_now - ticks_last_release_time) > pdMS_TO_TICKS(rema::touch_probe_debounce_time_ms);
+
+    if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT)) {
+        Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(1));    
+
+        if (debounce_time_exceeded) {
+            ticks_last_release_time = ticks_now;
+        }
     }
 
-    if (z_dummy_axes->is_moving) {
-        z_dummy_axes->was_stopped_by_probe = true;
+    if (Chip_PININT_GetRiseStates(LPC_GPIO_PIN_INT)) {
+        Chip_PININT_ClearRiseStates(LPC_GPIO_PIN_INT, PININTCH(1));
+  
+        if (debounce_time_exceeded) {
+            if (x_y_axes->is_moving) {
+                x_y_axes->was_stopped_by_probe = true;
+            }
+
+            if (z_dummy_axes->is_moving) {
+                z_dummy_axes->was_stopped_by_probe = true;
+            }
+
+            x_y_axes->stop();
+            z_dummy_axes->stop();
+        }
     }
-
-    x_y_axes->stop();
-    z_dummy_axes->stop();
-
-
 }

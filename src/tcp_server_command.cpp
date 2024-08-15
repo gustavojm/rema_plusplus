@@ -210,10 +210,10 @@ json::MyJsonDocument tcp_server_command::stall_control_cmd(json::JsonObject cons
     return res;
 }
 
-json::MyJsonDocument tcp_server_command::touch_probe_protection_control_cmd(json::JsonObject const pars) {
+json::MyJsonDocument tcp_server_command::touch_probe_settings_cmd(json::JsonObject const pars) {
     json::MyJsonDocument res;
-    if (pars.containsKey("enabled")) {
-        rema::touch_probe_protection = pars["enabled"];
+    if (pars.containsKey("protection")) {
+        rema::touch_probe_protection = pars["protection"];
     }
 
     if (pars.containsKey("axes")) {
@@ -222,7 +222,11 @@ json::MyJsonDocument tcp_server_command::touch_probe_protection_control_cmd(json
         axes_->touching_max_count = pars["counts"];
     }
 
-    res["STATUS"] = rema::touch_probe_protection;
+    if (pars.containsKey("debounce_time_ms")) {
+        rema::touch_probe_debounce_time_ms = pars["debounce_time_ms"];
+    }
+
+    res["PROTECTION"] = rema::touch_probe_protection;
     return res;
 }
 
@@ -514,8 +518,8 @@ const tcp_server_command::cmd_entry tcp_server_command::cmds_table[] = {
         &tcp_server_command::touch_probe_cmd,
     },
     {
-        "TOUCH_PROBE_PROTECTION_CONTROL",
-        &tcp_server_command::touch_probe_protection_control_cmd,
+        "TOUCH_PROBE_SETTINGS",
+        &tcp_server_command::touch_probe_settings_cmd,
     },
     {
         "AXES_HARD_STOP_ALL",
