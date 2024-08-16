@@ -589,17 +589,16 @@ const tcp_server_command::cmd_entry tcp_server_command::cmds_table[] = {
  * function
  */
 json::MyJsonDocument tcp_server_command::cmd_execute(char const *cmd, json::JsonObject const pars) {
-    bool cmd_found = false;
     for (unsigned int i = 0; i < (sizeof(cmds_table) / sizeof(cmds_table[0])); i++) {
         if (!strcmp(cmd, cmds_table[i].cmd_name)) {
             // return cmds_table[i].cmd_function(pars);
             return (this->*(cmds_table[i].cmd_function))(pars);
         }
     }
-    if (!cmd_found) {
-        lDebug_uart_semihost(Error, "No matching command found");
-    }
-    return json::MyJsonDocument();
+    lDebug_uart_semihost(Error, "No matching command found");
+    json::MyJsonDocument res;
+    res.set("UNKNOWN COMMAND");
+    return res;
 };
 
 /**
