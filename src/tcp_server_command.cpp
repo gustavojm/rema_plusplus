@@ -351,9 +351,9 @@ json::MyJsonDocument tcp_server_command::network_settings_cmd(json::JsonObject c
 
 json::MyJsonDocument tcp_server_command::mem_info_cmd(json::JsonObject const pars) {
     auto res = json::MyJsonDocument();
-    res["mem_total"] = configTOTAL_HEAP_SIZE;
-    res["mem_free"] = xPortGetFreeHeapSize();
-    res["mem_min_free"] = xPortGetMinimumEverFreeHeapSize();
+    res["total"] = configTOTAL_HEAP_SIZE;
+    res["free"] = xPortGetFreeHeapSize();
+    res["min_free"] = xPortGetMinimumEverFreeHeapSize();
     return res;
 }
 
