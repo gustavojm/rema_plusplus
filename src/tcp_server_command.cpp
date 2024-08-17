@@ -179,34 +179,28 @@ json::MyJsonDocument tcp_server_command::touch_probe_cmd(json::JsonObject const 
     return res;
 }
 
-json::MyJsonDocument tcp_server_command::stall_control_cmd(json::JsonObject const pars) {
+json::MyJsonDocument tcp_server_command::stall_control_settings_cmd(json::JsonObject const pars) {
     json::MyJsonDocument res;
     if (pars.containsKey("enabled")) {
         rema::stall_control = pars["enabled"];
     }
 
-    if (pars.containsKey("axis")) {
-        char const *axis = pars["axis"];
-        int counts = pars["counts"];
-        switch (*axis) {
-        case 'x':
-        case 'X': x_y_axes->first_axis->stall_max_count = counts; break;
+    if (pars.containsKey("counts_X")) {
+        x_y_axes->first_axis->stall_max_count = pars["counts_X"];;
+    }
 
-        case 'y':
-        case 'Y': x_y_axes->second_axis->stall_max_count = counts; break;
+    if (pars.containsKey("counts_Y")) {
+        x_y_axes->second_axis->stall_max_count = pars["counts_Y"];;
+    }
 
-        case 'z':
-        case 'Z': z_dummy_axes->first_axis->stall_max_count = counts; break;
-
-        default:
-            x_y_axes->first_axis->stall_max_count = counts;
-            x_y_axes->second_axis->stall_max_count = counts;
-            z_dummy_axes->first_axis->stall_max_count = counts;
-            break;
-        }
+    if (pars.containsKey("counts_Z")) {
+        z_dummy_axes->first_axis->stall_max_count= pars["counts_Z"];
     }
 
     res["status"] = rema::stall_control;
+    res["counts_X"] = x_y_axes->first_axis->stall_max_count;
+    res["counts_Y"] = x_y_axes->second_axis->stall_max_count;
+    res["counts_Z"] = z_dummy_axes->first_axis->stall_max_count;
     return res;
 }
 
@@ -511,16 +505,16 @@ const tcp_server_command::cmd_entry tcp_server_command::cmds_table[] = {
         &tcp_server_command::control_enable_cmd,
     },
     {
-        "STALL_CONTROL",
-        &tcp_server_command::stall_control_cmd,
-    },
-    {
         "BRAKES_MODE",
         &tcp_server_command::brakes_mode_cmd,
     },
     {
         "TOUCH_PROBE",
         &tcp_server_command::touch_probe_cmd,
+    },
+    {
+        "STALL_CONTROL_SETTINGS",
+        &tcp_server_command::stall_control_settings_cmd,
     },
     {
         "TOUCH_PROBE_SETTINGS",

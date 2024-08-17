@@ -80,7 +80,7 @@ class tcp_server_command : public tcp_server {
     json::MyJsonDocument log_level_cmd(json::JsonObject const pars);
     json::MyJsonDocument protocol_version_cmd(json::JsonObject const pars);
     json::MyJsonDocument control_enable_cmd(json::JsonObject const pars);
-    json::MyJsonDocument stall_control_cmd(json::JsonObject const pars);
+    json::MyJsonDocument stall_control_settings_cmd(json::JsonObject const pars);
     json::MyJsonDocument touch_probe_settings_cmd(json::JsonObject const pars);
     json::MyJsonDocument set_coords_cmd(json::JsonObject const pars);
     json::MyJsonDocument axes_settings_cmd(json::JsonObject const pars);
