@@ -133,7 +133,13 @@ void vStackIpSetup(void *pvParameters) {
                 tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_down, reinterpret_cast<void *>(&lpc_netif), 1);
             }
 
-            printf("Link connection status: %s\n", ((physts & PHY_LINK_CONNECTED) != 0) ? "CONNECTED" : "DISCONNECTED");
+            lDebug(Warn, "Link connection status: %s", ((physts & PHY_LINK_CONNECTED) != 0) ? "CONNECTED" : "DISCONNECTED");
+
+            if ((physts & PHY_LINK_CONNECTED) == 0) {
+                z_dummy_axes->stop();
+                x_y_axes->stop();
+                lDebug(Warn, "Link connection down, motors stopped \n");
+            }
 
             /* Delay for link detection (250mS) */
             vTaskDelay(configTICK_RATE_HZ / 4);

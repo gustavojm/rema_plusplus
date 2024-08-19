@@ -141,8 +141,6 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
         stop();
         lDebug(Info, "%s: already there", name);
     } else {
-        // rema::update_watchdog_timer();
-
         if (!was_soft_stopped) {
             kp.restart();
             current_freq = kp.run(leader_axis->destination_counts, leader_axis->current_counts);
@@ -211,11 +209,12 @@ void bresenham::supervise() {
                 }
             }
 
-            // if (rema::is_watchdog_expired()) {
-            //     stop();
-            //     lDebug(Info, "Watchdog expired");
-            //     continue;
-            // }
+            // Watchdog is restarted every time telemetry is sent to REMA_Proxy
+            if (rema::is_watchdog_expired()) {
+                stop();
+                lDebug(Info, "Watchdog expired");
+                continue;
+            }
 
             calculate(); // recalculate to compensate for encoder errors
                          // if didn't stop for proximity to set point, avoid going to

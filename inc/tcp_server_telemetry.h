@@ -88,6 +88,7 @@ class tcp_server_telemetry : public tcp_server {
             }
             times++;
 
+            rema::update_watchdog_timer();
             size_t msg_len = json::serializeMsgPack(ans, tx_buffer, sizeof(tx_buffer) - 1);
 
             //lDebug_uart_semihost(Info, "To send %d bytes: %s", msg_len, tx_buffer);
