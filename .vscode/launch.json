@@ -4,7 +4,7 @@
         {
             "cwd": "${workspaceRoot}",
             "executable": "${workspaceRoot}/build/REMA_plusplus",
-            "numberOfProcessors": 2,
+            "numberOfProcessors": 4,
             "name": "Debug REMA_plusplus OpenOCD",
             "request": "launch",
             "type": "cortex-debug",
