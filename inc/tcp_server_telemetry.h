@@ -43,8 +43,8 @@ class tcp_server_telemetry : public tcp_server {
                 x_y_axes->first_axis->current_counts / static_cast<double>(x_y_axes->first_axis->inches_to_counts_factor);
             ans["telemetry"]["coords"]["y"] =
                 x_y_axes->second_axis->current_counts / static_cast<double>(x_y_axes->second_axis->inches_to_counts_factor);
-            ans["telemetry"]["coords"]["z"] = z_dummy_axes->first_axis->current_counts /
-                                              static_cast<double>(z_dummy_axes->first_axis->inches_to_counts_factor);
+            ans["telemetry"]["coords"]["z"] = 
+            z_dummy_axes->first_axis->current_counts / static_cast<double>(z_dummy_axes->first_axis->inches_to_counts_factor);
 
             ans["telemetry"]["targets"]["x"] = x_y_axes->first_axis->destination_counts /
                                                static_cast<double>(x_y_axes->first_axis->inches_to_counts_factor);

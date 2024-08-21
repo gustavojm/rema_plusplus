@@ -129,16 +129,12 @@ void vStackIpSetup(void *pvParameters) {
                 }
 
                 tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_up, reinterpret_cast<void *>(&lpc_netif), 1);
+                lDebug(Info, "Ethernet link status: CONNECTED");
             } else {
-                tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_down, reinterpret_cast<void *>(&lpc_netif), 1);
-            }
-
-            lDebug(Warn, "Link connection status: %s", ((physts & PHY_LINK_CONNECTED) != 0) ? "CONNECTED" : "DISCONNECTED");
-
-            if ((physts & PHY_LINK_CONNECTED) == 0) {
                 z_dummy_axes->stop();
                 x_y_axes->stop();
-                lDebug(Warn, "Link connection down, motors stopped \n");
+                tcpip_callback_with_block((tcpip_callback_fn)netif_set_link_down, reinterpret_cast<void *>(&lpc_netif), 1);
+                lDebug(Warn, "Ethernet link status: DISCONNECTED. Motors have been stopped");
             }
 
             /* Delay for link detection (250mS) */
