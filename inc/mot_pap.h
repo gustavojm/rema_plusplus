@@ -54,6 +54,7 @@ class mot_pap {
 
     void set_position(double pos) {
         int counts = static_cast<int>(pos * inches_to_counts_factor); // Thread safety is important here
+        counts = reversed_encoder ? -counts : counts;
         encoders->set_counter(name, counts);
         current_counts = counts; // Touch current_counts in just one place
     }
