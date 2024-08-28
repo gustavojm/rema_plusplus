@@ -46,8 +46,14 @@
 #include "semphr.h"
 #include "task.h"
 
+#define UART_DMA_TASK_PRIORITY (configMAX_PRIORITIES - 1)
+#define UART_DMA_INTERRUPT_PRIORITY                                                                                    \
+    (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1) // Has to have higher priority than timers ( now +2 )
+
 const int NET_DEBUG_QUEUE_SIZE = 50;
 const int NET_DEBUG_MAX_MSG_SIZE = 255;
+
+inline SemaphoreHandle_t uart_DMA_semaphore;
 
 enum debugLevels {
     Debug,
@@ -75,6 +81,7 @@ static inline const char *levelText(enum debugLevels level) {
 inline enum debugLevels debugLocalLevel = Info;
 inline enum debugLevels debugNetLevel = Info;
 inline QueueHandle_t debug_queue = nullptr;
+inline QueueHandle_t uart_queue = nullptr;
 inline bool debug_to_uart = false;
 inline bool debug_to_network = false;
 inline FILE *debugFile = nullptr;
@@ -94,6 +101,8 @@ void debugNetSetLevel(bool enable, enum debugLevels lvl);
 void debugToFile(const char *fileName);
 
 void debugClose();
+
+void uart_DMA_task_init();
 
 /** Prints the file name, line number, function name and "HERE" */
 #define HERE debug("HERE")
@@ -170,15 +179,20 @@ static inline char *make_message(const char *fmt, ...) {
 #define lDebug_uart_semihost(level, fmt, ...)                                                                           \
     do {                                                                                                                \
         if (debug_to_uart && debugLocalLevel <= level) {                                                                \
+            char *dbg_msg;                                                                                                      \
             if (uart_mutex != NULL && xSemaphoreTake(uart_mutex, portMAX_DELAY) == pdTRUE) {                            \
-                printf(                                                                                                 \
-                    "%lu - %s %s[%d] %s() " fmt "\n",                                                                   \
-                    xTaskGetTickCount(),                                                                                \
-                    levelText(level),                                                                                   \
-                    __FILE__,                                                                                           \
-                    __LINE__,                                                                                           \
-                    __func__,                                                                                           \
-                    ##__VA_ARGS__);                                                                                     \
+                if (!uxQueueSpacesAvailable(uart_queue)) {                                                                     \
+                    if (xQueueReceive(uart_queue, &dbg_msg, (TickType_t)0) == pdPASS) {                                        \
+                        delete[] dbg_msg;                                                                                       \
+                        dbg_msg = NULL;                                                                                         \
+                    }                                                                                                           \
+                }                                                                                                               \
+                dbg_msg = make_message(                                                                                         \
+                    "%lu - %s %s[%d] %s() " fmt "\n", xTaskGetTickCount(), levelText(level), __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
+                if (xQueueSend(uart_queue, &dbg_msg, (TickType_t)0) != pdPASS) {                                               \
+                    delete[] dbg_msg;                                                                                           \
+                    dbg_msg = NULL;                                                                                             \
+                }                                                                                                               \
                 xSemaphoreGive(uart_mutex);                                                                             \
             }                                                                                                           \
         }                                                                                                               \
