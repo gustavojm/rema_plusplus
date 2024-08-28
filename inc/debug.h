@@ -46,14 +46,15 @@
 #include "semphr.h"
 #include "task.h"
 
-#define UART_DMA_TASK_PRIORITY (configMAX_PRIORITIES - 1)
-#define UART_DMA_INTERRUPT_PRIORITY                                                                                    \
+#define UART_DMA_TX_TASK_PRIORITY (configMAX_PRIORITIES - 1)
+#define UART_DMA_TX_INTERRUPT_PRIORITY                                                                                    \
     (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1) // Has to have higher priority than timers ( now +2 )
 
+const int UART_DEBUG_QUEUE_SIZE = 50;
 const int NET_DEBUG_QUEUE_SIZE = 50;
 const int NET_DEBUG_MAX_MSG_SIZE = 255;
 
-inline SemaphoreHandle_t uart_DMA_semaphore;
+inline TaskHandle_t uart_DMA_TX_task_handle;
 
 enum debugLevels {
     Debug,
@@ -80,8 +81,8 @@ static inline const char *levelText(enum debugLevels level) {
  */
 inline enum debugLevels debugLocalLevel = Info;
 inline enum debugLevels debugNetLevel = Info;
-inline QueueHandle_t debug_queue = nullptr;
-inline QueueHandle_t uart_queue = nullptr;
+inline QueueHandle_t network_debug_queue = nullptr;
+inline QueueHandle_t uart_debug_queue = nullptr;
 inline bool debug_to_uart = false;
 inline bool debug_to_network = false;
 inline FILE *debugFile = nullptr;
@@ -101,8 +102,6 @@ void debugNetSetLevel(bool enable, enum debugLevels lvl);
 void debugToFile(const char *fileName);
 
 void debugClose();
-
-void uart_DMA_task_init();
 
 /** Prints the file name, line number, function name and "HERE" */
 #define HERE debug("HERE")
@@ -181,15 +180,15 @@ static inline char *make_message(const char *fmt, ...) {
         if (debug_to_uart && debugLocalLevel <= level) {                                                                \
             char *dbg_msg;                                                                                                      \
             if (uart_mutex != NULL && xSemaphoreTake(uart_mutex, portMAX_DELAY) == pdTRUE) {                            \
-                if (!uxQueueSpacesAvailable(uart_queue)) {                                                                     \
-                    if (xQueueReceive(uart_queue, &dbg_msg, (TickType_t)0) == pdPASS) {                                        \
+                if (!uxQueueSpacesAvailable(uart_debug_queue)) {                                                                     \
+                    if (xQueueReceive(uart_debug_queue, &dbg_msg, (TickType_t)0) == pdPASS) {                                        \
                         delete[] dbg_msg;                                                                                       \
                         dbg_msg = NULL;                                                                                         \
                     }                                                                                                           \
                 }                                                                                                               \
                 dbg_msg = make_message(                                                                                         \
                     "%lu - %s %s[%d] %s() " fmt "\n", xTaskGetTickCount(), levelText(level), __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
-                if (xQueueSend(uart_queue, &dbg_msg, (TickType_t)0) != pdPASS) {                                               \
+                if (xQueueSend(uart_debug_queue, &dbg_msg, (TickType_t)0) != pdPASS) {                                               \
                     delete[] dbg_msg;                                                                                           \
                     dbg_msg = NULL;                                                                                             \
                 }                                                                                                               \
@@ -200,23 +199,23 @@ static inline char *make_message(const char *fmt, ...) {
 #endif
 
 /** Network debug logs will be rotated to have the last ones by eliminating
- * the oldest if no space in debug_queue is available
+ * the oldest if no space in queue is available
  **/
 #if defined(DEBUG_NETWORK)
 #define lDebug_network(level, fmt, ...)                                                                                         \
     do {                                                                                                                        \
-        if (debug_to_network && debug_queue != nullptr && (debugNetLevel <= level)) {                                           \
+        if (debug_to_network && network_debug_queue != nullptr && (debugNetLevel <= level)) {                                           \
             char *dbg_msg;                                                                                                      \
             if (network_mutex != NULL && xSemaphoreTake(network_mutex, portMAX_DELAY) == pdTRUE) {                              \
-                if (!uxQueueSpacesAvailable(debug_queue)) {                                                                     \
-                    if (xQueueReceive(debug_queue, &dbg_msg, (TickType_t)0) == pdPASS) {                                        \
+                if (!uxQueueSpacesAvailable(network_debug_queue)) {                                                                     \
+                    if (xQueueReceive(network_debug_queue, &dbg_msg, (TickType_t)0) == pdPASS) {                                        \
                         delete[] dbg_msg;                                                                                       \
                         dbg_msg = NULL;                                                                                         \
                     }                                                                                                           \
                 }                                                                                                               \
                 dbg_msg = make_message(                                                                                         \
                     "%s|%u|%s|%d|%s|" fmt, levelText(level), xTaskGetTickCount(), __FILE__, __LINE__, __func__, ##__VA_ARGS__); \
-                if (xQueueSend(debug_queue, &dbg_msg, (TickType_t)0) != pdPASS) {                                               \
+                if (xQueueSend(network_debug_queue, &dbg_msg, (TickType_t)0) != pdPASS) {                                               \
                     delete[] dbg_msg;                                                                                           \
                     dbg_msg = NULL;                                                                                             \
                 }                                                                                                               \

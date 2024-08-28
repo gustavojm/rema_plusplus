@@ -97,12 +97,12 @@ json::MyJsonDocument tcp_server_command::logs_cmd(json::JsonObject const pars) {
 
     json::MyJsonDocument res;
     auto msg_array = res["DEBUG_MSGS"].to<json::JsonArray>();
-    int msgs_waiting = uxQueueMessagesWaiting(debug_queue);
+    int msgs_waiting = uxQueueMessagesWaiting(network_debug_queue);
     int extract = MIN(quantity, msgs_waiting);
 
     for (int x = 0; x < extract; x++) {
         char *dbg_msg = NULL;
-        if (xQueueReceive(debug_queue, &dbg_msg, (TickType_t)0) == pdPASS) {
+        if (xQueueReceive(network_debug_queue, &dbg_msg, (TickType_t)0) == pdPASS) {
             msg_array.add(dbg_msg);
             delete[] dbg_msg;
             dbg_msg = NULL;
@@ -124,6 +124,10 @@ json::MyJsonDocument tcp_server_command::control_enable_cmd(json::JsonObject con
     if (pars.containsKey("enabled")) {
         bool enabled = pars["enabled"];
         rema::control_enabled_set(enabled);
+        if (!enabled) {
+            x_y_axes->send({ mot_pap::HARD_STOP });
+            z_dummy_axes->send({ mot_pap::HARD_STOP });
+        }
     }
     res["status"] = rema::control_enabled_get();
     return res;
@@ -652,6 +656,8 @@ int tcp_server_command::json_wp(char *rx_buff, char **tx_buff) {
 
     if (error) {
         lDebug_uart_semihost(Error, "Error json parse. %s", error.c_str());
+        x_y_axes->stop();
+        z_dummy_axes->stop();
     } else {
         for (json::JsonVariant command : rx_JSON_value.as<json::JsonArray>()) {
             char const *command_name = command["cmd"];

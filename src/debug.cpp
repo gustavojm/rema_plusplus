@@ -3,23 +3,48 @@
 #include <stdio.h>
 #include <string.h>
 
-void uart_DMA_Transfer(char* txBuffer, uint32_t len) {
-    Chip_GPDMA_Transfer(LPC_GPDMA,
-                            0,                                     // Canal de DMA 0
-                            (uint32_t)txBuffer,                    // Dirección de la memoria fuente
-                            GPDMA_CONN_UART2_Tx,            // Dirección del registro THR del USART
-                            GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA, // Memoria a periférico DMA CONTROL
-                            len                                    // Tamaño de la transferencia
-                        );    
-
+void uart_DMA_TX_task([[maybe_unused]] void *pars) {
+    while (true) {           
+        static char *old_debug_msg = nullptr;  
+        char *debug_msg;  
+        if (xQueueReceive(uart_debug_queue, &debug_msg, portMAX_DELAY) == pdPASS) {
+            size_t msg_len = strlen(debug_msg);
+            if (msg_len > 0) {                
+                if (ulTaskNotifyTake(pdTRUE, portMAX_DELAY) == pdPASS) {
+                    if (old_debug_msg) {        // If we are here means that last DMA transfer ended.
+                        delete(old_debug_msg);
+                    }
+                    Chip_GPDMA_Transfer(LPC_GPDMA,
+                        0,                                     // DMA 0 channel
+                        (uint32_t)debug_msg,                   // Source memory address
+                        GPDMA_CONN_UART2_Tx,                   // Dirección del registro THR del USART
+                        GPDMA_TRANSFERTYPE_M2P_CONTROLLER_DMA, // Memory to peripheral, DMA control
+                        msg_len                                // Transfer size
+                    );  
+                    old_debug_msg = debug_msg;  
+                }
+            }
+        }
+    }
 }
 
 void debugInit() {
     uart_mutex = xSemaphoreCreateMutex();
+    uart_debug_queue = xQueueCreate(UART_DEBUG_QUEUE_SIZE, sizeof(char *));
+
     network_mutex = xSemaphoreCreateMutex();
-    debug_queue = xQueueCreate(NET_DEBUG_QUEUE_SIZE, sizeof(char *));
-    uart_queue = xQueueCreate(NET_DEBUG_QUEUE_SIZE, sizeof(char *));
-    uart_DMA_task_init();
+    network_debug_queue = xQueueCreate(NET_DEBUG_QUEUE_SIZE, sizeof(char *));
+
+    // Enable DMA clock
+    Chip_GPDMA_Init(LPC_GPDMA);
+
+	/* Setting GPDMA interrupt */
+	NVIC_DisableIRQ(DMA_IRQn);
+	NVIC_SetPriority(DMA_IRQn, UART_DMA_TX_INTERRUPT_PRIORITY);
+	NVIC_EnableIRQ(DMA_IRQn);
+
+    xTaskCreate(uart_DMA_TX_task, "uart_DMA_TX", 256, NULL, UART_DMA_TX_TASK_PRIORITY, &uart_DMA_TX_task_handle);
+    xTaskNotifyGive(uart_DMA_TX_task_handle);      // First notification, the following will be given by DMA Interrupt handler
 }
 
 /**
@@ -64,21 +89,6 @@ void debugClose() {
     }
 }
 
-void uart_DMA_task([[maybe_unused]] void *pars) {
-    while (true) {           
-        char *debug_msg;  
-        if (xQueueReceive(uart_queue, &debug_msg, portMAX_DELAY) == pdPASS) {
-            size_t msg_len = strlen(debug_msg);
-            if (msg_len > 0) {                    
-                msg_len++;
-                if (xSemaphoreTake(uart_DMA_semaphore, portMAX_DELAY) == pdPASS) {
-                    uart_DMA_Transfer(debug_msg, msg_len);
-                }
-            }
-        }
-    }
-}
-
 extern "C" void DMA_IRQHandler(void) {
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
@@ -87,26 +97,8 @@ extern "C" void DMA_IRQHandler(void) {
         // Manejar la interrupción por finalización de la transferencia (Tx)
         Chip_GPDMA_ClearIntPending(LPC_GPDMA, GPDMA_STATCLR_INTTC, 0);  // Limpiar la interrupción
     
-        xSemaphoreGiveFromISR(uart_DMA_semaphore, &xHigherPriorityTaskWoken);
+        vTaskNotifyGiveFromISR(uart_DMA_TX_task_handle, &xHigherPriorityTaskWoken);
+
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-    }
-}
-
-void uart_DMA_task_init() {
-    uart_DMA_semaphore = xSemaphoreCreateBinary();
-    xSemaphoreGive(uart_DMA_semaphore);                 // When no DMA transfers occured yet, allow making the first one
-
-   // Habilitar el reloj para el DMA
-    Chip_GPDMA_Init(LPC_GPDMA);
- 
-	/* Setting GPDMA interrupt */
-	NVIC_DisableIRQ(DMA_IRQn);
-	NVIC_SetPriority(DMA_IRQn, UART_DMA_INTERRUPT_PRIORITY);
-	NVIC_EnableIRQ(DMA_IRQn);
-
-    if (uart_DMA_semaphore != NULL) {
-        // Create the 'handler' task, which is the task to which interrupt
-        // processing is deferred
-        xTaskCreate(uart_DMA_task, "uart_DMA", 256, NULL, UART_DMA_TASK_PRIORITY, NULL);
     }
 }

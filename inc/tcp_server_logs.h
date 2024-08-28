@@ -30,7 +30,7 @@ class tcp_server_logs : public tcp_server {
     void reply_fn(int sock) override {
         while (true) {           
             char *debug_msg;  
-                if (xQueueReceive(debug_queue, &debug_msg, portMAX_DELAY) == pdPASS) {
+                if (xQueueReceive(network_debug_queue, &debug_msg, portMAX_DELAY) == pdPASS) {
                 size_t msg_len = strlen(debug_msg);
 
                 if (msg_len > 0) {                    
