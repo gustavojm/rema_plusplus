@@ -34,7 +34,7 @@ void bresenham::task() {
                     int x2 = kp.out_max;
                     int x1 = kp.out_min;
                     int y2 = 1000;
-                    int y1 = 200;
+                    int y1 = 80;
                     int x = current_freq;
                     int y = ((static_cast<float>(y2 - y1) / (x2 - x1)) * (x - x1)) + y1;
 
@@ -145,7 +145,7 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
             kp.restart();
             current_freq = kp.run(leader_axis->destination_counts, leader_axis->current_counts);
         } else {
-            current_freq = kp.run_unattenuated(leader_axis->destination_counts, leader_axis->current_counts);
+            current_freq = (current_freq + kp.run_unattenuated(leader_axis->destination_counts, leader_axis->current_counts)) / 2;
         }
         lDebug(Debug, "Control output = %i: ", current_freq);
 
@@ -223,7 +223,7 @@ void bresenham::supervise() {
             if (!was_soft_stopped) {
                 current_freq = kp.run(leader_axis->destination_counts, leader_axis->current_counts);
             } else {
-                current_freq = kp.run_unattenuated(leader_axis->destination_counts, leader_axis->current_counts);
+                current_freq = (current_freq + kp.run_unattenuated(leader_axis->destination_counts, leader_axis->current_counts)) / 2;
             }
             lDebug(Debug, "Control output = %i: ", current_freq);
             tmr.change_freq(current_freq);
