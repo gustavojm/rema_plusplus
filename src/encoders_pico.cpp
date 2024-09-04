@@ -14,6 +14,11 @@
 #include "rema.h"
 #include "spi.h"
 
+gpio_pinint encoders_irq_pin = {
+    6, 1, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLDOWN | SCU_MODE_FUNC0), 3, 0, PIN_INT0_IRQn
+}; // GPIO0 P6_1     PIN74   GPIO3[0]
+
+
 /**
  * @brief 	writes 1 byte (address or data) to the chip
  * @param 	data	: address or data to write through SPI
@@ -104,11 +109,13 @@ void encoders_pico::task([[maybe_unused]] void *pars) {
     encoders->set_thresholds(MOT_PAP_POS_THRESHOLD);
 
     NVIC_SetPriority(PIN_INT0_IRQn, ENCODERS_PICO_INTERRUPT_PRIORITY);
-    gpio_pinint encoders_irq_pin = {
-        6, 1, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLDOWN | SCU_MODE_FUNC0), 3, 0, PIN_INT0_IRQn
-    }; // GPIO0 P6_1     PIN74   GPIO3[0]
-    encoders_irq_pin.init_input().mode_level().int_high().clear_pending().enable();
+    encoders_irq_pin.init_input().mode_level().int_high();
 
+    /* ATTENTION, THIS CODE SEEMS TO DO THE OPOSSITE BUT THERE MUST BE AN ERROR IN LPCOPEN  */
+    encoders_irq_pin.int_low();
+        
+    encoders_irq_pin.enable();
+    
     while (true) {
         if (xSemaphoreTake(encoders_pico_semaphore, portMAX_DELAY) == pdPASS) {
             struct limits limits = encoders->read_limits_and_ack();
@@ -137,9 +144,9 @@ void encoders_pico::task([[maybe_unused]] void *pars) {
                 z_dummy_axes->resume(); // Motors were paused by ISR to be able to read
                                         // encoders information
             }
+            //Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
+            encoders_irq_pin.clear_pending().enable();
         }
-        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
-        encoders_irq_pin.clear_pending();
     }
 }
 
@@ -149,6 +156,8 @@ extern "C" void GPIO0_IRQHandler(void) {
     x_y_axes->pause();
     z_dummy_axes->pause();
     xSemaphoreGiveFromISR(encoders_pico_semaphore, &xHigherPriorityTaskWoken);
+    encoders_irq_pin.disable();                     // Otherwise IRQHandler will be called again immediately
+                                                    // Reenabled at the end of encoders_pico::task
     portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 }
 
