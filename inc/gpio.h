@@ -62,6 +62,12 @@ class gpio_pinint : public gpio {
         return *this;
     }
 
+    gpio_pinint &mode_level() {
+        int irq = static_cast<int>(IRQn) - PIN_INT0_IRQn;
+        Chip_PININT_SetPinModeLevel(LPC_GPIO_PIN_INT, PININTCH(irq));
+        return *this;
+    }  
+
     gpio_pinint &clear_pending() {
         NVIC_ClearPendingIRQ(IRQn);
         return *this;

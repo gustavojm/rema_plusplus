@@ -101,14 +101,13 @@ struct limits encoders_pico::read_limits_and_ack() const {
 }
 
 void encoders_pico::task([[maybe_unused]] void *pars) {
+    encoders->set_thresholds(MOT_PAP_POS_THRESHOLD);
+
     NVIC_SetPriority(PIN_INT0_IRQn, ENCODERS_PICO_INTERRUPT_PRIORITY);
     gpio_pinint encoders_irq_pin = {
         6, 1, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLDOWN | SCU_MODE_FUNC0), 3, 0, PIN_INT0_IRQn
     }; // GPIO0 P6_1     PIN74   GPIO3[0]
-    encoders_irq_pin.init_input().mode_edge().int_high().clear_pending().enable();
-
-    encoders->set_thresholds(MOT_PAP_POS_THRESHOLD);
-    encoders->read_limits_and_ack();    // to start with irq acknowledged
+    encoders_irq_pin.init_input().mode_level().int_high().clear_pending().enable();
 
     while (true) {
         if (xSemaphoreTake(encoders_pico_semaphore, portMAX_DELAY) == pdPASS) {
@@ -139,12 +138,13 @@ void encoders_pico::task([[maybe_unused]] void *pars) {
                                         // encoders information
             }
         }
+        Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
+        encoders_irq_pin.clear_pending();
     }
 }
 
 // IRQ Handler for Raspberry Pi Pico Encoders Reader...
 extern "C" void GPIO0_IRQHandler(void) {
-    Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     x_y_axes->pause();
     z_dummy_axes->pause();
