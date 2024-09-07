@@ -4,6 +4,7 @@
 #include "debug.h"
 #include "ds18b20.hpp"
 #include "gpio_templ.h"
+#include "temperature_ds18b20.h"
 #include "one-wire_bitbang_master.hpp"
 
 #define TEMPERATURE_DS18B20_TASK_PRIORITY (configMAX_PRIORITIES - 4)
@@ -15,7 +16,7 @@ using gpio_ow = gpio_templ<
     5,
     5>; // TODO asignar el pin correcto según arquitectura
 using OneWireMaster = one_wire::BitBangOneWireMaster<gpio_ow>;
-constexpr int reading_interval = 5000;
+constexpr int reading_interval = 60000;         // 1 minute
 constexpr int max_sensors = 3;
 
 struct sensor {
@@ -73,6 +74,8 @@ static void temperature_ds18b20_task(void *par) {
         for (int i = 0; i < detected_sensors; i++) {
             sensors[i].reading = sensors[i].ds18b20->readTemperature();
         }
+
+        new_temps_available = true;
         vTaskDelay(pdMS_TO_TICKS(reading_interval));
     }
 }

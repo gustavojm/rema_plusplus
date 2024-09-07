@@ -32,8 +32,6 @@ class tcp_server_telemetry : public tcp_server {
         uint8_t tx_buffer[buf_len];
         json::MyJsonDocument ans;
 
-        int times = 0;
-
         while (true) {
             x_y_axes->first_axis->read_pos_from_encoder();
             x_y_axes->second_axis->read_pos_from_encoder();
@@ -81,12 +79,14 @@ class tcp_server_telemetry : public tcp_server {
                                                                           // so no ON_CONDITION reported
             ans["telemetry"]["on_condition"]["z"] = (z_dummy_axes->already_there && !z_dummy_axes->was_soft_stopped);
 
-            if (!(times % 50)) {
+            if (new_temps_available) {
                 ans["temps"]["x"] = (static_cast<double>(temperature_ds18b20_get(0))) / 10;
                 ans["temps"]["y"] = (static_cast<double>(temperature_ds18b20_get(1))) / 10;
                 ans["temps"]["z"] = (static_cast<double>(temperature_ds18b20_get(2))) / 10;
+                new_temps_available = false;
+            } else {
+                ans.remove("temps");
             }
-            times++;
 
             rema::update_watchdog_timer();
             size_t msg_len = json::serializeMsgPack(ans, tx_buffer, sizeof(tx_buffer) - 1);
