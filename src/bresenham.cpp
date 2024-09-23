@@ -243,7 +243,7 @@ void bresenham::isr() {
         stop();
         xSemaphoreGiveFromISR(supervisor_semaphore, &xHigherPriorityTaskWoken);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-        goto cont;
+        return;
     }
 
     step();
@@ -253,8 +253,6 @@ void bresenham::isr() {
         xSemaphoreGiveFromISR(supervisor_semaphore, &xHigherPriorityTaskWoken);
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
-
-cont:;
 }
 
 /**

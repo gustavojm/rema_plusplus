@@ -122,7 +122,7 @@ void *_sbrk_r(struct _reent *reent, ptrdiff_t size) {
     return (returnValue);
 }
 
-//      In the pre-emptive multitasking environment provided by FreeRTOS,
+// In the pre-emptive multitasking environment provided by FreeRTOS,
 // it's possible (though unlikely) that a call from newlib code to the
 // malloc family might be preempted by a higher priority task that then
 // makes a call to the malloc family.  These implementations of newlib's
