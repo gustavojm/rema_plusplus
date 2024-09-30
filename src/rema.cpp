@@ -1,6 +1,7 @@
 #include "rema.h"
 #include "board.h"
 #include "gpio.h"
+#include "encoders_pico.h"
 
 gpio_templ<2, 1, SCU_MODE_FUNC4, 5, 1> brakes_out;               // DOUT0 P2_1    PIN81   GPIO5[1] Bornes 4 y 5
 gpio_templ<4, 6, SCU_MODE_FUNC0, 2, 6> touch_probe_actuator_out; // DOUT1 P4_6    PIN11   GPIO2[6] Bornes 6 y 7
@@ -61,11 +62,13 @@ void rema::brakes_apply() {
 }
 
 void rema::touch_probe_extend() {
-    touch_probe_actuator_out.set(0);
+    //touch_probe_actuator_out.set(0);
+    encoders->write_register(quadrature_encoder_constants::PWM_SERVO, 26);
 }
 
 void rema::touch_probe_retract() {
-    touch_probe_actuator_out.set(1);
+    //touch_probe_actuator_out.set(1);
+    encoders->write_register(quadrature_encoder_constants::PWM_SERVO, 116);
 }
 
 bool rema::is_touch_probe_touching() {
