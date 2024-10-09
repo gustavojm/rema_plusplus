@@ -169,13 +169,18 @@ json::MyJsonDocument tcp_server_command::brakes_mode_cmd(json::JsonObject const 
 json::MyJsonDocument tcp_server_command::touch_probe_cmd(json::JsonObject const pars) {
     json::MyJsonDocument res;
     if (pars.containsKey("position")) {
+        if (!rema::control_enabled_get()) {
+            res["error"] = "Control is disabled";
+            return res;
+        }
+
         char const *position = pars["position"];
 
-        if (!strcmp(position, "IN")) {
+        if (!strcmp(position, "RETRACT")) {
             rema::touch_probe_retract();
         }
 
-        if (!strcmp(position, "OUT")) {
+        if (!strcmp(position, "EXTEND")) {
             rema::touch_probe_extend();
         }
     }

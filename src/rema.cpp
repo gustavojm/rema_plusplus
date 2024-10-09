@@ -4,7 +4,7 @@
 #include "encoders_pico.h"
 
 gpio_templ<2, 1, SCU_MODE_FUNC4, 5, 1> brakes_out;               // DOUT0 P2_1    PIN81   GPIO5[1] Bornes 4 y 5
-gpio_templ<4, 6, SCU_MODE_FUNC0, 2, 6> touch_probe_actuator_out; // DOUT1 P4_6    PIN11   GPIO2[6] Bornes 6 y 7
+gpio_templ<4, 6, SCU_MODE_FUNC0, 2, 6> touch_probe_lifter_pwr_out; // DOUT1 P4_6    PIN11   GPIO2[6] Bornes 6 y 7
 gpio_templ<4, 5, SCU_MODE_FUNC0, 2, 5> relay_DOUT2;              // DOUT2 P4_5    PIN10   GPIO2[5] Bornes 8 y 9
 gpio_templ<4, 4, SCU_MODE_FUNC0, 2, 4> relay_DOUT3;              // DOUT3 P4_4    PIN9    GPIO2[4] Bornes 10 y 11
 
@@ -22,7 +22,7 @@ void rema::init_input_outputs() {
     brakes_out.init_output();
     brakes_apply();
 
-    touch_probe_actuator_out.init_output();
+    touch_probe_lifter_pwr_out.init_output();
     relay_DOUT2.init_output();
     relay_DOUT3.init_output();
 
@@ -62,13 +62,15 @@ void rema::brakes_apply() {
 }
 
 void rema::touch_probe_extend() {
-    //touch_probe_actuator_out.set(0);
-    encoders->write_register(quadrature_encoder_constants::PWM_SERVO, 26);
+    touch_probe_lifter_pwr_out.set(1);
+    vTaskDelay(pdMS_TO_TICKS(TOUCH_PROBE_LIFTER_ENERGIZE_DELAY_MS));
+    encoders->write_register(quadrature_encoder_constants::PWM_SERVO, 116);
 }
 
 void rema::touch_probe_retract() {
-    //touch_probe_actuator_out.set(1);
-    encoders->write_register(quadrature_encoder_constants::PWM_SERVO, 116);
+    encoders->write_register(quadrature_encoder_constants::PWM_SERVO, 26);
+    vTaskDelay(pdMS_TO_TICKS(TOUCH_PROBE_LIFTER_DEENERGIZE_DELAY_MS));
+    touch_probe_lifter_pwr_out.set(0);
 }
 
 bool rema::is_touch_probe_touching() {
