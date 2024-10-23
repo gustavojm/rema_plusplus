@@ -22,7 +22,7 @@ constexpr int ENABLED_INPUTS_MASK = 0b0011'1111;
 class rema {
   public:
     static const int BRAKES_RELEASE_DELAY_MS = 200;
-    static const int TOUCH_PROBE_LIFTER_ENERGIZE_DELAY_MS = 200;
+    static const int TOUCH_PROBE_LIFTER_ENERGIZE_DELAY_MS = 400;
     static const int TOUCH_PROBE_LIFTER_DEENERGIZE_DELAY_MS = 1000;
 
     enum class brakes_mode_t { OFF, AUTO, ON };
