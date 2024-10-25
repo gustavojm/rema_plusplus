@@ -69,7 +69,7 @@ void rema::touch_probe_extend() {
 
 void rema::touch_probe_retract() {
     touch_probe_lifter_pwr_out.set(1);
-    vTaskDelay(pdMS_TO_TICKS(TOUCH_PROBE_LIFTER_ENERGIZE_DELAY_MS));.
+    vTaskDelay(pdMS_TO_TICKS(TOUCH_PROBE_LIFTER_ENERGIZE_DELAY_MS));
     encoders->write_register(quadrature_encoder_constants::PWM_SERVO, 102);
     vTaskDelay(pdMS_TO_TICKS(TOUCH_PROBE_LIFTER_DEENERGIZE_DELAY_MS));
     touch_probe_lifter_pwr_out.set(0);
