@@ -16,5 +16,6 @@
         "lwipopts.h": "c",
         "cstdint": "cpp",
         "freertos.h": "c"
-    }
+    },
+    "cmake.configureOnOpen": false
 }
