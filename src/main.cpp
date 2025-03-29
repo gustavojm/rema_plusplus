@@ -69,11 +69,12 @@ void msDelay(uint32_t ms) {
  * @returns    function should not exit
  */
 int main(void) {
+    udelay(400000);
+
+    prvSetupHardware();
     debugInit();
     debugLocalSetLevel(true, Info);
     debugNetSetLevel(true, Info);
-
-    prvSetupHardware();
 
     // printf("    --- NASA GSPC ---\n");
     // printf("REMA Remote Terminal Unit.\n");
