@@ -69,8 +69,6 @@ void msDelay(uint32_t ms) {
  * @returns    function should not exit
  */
 int main(void) {
-    udelay(400000);
-
     prvSetupHardware();
     debugInit();
     debugLocalSetLevel(true, Info);
