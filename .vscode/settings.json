@@ -17,5 +17,6 @@
         "cstdint": "cpp",
         "freertos.h": "c"
     },
-    "cmake.configureOnOpen": false
+    "cmake.configureOnOpen": false,
+    "cortex-debug.gdbPath": "/usr/bin/gdb-multiarch"
 }
