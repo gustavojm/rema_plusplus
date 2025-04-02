@@ -14,6 +14,8 @@ bool rema::control_enabled = false;
 bool rema::stall_control = true;
 bool rema::touch_probe_protection = true;
 TickType_t rema::touch_probe_debounce_time_ms = 0;
+int rema::touch_probe_retract_angle = 0;
+int rema::touch_probe_extend_angle = 0;
 
 rema::brakes_mode_t rema::brakes_mode = rema::brakes_mode_t::AUTO;
 TickType_t rema::lastKeepAliveTicks;
@@ -64,13 +66,13 @@ void rema::brakes_apply() {
 void rema::touch_probe_extend() {
     touch_probe_lifter_pwr_out.set(1);
     vTaskDelay(pdMS_TO_TICKS(TOUCH_PROBE_LIFTER_ENERGIZE_DELAY_MS));
-    encoders->write_register(quadrature_encoder_constants::PWM_SERVO, 15);
+    encoders->write_register(quadrature_encoder_constants::PWM_SERVO, touch_probe_extend_angle);
 }
 
 void rema::touch_probe_retract() {
     touch_probe_lifter_pwr_out.set(1);
     vTaskDelay(pdMS_TO_TICKS(TOUCH_PROBE_LIFTER_ENERGIZE_DELAY_MS));
-    encoders->write_register(quadrature_encoder_constants::PWM_SERVO, 102);
+    encoders->write_register(quadrature_encoder_constants::PWM_SERVO, touch_probe_retract_angle);
     vTaskDelay(pdMS_TO_TICKS(TOUCH_PROBE_LIFTER_DEENERGIZE_DELAY_MS));
     touch_probe_lifter_pwr_out.set(0);
 }

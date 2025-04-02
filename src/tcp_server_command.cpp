@@ -231,10 +231,20 @@ json::MyJsonDocument tcp_server_command::touch_probe_settings_cmd(json::JsonObje
         rema::touch_probe_debounce_time_ms = pars["debounce_time_ms"];
     }
 
+    if (pars.containsKey("retract_angle")) {
+      rema::touch_probe_retract_angle = pars["retract_angle"];
+    }
+
+    if (pars.containsKey("extend_angle")) {
+      rema::touch_probe_extend_angle = pars["extend_angle"];
+    }
+
     res["protection"] = rema::touch_probe_protection;
     res["counts_XY"] = x_y_axes->touching_max_count;
     res["counts_Z"] = z_dummy_axes->touching_max_count;
     res["debounce_time_ms"] = rema::touch_probe_debounce_time_ms;
+    res["retract_angle"] = rema::touch_probe_retract_angle;
+    res["extend_angle"] = rema::touch_probe_extend_angle;
     return res;
 }
 
