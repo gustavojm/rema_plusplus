@@ -22,6 +22,7 @@
  */
 struct bresenham_msg {
     enum mot_pap::type type;
+    enum mot_pap::speed speed = mot_pap::speed::NORMAL;
     int first_axis_setpoint;
     int second_axis_setpoint;
 };
@@ -106,6 +107,7 @@ class bresenham {
     bool has_brakes = false;
     class kp kp;
     volatile int error;
+    volatile enum mot_pap::speed speed = mot_pap::speed::NORMAL;
 
   private:
     void calculate();

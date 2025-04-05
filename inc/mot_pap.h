@@ -28,6 +28,7 @@ class mot_pap {
     };
 
     enum type { MOVE, SOFT_STOP, HARD_STOP };
+    enum speed { SLOW, NORMAL };
 
     /**
      * @struct 	mot_pap_gpios

@@ -1,17 +1,10 @@
-#include <chrono>
-#include <cstdint>
-#include <cstdlib>
-
-#include "board.h"
-#include "debug.h"
 #include "kp.h"
-#include "limits.h"
 
 const int RAMP_STEPS = 25;
 const float RAMP_RATE = 1 / static_cast<float>(RAMP_STEPS);
 
-kp::kp(int kp, std::chrono::milliseconds sample_period_ms, int min_output, int max_output) {
-    set_output_limits(min_output, max_output);
+kp::kp(int kp, std::chrono::milliseconds sample_period_ms, int normal_min, int normal_max, int slow_min, int slow_max) {
+    set_output_limits(normal_min, normal_max, slow_min, slow_max);
 
     sample_period_ms = sample_period_ms;
 
@@ -23,7 +16,22 @@ void kp::restart() {
     num_times_ran = 0;
 }
 
-int kp::run(int setpoint, int input) {
+int kp::run(int setpoint, int input, enum mot_pap::speed speed) {
+    int out_min;
+    int out_max;
+
+    switch (speed) {
+    case mot_pap::speed::SLOW:
+        out_min = slow_out_min;
+        out_max = slow_out_max;
+        break;
+
+    case mot_pap::speed::NORMAL:
+    default:
+        out_min = normal_out_min;
+        out_max = normal_out_max;
+        break;
+    }
 
     int error = std::abs(setpoint - input);
 
@@ -51,7 +59,22 @@ int kp::run(int setpoint, int input) {
     return out;
 }
 
-int kp::run_unattenuated(int setpoint, int input) {
+int kp::run_unattenuated(int setpoint, int input, enum mot_pap::speed speed) {
+    int out_min;
+    int out_max;
+
+    switch (speed) {
+    case mot_pap::speed::SLOW:
+        out_min = slow_out_min;
+        out_max = slow_out_max;
+        break;
+
+    case mot_pap::speed::NORMAL:
+    default:
+        out_min = normal_out_min;
+        out_max = normal_out_max;
+        break;
+    }
 
     int error = std::abs(setpoint - input);
 
@@ -68,7 +91,6 @@ int kp::run_unattenuated(int setpoint, int input) {
 
     return output;
 }
-
 
 //! @brief		Sets the KP tunings.
 //! @warning	Make sure samplePeriodMs is set before calling this function.
@@ -87,7 +109,10 @@ void kp::set_sample_period(std::chrono::milliseconds new_sample_period_ms) {
     }
 }
 
-void kp::set_output_limits(int min, int max) {
-    out_min = min;
-    out_max = max;
+void kp::set_output_limits(int normal_min, int normal_max, int slow_min, int slow_max) {
+    normal_out_min = normal_min;
+    normal_out_max = normal_max;
+
+    slow_out_min = slow_min;
+    slow_out_max = slow_max;
 }

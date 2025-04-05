@@ -42,8 +42,10 @@ bresenham &xy_axes_init() {
     x_y_axes->kp = {
         100,                 //!< Kp
         x_y_axes->step_time, //!< Update rate (ms)
-        10000,               //!< Min output
-        60000                //!< Max output
+        10000,               //!< Normal Min output
+        60000,                //!< Normal Max output
+        1000,                //!< Slow Min output
+        6000                 //!< Slow Max output
     };
 
     return *x_y_axes;

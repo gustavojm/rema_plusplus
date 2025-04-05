@@ -25,14 +25,30 @@ void bresenham::task() {
                 was_stopped_by_probe = false;
                 was_stopped_by_probe_protection = false;
                 was_soft_stopped = false;
+                speed = msg_rcv->speed;
+
                 move(msg_rcv->first_axis_setpoint, msg_rcv->second_axis_setpoint);
                 vTaskResume(supervisor_task_handle);
                 break;
 
             case mot_pap::type::SOFT_STOP:
                 if (is_moving) {
-                    int x2 = kp.out_max;
-                    int x1 = kp.out_min;
+
+                    int x1;
+                    int x2;
+
+                    switch (speed) {
+                    case mot_pap::speed::SLOW:
+                        x2 = kp.slow_out_max;
+                        x1 = kp.slow_out_min;
+                        break;
+
+                    case mot_pap::speed::NORMAL:
+                    default:
+                        x2 = kp.normal_out_max;
+                        x1 = kp.normal_out_min;
+                        break;
+                    }
                     int y2 = 1000;
                     int y1 = 80;
                     int x = current_freq;
@@ -104,10 +120,8 @@ void bresenham::calculate() {
 void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
     // Bresenham error calculation needs to multiply by 2 for the error
     // calculation, thus clamp setpoints to half INT32 min and max
-    first_axis_setpoint =
-        std::clamp(first_axis_setpoint, (static_cast<int>(INT32_MIN) / 2), (static_cast<int>(INT32_MAX) / 2));
-    second_axis_setpoint =
-        std::clamp(second_axis_setpoint, (static_cast<int>(INT32_MIN) / 2), (static_cast<int>(INT32_MAX) / 2));
+    first_axis_setpoint = std::clamp(first_axis_setpoint, -999999999, 999999999);
+    second_axis_setpoint = std::clamp(second_axis_setpoint, -999999999, 999999999);
 
     if (!rema::control_enabled_get()) {
         lDebug(Warn, "Trying to move with control disabled");
@@ -143,9 +157,10 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
     } else {
         if (!was_soft_stopped) {
             kp.restart();
-            current_freq = kp.run(leader_axis->destination_counts, leader_axis->current_counts);
+            current_freq = kp.run(leader_axis->destination_counts, leader_axis->current_counts, speed);
         } else {
-            current_freq = (current_freq + kp.run_unattenuated(leader_axis->destination_counts, leader_axis->current_counts)) / 2;
+            current_freq =
+                (current_freq + kp.run_unattenuated(leader_axis->destination_counts, leader_axis->current_counts, speed)) / 2;
         }
         lDebug(Debug, "Control output = %i: ", current_freq);
 
@@ -221,9 +236,10 @@ void bresenham::supervise() {
                          // infinity keeps dancing around the setpoint...
 
             if (!was_soft_stopped) {
-                current_freq = kp.run(leader_axis->destination_counts, leader_axis->current_counts);
+                current_freq = kp.run(leader_axis->destination_counts, leader_axis->current_counts, speed);
             } else {
-                current_freq = (current_freq + kp.run_unattenuated(leader_axis->destination_counts, leader_axis->current_counts)) / 2;
+                current_freq =
+                    (current_freq + kp.run_unattenuated(leader_axis->destination_counts, leader_axis->current_counts, speed)) / 2;
             }
             lDebug(Debug, "Control output = %i: ", current_freq);
             tmr.change_freq(current_freq);

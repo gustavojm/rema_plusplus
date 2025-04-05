@@ -1,6 +1,15 @@
 #pragma once
 
 #include <chrono>
+#include <cstdint>
+#include <cstdlib>
+#include <limits.h>
+
+#include "board.h"
+#include "debug.h"
+
+#include "mot_pap.h"
+
 
 //! @brief 		Error proportional -kp- control for frequency output.
 class kp {
@@ -28,9 +37,13 @@ class kp {
 
     float p_term = 0; //!< The proportional term that is summed as part of the
                       //!< output (calculated in Pid_Run())
-    int out_min;      //!< The minimum output value. Anything lower will be limited to
+    int normal_out_min;      //!< The minimum output value. Anything lower will be limited to
                       //!< this floor.
-    int out_max;      //!< The maximum output value. Anything higher will be limited to
+    int normal_out_max;      //!< The maximum output value. Anything higher will be limited to
+                      //!< this ceiling.
+    int slow_out_min;      //!< The minimum output value. Anything lower will be limited to
+                      //!< this floor.
+    int slow_out_max;      //!< The maximum output value. Anything higher will be limited to
                       //!< this ceiling.
 
     //! @brief		Counts the number of times that Run() has be called.
@@ -49,18 +62,18 @@ class kp {
     //! can't set up
     //!    			reliable defaults, so we need to have the user
     //!    set them.
-    kp(int kp, std::chrono::milliseconds sample_period_ms, int min_output, int max_output);
+    kp(int kp, std::chrono::milliseconds sample_period_ms, int normal_min, int normal_max, int slow_min, int slow_max);
 
     void restart();
 
     //! @brief 		Computes new KP values
     //! @details 	Call once per sampleTimeMs. Output is stored in the kpData
     //! structure.
-    int run(int setpoint, int input);
+    int run(int setpoint, int input, enum mot_pap::speed speed);
 
-    int run_unattenuated(int setpoint, int input);
+    int run_unattenuated(int setpoint, int input, enum mot_pap::speed speed);
 
-    void set_output_limits(int min, int max);
+    void set_output_limits(int normal_min, int normal_max, int slow_min, int slow_max);
 
     //! @brief		Changes the sample time
     void set_sample_period(std::chrono::milliseconds new_sample_period_ms);

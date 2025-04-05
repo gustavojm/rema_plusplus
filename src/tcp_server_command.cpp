@@ -272,29 +272,34 @@ json::MyJsonDocument tcp_server_command::axes_settings_cmd(json::JsonObject cons
     json::MyJsonDocument res;
     double prop_gain = pars["prop_gain"];
     int update = pars["update"];
-    int min = pars["min"];
-    int max = pars["max"];
+    int normal_min = pars["normal_min"];
+    int normal_max = pars["normal_max"];
+    int slow_min = pars["slow_min"];
+    int slow_max = pars["slow_max"];
 
     if (pars.containsKey("axes")) {
         char const *axes = pars["axes"];
         bresenham *axes_ = get_axes(axes);
         axes_->step_time = std::chrono::milliseconds(update);
-        axes_->kp.set_output_limits(min, max);
+        axes_->kp.set_output_limits(normal_min, normal_max, slow_min, slow_max);
         axes_->kp.set_sample_period(axes_->step_time);
         axes_->kp.set_tunings(prop_gain);
         lDebug_uart_semihost(Debug, "%s settings set", axes_->name);
-        res["ack"] = true;
-    } else {
-        res["XY"]["min_freq"] = x_y_axes->kp.out_min;
-        res["XY"]["max_freq"] = x_y_axes->kp.out_max;
-        res["XY"]["update_time"] = x_y_axes->step_time.count();
-        res["XY"]["prop_gain"] = x_y_axes->kp.kp_;
+    } 
+        
+    res["XY"]["normal_min_freq"] = x_y_axes->kp.normal_out_min;
+    res["XY"]["normal_max_freq"] = x_y_axes->kp.normal_out_max;
+    res["XY"]["slow_min_freq"] = x_y_axes->kp.slow_out_min;
+    res["XY"]["slow_max_freq"] = x_y_axes->kp.slow_out_max;
+    res["XY"]["update_time"] = x_y_axes->step_time.count();
+    res["XY"]["prop_gain"] = x_y_axes->kp.kp_;
 
-        res["Z"]["min_freq"] = z_dummy_axes->kp.out_min;
-        res["Z"]["max_freq"] = z_dummy_axes->kp.out_max;
-        res["Z"]["update_time"] = z_dummy_axes->step_time.count();
-        res["Z"]["prop_gain"] = z_dummy_axes->kp.kp_;
-    }
+    res["Z"]["normal_min_freq"] = z_dummy_axes->kp.normal_out_min;
+    res["Z"]["normal_max_freq"] = z_dummy_axes->kp.normal_out_max;
+    res["Z"]["slow_min_freq"] = z_dummy_axes->kp.slow_out_min;
+    res["Z"]["slow_max_freq"] = z_dummy_axes->kp.slow_out_max;
+    res["Z"]["update_time"] = z_dummy_axes->step_time.count();
+    res["Z"]["prop_gain"] = z_dummy_axes->kp.kp_;
     return res;
 }
 
@@ -381,6 +386,8 @@ json::MyJsonDocument tcp_server_command::temperature_info_cmd(json::JsonObject c
 json::MyJsonDocument tcp_server_command::move_closed_loop_cmd(json::JsonObject const pars) {
     char const *axes = pars["axes"];
     bresenham *axes_ = get_axes(axes);
+
+
     json::MyJsonDocument res;
 
     auto check_result = check_control_and_brakes(axes_);
@@ -393,6 +400,14 @@ json::MyJsonDocument tcp_server_command::move_closed_loop_cmd(json::JsonObject c
     double second_axis_setpoint = pars["second_axis_setpoint"];
 
     bresenham_msg msg;
+
+    if (pars.containsKey("speed")) {
+        char const *speed = pars["speed"];
+        if (!strcmp(speed, "SLOW")) {
+            msg.speed = mot_pap::speed::SLOW;
+        }
+    }
+
     msg.type = mot_pap::type::MOVE;
     msg.first_axis_setpoint = static_cast<int>(first_axis_setpoint * axes_->first_axis->inches_to_counts_factor);
     msg.second_axis_setpoint = static_cast<int>(second_axis_setpoint * axes_->second_axis->inches_to_counts_factor);
