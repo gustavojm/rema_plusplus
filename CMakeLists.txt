@@ -204,7 +204,7 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 
 include(FetchContent)
 FetchContent_Declare(ArduinoJson
-    GIT_REPOSITORY https://github.com/bblanchon/ArduinoJson.git
+    GIT_REPOSITORY ssh://git@github.com/bblanchon/ArduinoJson.git
     GIT_TAG        v7.0.4
 )
 FetchContent_MakeAvailable(ArduinoJson)
@@ -274,6 +274,5 @@ add_custom_target(flash
     -c "shutdown"
     DEPENDS ${PROJECT_NAME}
     COMMENT "Flashing the device with OpenOCD"
-)        
-
+)
 
