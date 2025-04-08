@@ -107,9 +107,7 @@ extern "C" void GPIO1_IRQHandler(void) {
     if (Chip_PININT_GetFallStates(LPC_GPIO_PIN_INT)) {
         Chip_PININT_ClearFallStates(LPC_GPIO_PIN_INT, PININTCH(1));    
 
-        if (debounce_time_exceeded) {
-            ticks_last_release_time = ticks_now;
-        }
+        ticks_last_release_time = ticks_now;
     }
 
     if (Chip_PININT_GetRiseStates(LPC_GPIO_PIN_INT)) {
