@@ -113,6 +113,7 @@ extern "C" void GPIO1_IRQHandler(void) {
     if (Chip_PININT_GetRiseStates(LPC_GPIO_PIN_INT)) {
         Chip_PININT_ClearRiseStates(LPC_GPIO_PIN_INT, PININTCH(1));
   
+        __disable_irq();
         if (debounce_time_exceeded) {
             if (x_y_axes->is_moving) {
                 x_y_axes->was_stopped_by_probe = true;
@@ -125,5 +126,6 @@ extern "C" void GPIO1_IRQHandler(void) {
             x_y_axes->stop();
             z_dummy_axes->stop();
         }
+        __enable_irq();
     }
 }
