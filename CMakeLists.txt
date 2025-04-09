@@ -70,6 +70,9 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CXX_FLAGS} -DNDEBUG -Os")  # -Os -g3 -flto
 set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${LD_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${LD_FLAGS}")   # -g3 -flto
 
+#set(MbedTLS_DIR /home/gustavo/mbedtls/cmake)
+#find_package(MbedTLS)
+
 # some definition (-D)
 add_compile_definitions(
     #SIMULATE_ENCODER
@@ -143,7 +146,18 @@ set(EXTERNAL_HEADERS_DIR
     #/usr/local/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/arm-none-eabi/include
     ../lpc_chip_43xx/inc
     ../lpc_chip_43xx/inc/config_43xx
+    ../../../mbedtls/include
 )
+
+add_library(mbedtls STATIC 
+    ../../../mbedtls/library/base64.c
+    ../../../mbedtls/library/sha1.c
+)
+
+add_compile_definitions(MBEDTLS_NO_PLATFORM_ENTROPY                        
+                       )
+
+target_include_directories(mbedtls PRIVATE ../../../mbedtls/include)
 
 if(${PROJECT_NAME}_BUILD_EXECUTABLE)
   add_executable(${PROJECT_NAME} ${SOURCES} ${EXTERNAL_SOURCES})
@@ -214,6 +228,7 @@ target_link_libraries(
   board
   chip
   ArduinoJson
+  mbedtls
 )
 
 set(MAIN_TARGET ${PROJECT_NAME})
