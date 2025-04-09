@@ -26,6 +26,7 @@
 #include "temperature_ds18b20.h"
 #include "xy_axes.h"
 #include "z_axis.h"
+#include "websocket.h"
 
 /* GPa 201117 1850 Iss2: agregado de Heap_4.c*/
 uint8_t __attribute__((section("."
@@ -64,6 +65,10 @@ void msDelay(uint32_t ms) {
     vTaskDelay((configTICK_RATE_HZ * ms) / 1000);
 }
 
+void ws_message_handler(uint8_t *data, uint32_t len, ws_type_t type) {
+    lDebug(Info, "Websocket received: %.*s", len, data);
+}
+
 /**
  * @brief    main routine for example_lwip_tcpecho_freertos_18xx43xx
  * @returns    function should not exit
@@ -84,7 +89,7 @@ int main(void) {
     z_axis_init();
     encoders_pico_init();
 
-    temperature_ds18b20_init();
+    // temperature_ds18b20_init();
     // mem_check_init();
 
     network_init();
