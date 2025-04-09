@@ -154,9 +154,6 @@ add_library(mbedtls STATIC
     ../../../mbedtls/library/sha1.c
 )
 
-add_compile_definitions(MBEDTLS_NO_PLATFORM_ENTROPY                        
-                       )
-
 target_include_directories(mbedtls PRIVATE ../../../mbedtls/include)
 
 if(${PROJECT_NAME}_BUILD_EXECUTABLE)
