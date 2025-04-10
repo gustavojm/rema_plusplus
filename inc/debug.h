@@ -120,7 +120,7 @@ void debugClose();
 #define vDebug(fmt, name) debug("%s=(" fmt ")", debugV(name))
 
 /** Simple alias for <tt>lDebug()</tt> */
-#define debug(fmt, ...) lDebug(1, fmt, ##__VA_ARGS__)
+#define debug(fmt, ...) lDebug(Info, fmt, ##__VA_ARGS__)
 
 static inline char *make_message(const char *fmt, ...) {
     int size = 0;

@@ -8,21 +8,21 @@
 
 #include "lwip/api.h"
 
-#include "mbedtls/base64.h"
-#include "mbedtls/sha1.h"
 #include <string.h>
 #include <lwip/sockets.h>
 #include <lwip/netdb.h>
 
+#include "crypto.h"
+
 #define WS_PORT                    8765
 #define WS_MAX_CLIENTS             2
-#define WS_SEND_BUFFER_SIZE        1024
-#define WS_RECV_BUFFER_SIZE        1024
+#define WS_SEND_BUFFER_SIZE        512
+#define WS_RECV_BUFFER_SIZE        512
 #define WS_FIN_FLAG                1 << 7
 #define WS_MASKED_FLAG             1 << 7
 #define WS_TYPE_MASK               0xF
 
-#define WS_MAX_PAYLOAD_LENGTH 256
+#define WS_MAX_PAYLOAD_LENGTH 512
 
 #define WS_GUID "258EAFA5-E914-47DA-95CA-C5AB0DC85B11\0"
 
