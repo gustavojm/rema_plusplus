@@ -65,10 +65,6 @@ void msDelay(uint32_t ms) {
     vTaskDelay((configTICK_RATE_HZ * ms) / 1000);
 }
 
-void ws_message_handler(uint8_t *data, uint32_t len, ws_type_t type) {
-    lDebug(Info, "Websocket received: %.*s", len, data);
-}
-
 /**
  * @brief    main routine for example_lwip_tcpecho_freertos_18xx43xx
  * @returns    function should not exit

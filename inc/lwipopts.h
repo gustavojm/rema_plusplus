@@ -134,9 +134,17 @@
 #define MEM_LIBC_MALLOC 0
 #define MEMP_MEM_MALLOC 1
 
-#define MEMP_NUM_TCP_PCB   6
-#define MEMP_NUM_NETBUF    6
-#define MEMP_NUM_NETCONN   6
+// #define MEMP_NUM_TCP_PCB   6
+// #define MEMP_NUM_NETBUF    6
+// #define MEMP_NUM_NETCONN   6
+
+#define LWIP_POSIX_SOCKETS_IO_NAMES 0
+#define LWIP_SO_RCVTIMEO 1
+#define LWIP_SO_SNDTIMEO 1
+
+#define MEMP_NUM_NETCONN 20
+#define MEMP_NUM_PBUF 20
+#define MEMP_NUM_NETBUF 20
 
 
 /* Needed for malloc/free */

@@ -82,7 +82,7 @@ add_compile_definitions(
     CORE_M4     
     __USE_LPCOPEN 
     #CPP_USE_HEAP 
-    __LPC43XX__
+    __LPC43XX__ 
 )
 
 # compile option only for Debug build
@@ -145,16 +145,9 @@ set(EXTERNAL_HEADERS_DIR
     ../../encoders/inc
     #/usr/local/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/arm-none-eabi/include
     ../lpc_chip_43xx/inc
-    ../lpc_chip_43xx/inc/config_43xx
-    ../../../mbedtls/include
+    ../lpc_chip_43xx/inc/config_43xx    
 )
 
-add_library(mbedtls STATIC 
-    ../../../mbedtls/library/base64.c
-    ../../../mbedtls/library/sha1.c
-)
-
-target_include_directories(mbedtls PRIVATE ../../../mbedtls/include)
 
 if(${PROJECT_NAME}_BUILD_EXECUTABLE)
   add_executable(${PROJECT_NAME} ${SOURCES} ${EXTERNAL_SOURCES})
@@ -225,7 +218,6 @@ target_link_libraries(
   board
   chip
   ArduinoJson
-  mbedtls
 )
 
 set(MAIN_TARGET ${PROJECT_NAME})

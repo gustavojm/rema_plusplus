@@ -17,13 +17,21 @@ static char *create_ws_key_accept(char *inbuf) {
     static char concat_key[64] = { 0 };
     static char hash[22] = { 0 };
     static char hash_base64[64] = { 0 };
-    size_t len = 0, baselen = 0;
+    size_t len = 0;
+    sha1_ctx_t ctx;
 
     char *key = get_ws_key(inbuf, &len);
     strncpy(concat_key, key, len);
     strcat(concat_key, WS_GUID);
-    mbedtls_sha1((uint8_t *)concat_key, 60, (uint8_t *)hash);
-    mbedtls_base64_encode((uint8_t *)hash_base64, 64, &baselen, (uint8_t *)hash, 20);    
+    //mbedtls_sha1((uint8_t *)concat_key, 60, (uint8_t *)hash);
+
+    sha1_init(&ctx);
+    sha1_update(&ctx, (uint8_t *)concat_key, 60);
+    sha1_final(&ctx, (uint8_t *)hash);
+
+
+    //mbedtls_base64_encode((uint8_t *)hash_base64, 64, &baselen, (uint8_t *)hash, 20);    
+    base64_encode((uint8_t *)hash, 20, hash_base64);
     return hash_base64;
 }
 
@@ -100,11 +108,11 @@ void ws_send_message(ws_server_t *ws, ws_msg_t *msg) {
     for (int iClient = 0; iClient < WS_MAX_CLIENTS; iClient++) {
         client = &(ws->ws_clients[iClient]);
         if (client->established) {
-            // Set send timeout using setsockopt
-            struct timeval timeout;
-            timeout.tv_sec = 0;
-            timeout.tv_usec = 500000; // 500 ms
-            lwip_setsockopt(client->socket, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
+            // // Set send timeout using setsockopt
+            // struct timeval timeout;
+            // timeout.tv_sec = 0;
+            // timeout.tv_usec = 500000; // 500 ms
+            // lwip_setsockopt(client->socket, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
             
             int bytes_sent = lwip_send(client->socket, ws->send_buf, packet_size, 0);
             if (bytes_sent < 0) {
@@ -174,7 +182,11 @@ static void ws_create_clients_tasks(ws_server_t *ws) {
     for (int i = 0; i < WS_MAX_CLIENTS; i++) {
         client = &ws->ws_clients[i];        
         client->server_ptr = ws;
-        xTaskCreate(ws_client_task, "ws_client", 256, (void *)client, (tskIDLE_PRIORITY + 2), &client->task_handle);
+        if (xTaskCreate(ws_client_task, "ws_client", 512, (void *)client, (tskIDLE_PRIORITY + 2), &client->task_handle) != pdPASS) {
+            lDebug(Info, "error creating task");
+        } else {
+            lDebug(Info, "ws_client_task created");
+        } 
     }
 }
 
@@ -186,11 +198,14 @@ static void ws_create_clients_tasks(ws_server_t *ws) {
  * @param arg ws_server_ptr structure (refer websockets.h)
  */
 void ws_server_task(void *arg) {
-    WebsocketPublishMessage msg;
-    websocketQueue = xQueueCreate(10, sizeof(WebsocketPublishMessage)); // 10 is the queue size
+    // WebsocketPublishMessage msg;
+    // websocketQueue = xQueueCreate(10, sizeof(WebsocketPublishMessage)); // 10 is the queue size
 
+    HERE;
     ws_server_t *ws = (ws_server_t *)arg;
     ws_client_t *client;
+
+    HERE;
 
     // Create server socket
     int server_sock = lwip_socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
@@ -198,6 +213,7 @@ void ws_server_task(void *arg) {
         lDebug(Error, "Failed to create socket");
         vTaskDelete(NULL);
     }
+    lDebug(Info, "Socket created");
        
     // Prepare server address
     struct sockaddr_in server_addr;
@@ -212,6 +228,7 @@ void ws_server_task(void *arg) {
         lwip_close(server_sock);
         vTaskDelete(NULL);
     }
+    lDebug(Info, "Socket bound");
     
     // Listen for connections
     if (lwip_listen(server_sock, WS_MAX_CLIENTS) < 0) {
@@ -223,6 +240,7 @@ void ws_server_task(void *arg) {
     memset((void *)ws->send_buf, 0x00, WS_SEND_BUFFER_SIZE);
 
     ws_create_clients_tasks(ws);
+    lDebug(Info, "Client tasks created");
     
     // Set up timeout for accept
     struct timeval timeout;
@@ -260,18 +278,22 @@ void ws_server_task(void *arg) {
             }
         }
 
-        while (xQueueReceive(websocketQueue, &msg, 100) == pdPASS) {
-            ws_msg_t ws_msg;
-            ws_msg.message = (uint8_t *) &msg.payload;
-            ws_msg.msg_size = msg.payload_length;
-            ws_msg.msg_type = WS_TYPE_STRING;
-            ws_send_message(ws, &ws_msg);
-            lDebug(Info, "---WS--->");
-        }        
+        // while (xQueueReceive(websocketQueue, &msg, 100) == pdPASS) {
+        //     ws_msg_t ws_msg;
+        //     ws_msg.message = (uint8_t *) &msg.payload;
+        //     ws_msg.msg_size = msg.payload_length;
+        //     ws_msg.msg_type = WS_TYPE_STRING;
+        //     ws_send_message(ws, &ws_msg);
+        //     lDebug(Info, "---WS--->");
+        // }        
     }
 }
 
 void ws_server_init(ws_server_t *ws) {    
     TaskHandle_t ws_serverTask_handle;
-    xTaskCreate(ws_server_task, "ws_server", configMINIMAL_STACK_SIZE, (void *)ws, (configMAX_PRIORITIES - 1), &ws_serverTask_handle);    
+    if (xTaskCreate(ws_server_task, "ws_server", 2048, (void *)ws, (configMAX_PRIORITIES - 1), &ws_serverTask_handle) != pdPASS) {    
+        lDebug(Info, "Error creating ws_server_task");
+    } else {
+        lDebug(Info, "ws_server_task created");
+    }
 }

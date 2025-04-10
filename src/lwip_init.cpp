@@ -21,8 +21,9 @@
 #include "lpc_phy.h" /* For the PHY monitor support */
 #include "settings.h"
 #include "tcp_server_command.h"
-#include "tcp_server_telemetry.h"
 #include "tcp_server_logs.h"
+#include "tcp_server_telemetry.h"
+#include "websocket.h"
 #include "xy_axes.h"
 #include "z_axis.h"
 
@@ -50,6 +51,87 @@ static struct netif lpc_netif;
 static void tcpip_init_done_signal(void *arg) {
     /* Tell main thread TCP/IP init is done */
     *reinterpret_cast<s32_t *>(arg) = 1;
+}
+
+const int BIG_NEGATIVE_NUMBER = -999999999;
+const int BIG_POSITIVE_NUMBER = 999999999;
+
+void ws_message_handler(uint8_t *data, uint32_t len, ws_type_t type) {
+    lDebug(Info, "Websocket received: %.*s", len, data);
+
+    bresenham_msg msg = {};
+    bresenham *axis = nullptr;
+
+    char first_axis_dir = data[1];
+    switch (first_axis_dir) {
+
+    case '_':
+        axis = x_y_axes;
+        msg.first_axis_setpoint = x_y_axes->first_axis->current_counts;
+        msg.type = mot_pap::type::MOVE;
+        break;
+
+    case 'L':
+        axis = x_y_axes;
+        msg.first_axis_setpoint = BIG_NEGATIVE_NUMBER;
+        msg.type = mot_pap::type::MOVE;
+        break;
+
+    case 'R':
+        axis = x_y_axes;
+        msg.first_axis_setpoint = BIG_POSITIVE_NUMBER;
+        msg.type = mot_pap::type::MOVE;
+        break;
+
+    case 'I':
+        axis = z_dummy_axes;
+        msg.first_axis_setpoint = BIG_POSITIVE_NUMBER;
+        msg.type = mot_pap::type::MOVE;
+        break;
+
+    case 'O':
+        axis = z_dummy_axes;
+        msg.first_axis_setpoint = BIG_NEGATIVE_NUMBER;
+        msg.type = mot_pap::type::MOVE;
+        break;
+
+    case 'S':
+    default: 
+        x_y_axes->send({ mot_pap::SOFT_STOP });
+        z_dummy_axes->send({ mot_pap::SOFT_STOP });
+        break;
+    }
+
+    char second_axis_dir = data[2];
+    switch (second_axis_dir) {
+
+    case '_':
+        msg.second_axis_setpoint = x_y_axes->second_axis->current_counts;
+        msg.type = mot_pap::type::MOVE;
+        break;
+
+    case 'U':
+        axis = x_y_axes;
+        msg.second_axis_setpoint = BIG_POSITIVE_NUMBER;
+        msg.type = mot_pap::type::MOVE;
+        break;
+
+    case 'D':
+        axis = x_y_axes;
+        msg.second_axis_setpoint = BIG_NEGATIVE_NUMBER;
+        msg.type = mot_pap::type::MOVE;
+        break;
+
+    case 'S':
+    default: 
+        x_y_axes->send({ mot_pap::SOFT_STOP });
+        z_dummy_axes->send({ mot_pap::SOFT_STOP });
+        break;
+    }
+
+    if (axis) {
+        axis->send(msg);
+    }
 }
 
 /* LWIP kickoff and PHY link monitor thread */
@@ -84,7 +166,7 @@ void vStackIpSetup(void *pvParameters) {
 
     /* Add netif interface  */
     if (!netif_add(&lpc_netif, &ipaddr, &netmask, &gw, NULL, lpc_enetif_init, tcpip_input)) {
-        //LWIP_ASSERT("Net interface failed to initialize\r\n", 0);
+        // LWIP_ASSERT("Net interface failed to initialize\r\n", 0);
     }
     netif_set_default(&lpc_netif);
     netif_set_up(&lpc_netif);
@@ -101,6 +183,11 @@ void vStackIpSetup(void *pvParameters) {
     tcp_server_command cmd(settings::network.port);
     tcp_server_telemetry tlmtry(settings::network.port + 1);
     tcp_server_logs logs(settings::network.port + 2);
+
+    ws_server_t ws_server;
+    ws_server.msg_handler = ws_message_handler;
+
+    ws_server_init(&ws_server);
 
     /* This loop monitors the PHY link and will handle cable events
      via the PHY driver. */
@@ -159,7 +246,8 @@ void network_init() {
     xTaskCreate(
         vStackIpSetup,
         "StackIpSetup",
-        configMINIMAL_STACK_SIZE * 4,
+        // configMINIMAL_STACK_SIZE * 4,
+        1024,
         nullptr,
         (tskIDLE_PRIORITY + 1UL),
         reinterpret_cast<xTaskHandle *>(NULL));
