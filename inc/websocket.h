@@ -14,29 +14,31 @@
 
 #include "crypto.h"
 
-#define WS_PORT                    8765
-#define WS_MAX_CLIENTS             1
-#define WS_SEND_BUFFER_SIZE        512
-#define WS_RECV_BUFFER_SIZE        512
+#define WS_PORT 8765
+#define WS_GUID "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 #define WS_FIN_FLAG                1 << 7
 #define WS_MASKED_FLAG             1 << 7
 #define WS_TYPE_MASK               0xF
+#define WS_TYPE_TEXT 0x01
+#define WS_TYPE_BINARY 0x02
+#define WS_TYPE_CLOSE 0x08
+#define WS_TYPE_PING 0x09
+#define WS_TYPE_PONG 0x0A
+#define SELECT_TIMEOUT_MS 100
+
+#define WS_MAX_CLIENTS             1
+#define WS_SEND_BUFFER_SIZE        512
+#define WS_RECV_BUFFER_SIZE        512
 
 #define WS_MAX_PAYLOAD_LENGTH 512
 
-#define WS_GUID "258EAFA5-E914-47DA-95CA-C5AB0DC85B11\0"
+//#define WS_GUID "258EAFA5-E914-47DA-95CA-C5AB0DC85B11\0"
 
 inline QueueHandle_t websocketQueue;
 
-typedef struct ws_server ws_server_t;
-
-typedef enum { 
-    WS_TYPE_CONT = 0x0, 
-    WS_TYPE_STRING = 0x1, 
-    WS_TYPE_BINARY = 0x2,
-    WS_TYPE_CLOSE = 0x8,
-    WS_TYPE_PING = 0x9,
-    WS_TYPE_PONG = 0xA,
+typedef enum {
+    WS_TYPE_STRING = WS_TYPE_TEXT,
+    WS_TYPE_BIN = WS_TYPE_BINARY
 } ws_type_t;
 
 typedef struct {
@@ -45,26 +47,29 @@ typedef struct {
     ws_type_t msg_type;
 } ws_msg_t;
 
-typedef struct ws_client {
-    int socket;                // Socket file descriptor instead of netconn*
-    bool established = false;
-    TaskHandle_t task_handle;
+typedef struct {
+    char payload[WS_SEND_BUFFER_SIZE];
+    uint32_t payload_length;
+} WebsocketPublishMessage;
+
+// Forward declaration
+typedef struct ws_server_s ws_server_t;
+
+typedef void (*ws_callback_t)(uint8_t *payload, uint32_t length, ws_type_t type);
+
+typedef struct {
+    int socket;
+    bool established;
     uint8_t recv_buf[WS_RECV_BUFFER_SIZE];
     ws_server_t *server_ptr;
 } ws_client_t;
 
-struct ws_server {
-    ws_client_t ws_clients[WS_MAX_CLIENTS];
-    uint8_t send_buf[WS_SEND_BUFFER_SIZE] = {};
-    void (*msg_handler)(uint8_t *data, uint32_t len, ws_type_t type);
+struct ws_server_s {
+    uint8_t send_buf[WS_SEND_BUFFER_SIZE];
+    ws_client_t client;
+    ws_callback_t msg_handler;
 };
 
-// Structure to hold MQTT publish information
-typedef struct {
-    char payload[WS_MAX_PAYLOAD_LENGTH];   // Message payload to publish
-    size_t payload_length;                 // Length of the payload (in bytes)
-} WebsocketPublishMessage;
-
-void ws_server_init(ws_server_t *ws);
+void ws_server_init(ws_server_t *ws, ws_callback_t callback);
 void ws_send_message(ws_server_t *ws, ws_msg_t *msg);
-int sendToWebsocketQueue(int sensor_num, int pub_setting_num, const char *name, const char *topic, const char *payload, size_t payload_length);
+//int sendToWebsocketQueue(int sensor_num, int pub_setting_num, const char *name, const char *topic, const char *payload, size_t payload_length);
