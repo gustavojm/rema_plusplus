@@ -96,6 +96,19 @@ void rema::hard_limits_reached() {
     x_y_axes->stop();
 }
 
+tl::expected<void, const char *> rema::check_control_and_brakes(bresenham *axes) {
+    if (!rema::control_enabled_get()) {
+        return tl::make_unexpected("Control is disabled");
+    }
+
+    if (axes->has_brakes && rema::brakes_mode == rema::brakes_mode_t::ON) {
+        return tl::make_unexpected("Brakes are applied");
+    }
+
+    return {}; // Indicating no errors
+}
+
+
 // IRQ Handler for Touch Probe
 extern "C" void GPIO1_IRQHandler(void) {
     Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));

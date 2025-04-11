@@ -32,18 +32,6 @@ bresenham *tcp_server_command::get_axes(const char *axis) {
     }
 }
 
-tl::expected<void, const char *> check_control_and_brakes(bresenham *axes) {
-    if (!rema::control_enabled_get()) {
-        return tl::make_unexpected("Control is disabled");
-    }
-
-    if (axes->has_brakes && rema::brakes_mode == rema::brakes_mode_t::ON) {
-        return tl::make_unexpected("Brakes are applied");
-    }
-
-    return {}; // Indicating no errors
-}
-
 json::MyJsonDocument tcp_server_command::log_level_cmd(json::JsonObject pars) {
     json::MyJsonDocument res;
 
@@ -390,7 +378,7 @@ json::MyJsonDocument tcp_server_command::move_closed_loop_cmd(json::JsonObject c
 
     json::MyJsonDocument res;
 
-    auto check_result = check_control_and_brakes(axes_);
+    auto check_result = rema::check_control_and_brakes(axes_);
     if (!check_result) {
         res["error"] = check_result.error();
         return res;
@@ -425,49 +413,50 @@ json::MyJsonDocument tcp_server_command::move_closed_loop_cmd(json::JsonObject c
     return res;
 }
 
-json::MyJsonDocument tcp_server_command::move_joystick_cmd(json::JsonObject const pars) {
-    char const *axes = pars["axes"];
-    bresenham *axes_ = get_axes(axes);
-    json::MyJsonDocument res;
+// Joystick commands now received by Websocket
+// json::MyJsonDocument tcp_server_command::move_joystick_cmd(json::JsonObject const pars) {
+//     char const *axes = pars["axes"];
+//     bresenham *axes_ = get_axes(axes);
+//     json::MyJsonDocument res;
 
-    auto check_result = check_control_and_brakes(axes_);
-    if (!check_result) {
-        res["error"] = check_result.error();
-        return res;
-    }
+//     auto check_result = rema::check_control_and_brakes(axes_);
+//     if (!check_result) {
+//         res["error"] = check_result.error();
+//         return res;
+//     }
 
-    int first_axis_setpoint, second_axis_setpoint;
-    if (pars.containsKey("first_axis_setpoint")) {
-        first_axis_setpoint = static_cast<int>(pars["first_axis_setpoint"]);
-    } else {
-        first_axis_setpoint = axes_->first_axis->current_counts;
-    }
+//     int first_axis_setpoint, second_axis_setpoint;
+//     if (pars.containsKey("first_axis_setpoint")) {
+//         first_axis_setpoint = static_cast<int>(pars["first_axis_setpoint"]);
+//     } else {
+//         first_axis_setpoint = axes_->first_axis->current_counts;
+//     }
 
-    if (pars.containsKey("second_axis_setpoint")) {
-        second_axis_setpoint = static_cast<int>(pars["second_axis_setpoint"]);
-    } else {
-        second_axis_setpoint = axes_->second_axis->current_counts;
-    }
+//     if (pars.containsKey("second_axis_setpoint")) {
+//         second_axis_setpoint = static_cast<int>(pars["second_axis_setpoint"]);
+//     } else {
+//         second_axis_setpoint = axes_->second_axis->current_counts;
+//     }
 
-    bresenham_msg msg;
-    msg.type = mot_pap::type::MOVE;
-    msg.first_axis_setpoint = first_axis_setpoint;
-    msg.second_axis_setpoint = second_axis_setpoint;
-    axes_->send(msg);
-    // lDebug_uart_semihost(Info, "MOVE_JOYSTICK First Axis Setpoint= %i, Second Axis Setpoint=
-    // %i",
-    //        first_axis_setpoint, second_axis_setpoint);
+//     bresenham_msg msg;
+//     msg.type = mot_pap::type::MOVE;
+//     msg.first_axis_setpoint = first_axis_setpoint;
+//     msg.second_axis_setpoint = second_axis_setpoint;
+//     axes_->send(msg);
+//     // lDebug_uart_semihost(Info, "MOVE_JOYSTICK First Axis Setpoint= %i, Second Axis Setpoint=
+//     // %i",
+//     //        first_axis_setpoint, second_axis_setpoint);
 
-    res["ack"] = true;
-    return res;
-}
+//     res["ack"] = true;
+//     return res;
+// }
 
 json::MyJsonDocument tcp_server_command::move_incremental_cmd(json::JsonObject const pars) {
     char const *axes = pars["axes"];
     bresenham *axes_ = get_axes(axes);
     json::MyJsonDocument res;
 
-    auto check_result = check_control_and_brakes(axes_);
+    auto check_result = rema::check_control_and_brakes(axes_);
     if (!check_result) {
         res["error"] = check_result.error();
         return res;
@@ -592,10 +581,10 @@ const tcp_server_command::cmd_entry tcp_server_command::cmds_table[] = {
         "SET_COORDS",
         &tcp_server_command::set_coords_cmd,
     },
-    {
-        "MOVE_JOYSTICK",
-        &tcp_server_command::move_joystick_cmd,
-    },
+    // {
+    //     "MOVE_JOYSTICK",
+    //     &tcp_server_command::move_joystick_cmd,
+    // },
     {
         "MOVE_CLOSED_LOOP",
         &tcp_server_command::move_closed_loop_cmd,
