@@ -185,9 +185,8 @@ void vStackIpSetup(void *pvParameters) {
     tcp_server_logs logs(settings::network.port + 2);
 
     ws_server_t ws_server;
-    ws_server.msg_handler = ws_message_handler;
-
-    ws_server_init(&ws_server);
+    
+    ws_server_init(&ws_server, ws_message_handler);
 
     /* This loop monitors the PHY link and will handle cable events
      via the PHY driver. */
