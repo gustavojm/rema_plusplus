@@ -276,7 +276,7 @@ void ws_server_task(void *arg) {
     while (1) {
         // Check if we need to accept a new client
         if (ws->client.socket < 0) {
-            lDebug(Info, "Waiting for WebSocket client...");
+            // lDebug(Info, "Waiting for WebSocket client...");
             
             // Set up for select on listen socket
             FD_ZERO(&read_fds);
@@ -351,6 +351,19 @@ void ws_server_task(void *arg) {
             lDebug(Info, "Sent queued message to client");
         }
     }
+}
+
+int sendToWebsocketQueue(const char *payload) {
+    WebsocketPublishMessage msg;
+    strncpy(msg.payload, payload, sizeof msg.payload);
+    msg.payload_length = strlen(payload);
+    
+    if (xQueueSend(websocketQueue, &msg, 0) != pdPASS) {
+        lDebug(Warn, "WebsocketQueue is full");
+        return -1;
+    }
+
+    return 0;
 }
 
 void ws_server_init(ws_server_t *ws, ws_callback_t callback) {
