@@ -82,7 +82,8 @@ add_compile_definitions(
     CORE_M4     
     __USE_LPCOPEN 
     #CPP_USE_HEAP 
-    __LPC43XX__ 
+    __LPC43XX__     
+    LWIP_DEBUG=1
 )
 
 # compile option only for Debug build

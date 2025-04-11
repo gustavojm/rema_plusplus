@@ -108,12 +108,12 @@ void ws_send_message(ws_server_t *ws, ws_msg_t *msg) {
     for (int iClient = 0; iClient < WS_MAX_CLIENTS; iClient++) {
         client = &(ws->ws_clients[iClient]);
         if (client->established) {
-            // // Set send timeout using setsockopt
-            // struct timeval timeout;
-            // timeout.tv_sec = 0;
-            // timeout.tv_usec = 500000; // 500 ms
-            // lwip_setsockopt(client->socket, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
-            
+            // Set send timeout using setsockopt
+            struct timeval timeout;
+            timeout.tv_sec = 0;
+            timeout.tv_usec = 1500000; // 500 ms
+            int err = lwip_setsockopt(client->socket, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));            
+            printf(" **************setsockopt *************** %i\n", err);
             int bytes_sent = lwip_send(client->socket, ws->send_buf, packet_size, 0);
             if (bytes_sent < 0) {
                 lDebug(Error, "Write failed with err %d (\"%s\")", errno, strerror(errno));
@@ -254,7 +254,7 @@ void ws_server_task(void *arg) {
                 FD_ZERO(&readfds);
                 FD_SET(server_sock, &readfds);
                 timeout.tv_sec = 0;
-                timeout.tv_usec = 100000; // 100 ms
+                timeout.tv_usec = 1000000; // 100 ms
                 
                 // Check for connection with timeout
                 int activity = lwip_select(server_sock + 1, &readfds, NULL, NULL, &timeout);
