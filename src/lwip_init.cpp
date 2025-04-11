@@ -27,7 +27,7 @@
 #include "xy_axes.h"
 #include "z_axis.h"
 
-ws_server_t ws_server;
+ws_server_t joystick_ws_server;
 
 #define ip_addr_print(ipaddr)                                                                                               \
     printf(                                                                                                                 \
@@ -59,7 +59,7 @@ const int BIG_NEGATIVE_NUMBER = -999999999;
 const int BIG_POSITIVE_NUMBER = 999999999;
 
 void ws_message_handler(uint8_t *data, uint32_t len, ws_type_t type) {
-    lDebug(Info, "Websocket received: %.*s", len, data);
+    lDebug(Debug, "Joystick received: %.*s", len, data);
 
     bresenham_msg msg = {};
     bresenham *axes_ = nullptr;
@@ -191,7 +191,7 @@ void vStackIpSetup(void *pvParameters) {
     tcp_server_telemetry tlmtry(settings::network.port + 1);
     tcp_server_logs logs(settings::network.port + 2);
   
-    ws_server_init(&ws_server, ws_message_handler);
+    ws_server_init(&joystick_ws_server, ws_message_handler);
 
     /* This loop monitors the PHY link and will handle cable events
      via the PHY driver. */
