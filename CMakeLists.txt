@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.15)
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build." FORCE)
+endif()
+
 set(CMAKE_TOOLCHAIN_FILE "cmake/armgcc.cmake")
 
 # This template attempts to be "fetch_content"-able
@@ -83,7 +87,7 @@ add_compile_definitions(
     __USE_LPCOPEN 
     #CPP_USE_HEAP 
     __LPC43XX__     
-    LWIP_DEBUG=1
+    #LWIP_DEBUG=1
 )
 
 # compile option only for Debug build
