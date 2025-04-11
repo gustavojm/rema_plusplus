@@ -72,4 +72,4 @@ struct ws_server_s {
 
 void ws_server_init(ws_server_t *ws, ws_callback_t callback);
 void ws_send_message(ws_server_t *ws, ws_msg_t *msg);
-//int sendToWebsocketQueue(int sensor_num, int pub_setting_num, const char *name, const char *topic, const char *payload, size_t payload_length);
+int sendToWebsocketQueue(const char *payload);

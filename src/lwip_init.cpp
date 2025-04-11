@@ -27,6 +27,8 @@
 #include "xy_axes.h"
 #include "z_axis.h"
 
+ws_server_t ws_server;
+
 #define ip_addr_print(ipaddr)                                                                                               \
     printf(                                                                                                                 \
         "IP ADDRESS FROM EEPROM = %hhu.%hhu.%hhu.%hhu",                                                                     \
@@ -60,37 +62,37 @@ void ws_message_handler(uint8_t *data, uint32_t len, ws_type_t type) {
     lDebug(Info, "Websocket received: %.*s", len, data);
 
     bresenham_msg msg = {};
-    bresenham *axis = nullptr;
+    bresenham *axes_ = nullptr;
 
     char first_axis_dir = data[1];
     switch (first_axis_dir) {
 
     case '_':
-        axis = x_y_axes;
+        axes_ = x_y_axes;
         msg.first_axis_setpoint = x_y_axes->first_axis->current_counts;
         msg.type = mot_pap::type::MOVE;
         break;
 
     case 'L':
-        axis = x_y_axes;
+        axes_ = x_y_axes;
         msg.first_axis_setpoint = BIG_NEGATIVE_NUMBER;
         msg.type = mot_pap::type::MOVE;
         break;
 
     case 'R':
-        axis = x_y_axes;
+        axes_ = x_y_axes;
         msg.first_axis_setpoint = BIG_POSITIVE_NUMBER;
         msg.type = mot_pap::type::MOVE;
         break;
 
     case 'I':
-        axis = z_dummy_axes;
+        axes_ = z_dummy_axes;
         msg.first_axis_setpoint = BIG_POSITIVE_NUMBER;
         msg.type = mot_pap::type::MOVE;
         break;
 
     case 'O':
-        axis = z_dummy_axes;
+        axes_ = z_dummy_axes;
         msg.first_axis_setpoint = BIG_NEGATIVE_NUMBER;
         msg.type = mot_pap::type::MOVE;
         break;
@@ -111,13 +113,13 @@ void ws_message_handler(uint8_t *data, uint32_t len, ws_type_t type) {
         break;
 
     case 'U':
-        axis = x_y_axes;
+        axes_ = x_y_axes;
         msg.second_axis_setpoint = BIG_POSITIVE_NUMBER;
         msg.type = mot_pap::type::MOVE;
         break;
 
     case 'D':
-        axis = x_y_axes;
+        axes_ = x_y_axes;
         msg.second_axis_setpoint = BIG_NEGATIVE_NUMBER;
         msg.type = mot_pap::type::MOVE;
         break;
@@ -129,8 +131,13 @@ void ws_message_handler(uint8_t *data, uint32_t len, ws_type_t type) {
         break;
     }
 
-    if (axis) {
-        axis->send(msg);
+    if (axes_) {
+        auto check_result = rema::check_control_and_brakes(axes_);
+        if (!check_result) {
+            sendToWebsocketQueue(check_result.error());
+        } else {
+            axes_->send(msg);
+        }                    
     }
 }
 
@@ -183,9 +190,7 @@ void vStackIpSetup(void *pvParameters) {
     tcp_server_command cmd(settings::network.port);
     tcp_server_telemetry tlmtry(settings::network.port + 1);
     tcp_server_logs logs(settings::network.port + 2);
-
-    ws_server_t ws_server;
-    
+  
     ws_server_init(&ws_server, ws_message_handler);
 
     /* This loop monitors the PHY link and will handle cable events
