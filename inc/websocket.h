@@ -15,7 +15,7 @@
 #include "crypto.h"
 
 #define WS_PORT                    8765
-#define WS_MAX_CLIENTS             2
+#define WS_MAX_CLIENTS             1
 #define WS_SEND_BUFFER_SIZE        512
 #define WS_RECV_BUFFER_SIZE        512
 #define WS_FIN_FLAG                1 << 7

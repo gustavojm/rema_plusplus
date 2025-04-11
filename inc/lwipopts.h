@@ -46,7 +46,7 @@
 /* pbuf buffers in pool. In zero-copy mode, these buffers are
    located in peripheral RAM. In copied mode, they are located in
    internal IRAM */
-#define PBUF_POOL_SIZE 32
+#define PBUF_POOL_SIZE 64
 
 /* No padding needed */
 #define ETH_PAD_SIZE 0
@@ -71,7 +71,7 @@
 
 /* Non-static memory, used with DMA pool */
 #ifdef __CODE_RED
-#define MEM_SIZE (12 * 1024)
+#define MEM_SIZE (24 * 1024)
 #else
 #define MEM_SIZE (24 * 1024)
 #endif
@@ -115,36 +115,36 @@
 
 /* This define is custom for the LPC EMAC driver. Enabled it to
    get debug messages for the driver. */
-#define EMAC_DEBUG LWIP_DBG_OFF
+#define EMAC_DEBUG LWIP_DBG_ON
 
 #define DEFAULT_THREAD_PRIO       (tskIDLE_PRIORITY + 1)
 #define DEFAULT_THREAD_STACKSIZE  (512)
-#define DEFAULT_ACCEPTMBOX_SIZE   6
-#define DEFAULT_ACCEPTMBOX_SIZE   6
-#define DEFAULT_TCP_RECVMBOX_SIZE 6
-#define DEFAULT_UDP_RECVMBOX_SIZE 6
+#define DEFAULT_ACCEPTMBOX_SIZE   10
+#define DEFAULT_ACCEPTMBOX_SIZE   10
+#define DEFAULT_TCP_RECVMBOX_SIZE 10
+#define DEFAULT_UDP_RECVMBOX_SIZE 10
 
 /* TCPIP thread must run at higher priority than MAC threads! */
 #define TCPIP_THREAD_PRIO (configMAX_PRIORITIES)
 
-#define TCPIP_THREAD_STACKSIZE (512)
+#define TCPIP_THREAD_STACKSIZE (1024)
 
-#define TCPIP_MBOX_SIZE 6
+#define TCPIP_MBOX_SIZE 10
 
 #define MEM_LIBC_MALLOC 0
 #define MEMP_MEM_MALLOC 1
 
-// #define MEMP_NUM_TCP_PCB   6
-// #define MEMP_NUM_NETBUF    6
-// #define MEMP_NUM_NETCONN   6
+// #define MEMP_NUM_TCP_PCB   8
+// #define MEMP_NUM_NETBUF    8
+// #define MEMP_NUM_NETCONN   8
 
 #define LWIP_POSIX_SOCKETS_IO_NAMES 0
 #define LWIP_SO_RCVTIMEO 1
 #define LWIP_SO_SNDTIMEO 1
 
-#define MEMP_NUM_NETCONN 20
-#define MEMP_NUM_PBUF 20
-#define MEMP_NUM_NETBUF 20
+#define MEMP_NUM_NETCONN 32
+#define MEMP_NUM_PBUF 32
+#define MEMP_NUM_NETBUF 32
 
 
 /* Needed for malloc/free */
