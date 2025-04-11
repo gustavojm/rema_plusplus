@@ -7,6 +7,7 @@
 #include "task.h"
 #include "xy_axes.h"
 #include "z_axis.h"
+#include "expected.hpp"
 
 #define WATCHDOG_TIME_MS 1000
 
@@ -48,6 +49,8 @@ class rema {
     static bool is_watchdog_expired();
 
     static void hard_limits_reached();
+
+    static tl::expected<void, const char *> check_control_and_brakes(bresenham *axes);
 
     static bool control_enabled;
     static bool stall_control;
