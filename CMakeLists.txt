@@ -74,9 +74,6 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CXX_FLAGS} -DNDEBUG -Os")  # -Os -g3 -flto
 set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${LD_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS_RELEASE "${LD_FLAGS}")   # -g3 -flto
 
-#set(MbedTLS_DIR /home/gustavo/mbedtls/cmake)
-#find_package(MbedTLS)
-
 # some definition (-D)
 add_compile_definitions(
     #SIMULATE_ENCODER
