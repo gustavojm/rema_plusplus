@@ -308,7 +308,10 @@ void bresenham::send(bresenham_msg msg) {
     auto *msg_ptr = new bresenham_msg(msg);
     if (xQueueSend(queue, &msg_ptr, portMAX_DELAY) == pdPASS) {
         lDebug(Info, "%s: command sent", name);
-    }
+    } else {
+        lDebug(Error, "%s: unable to queue command", name);
+        stop();
+    }   
 }
 
 void bresenham::empty_queue() {
