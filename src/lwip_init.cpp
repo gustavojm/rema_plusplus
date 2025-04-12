@@ -99,8 +99,12 @@ void ws_message_handler(uint8_t *data, uint32_t len, ws_type_t type) {
 
     case 'S':
     default: 
+        x_y_axes->empty_queue();
         x_y_axes->send({ mot_pap::SOFT_STOP });
+
+        z_dummy_axes->empty_queue();
         z_dummy_axes->send({ mot_pap::SOFT_STOP });
+        axes_ = nullptr;
         break;
     }
 
@@ -126,8 +130,12 @@ void ws_message_handler(uint8_t *data, uint32_t len, ws_type_t type) {
 
     case 'S':
     default: 
+        x_y_axes->empty_queue();
         x_y_axes->send({ mot_pap::SOFT_STOP });
+
+        z_dummy_axes->empty_queue();
         z_dummy_axes->send({ mot_pap::SOFT_STOP });
+        axes_ = nullptr;
         break;
     }
 

@@ -310,3 +310,12 @@ void bresenham::send(bresenham_msg msg) {
         lDebug(Info, "%s: command sent", name);
     }
 }
+
+void bresenham::empty_queue() {
+    void *dummy = pvPortMalloc(sizeof(bresenham_msg));
+    while (xQueueReceive(queue, dummy, 0) == pdTRUE)
+    {
+        // Do nothing, just draining the queue
+    }
+    vPortFree(dummy); // if allocated
+}

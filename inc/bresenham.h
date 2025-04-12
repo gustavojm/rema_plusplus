@@ -85,6 +85,8 @@ class bresenham {
 
     void resume();
 
+    void empty_queue();
+
   public:
     const char *name;
     volatile bool is_moving = false;
