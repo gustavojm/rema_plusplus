@@ -100,7 +100,8 @@ void kp::set_tunings(float kp) {
 
     kp_ = kp;
 
-    lDebug(Info, "KP: %f", kp_);
+    // Printing floats generates hard faults...
+    // lDebug(Info, "KP: %f", kp_);
 }
 
 void kp::set_sample_period(std::chrono::milliseconds new_sample_period_ms) {

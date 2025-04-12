@@ -414,11 +414,12 @@ json::MyJsonDocument tcp_server_command::move_closed_loop_cmd(json::JsonObject c
 
     axes_->send(msg);
 
-    lDebug_uart_semihost(
-        Info,
-        "MOVE_CLOSED_LOOP First Axis Setpoint= %f, Second Axis Setpoint= %f",
-        first_axis_setpoint,
-        second_axis_setpoint);
+    // Printing floats generates hard faults...
+    // lDebug_uart_semihost(
+    //     Info,
+    //     "MOVE_CLOSED_LOOP First Axis Setpoint= %f, Second Axis Setpoint= %f",
+    //     first_axis_setpoint,
+    //     second_axis_setpoint);
 
     res["ack"] = true;
     return res;
