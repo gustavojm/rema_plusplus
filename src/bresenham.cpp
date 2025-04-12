@@ -29,6 +29,7 @@ void bresenham::task() {
 
                 move(msg_rcv->first_axis_setpoint, msg_rcv->second_axis_setpoint);
                 vTaskResume(supervisor_task_handle);
+                lDebug(Info, "MOVE");
                 break;
 
             case mot_pap::type::SOFT_STOP:
@@ -86,6 +87,7 @@ void bresenham::task() {
                     // first_axis->soft_stop(y);
                     // second_axis->soft_stop(y);
                 }
+                lDebug(Info, "SOFT");
                 break;
 
             case mot_pap::HARD_STOP:
@@ -276,12 +278,14 @@ void bresenham::isr() {
  * @returns nothing
  */
 void bresenham::stop() {
+    __disable_irq();
     is_moving = false;
     tmr.stop();
     current_freq = 0;
     if (has_brakes) {
         rema::brakes_apply();
     }
+    __enable_irq();
 }
 
 /**
@@ -289,9 +293,11 @@ void bresenham::stop() {
  * @returns nothing
  */
 void bresenham::pause() {
+    __disable_irq();
     if (is_moving) {
         tmr.stop();
     }
+    __enable_irq();
 }
 
 /**
@@ -299,9 +305,11 @@ void bresenham::pause() {
  * @returns nothing
  */
 void bresenham::resume() {
+    __disable_irq();
     if (is_moving) {
         tmr.start();
     }
+    __enable_irq();
 }
 
 void bresenham::send(bresenham_msg msg) {
@@ -315,10 +323,11 @@ void bresenham::send(bresenham_msg msg) {
 }
 
 void bresenham::empty_queue() {
-    void *dummy = pvPortMalloc(sizeof(bresenham_msg));
-    while (xQueueReceive(queue, dummy, 0) == pdTRUE)
-    {
+    struct bresenham_msg *msg_rcv;
+    while (xQueueReceive(queue, &msg_rcv, 0) == pdTRUE) {
+        delete msg_rcv;
+        msg_rcv = nullptr;
+
         // Do nothing, just draining the queue
-    }
-    vPortFree(dummy); // if allocated
+    }    
 }

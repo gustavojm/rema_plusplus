@@ -113,7 +113,10 @@ json::MyJsonDocument tcp_server_command::control_enable_cmd(json::JsonObject con
         bool enabled = pars["enabled"];
         rema::control_enabled_set(enabled);
         if (!enabled) {
+            x_y_axes->empty_queue();
             x_y_axes->send({ mot_pap::HARD_STOP });
+            
+            z_dummy_axes->empty_queue();
             z_dummy_axes->send({ mot_pap::HARD_STOP });
         }
     }
@@ -292,7 +295,10 @@ json::MyJsonDocument tcp_server_command::axes_settings_cmd(json::JsonObject cons
 }
 
 json::MyJsonDocument tcp_server_command::axes_hard_stop_all_cmd(json::JsonObject const pars) {
+    x_y_axes->empty_queue();
     x_y_axes->send({ mot_pap::HARD_STOP });
+    
+    z_dummy_axes->empty_queue();
     z_dummy_axes->send({ mot_pap::HARD_STOP });
 
     json::MyJsonDocument res;
@@ -301,8 +307,12 @@ json::MyJsonDocument tcp_server_command::axes_hard_stop_all_cmd(json::JsonObject
 }
 
 json::MyJsonDocument tcp_server_command::axes_soft_stop_all_cmd(json::JsonObject const pars) {
+    x_y_axes->empty_queue();
     x_y_axes->send({ mot_pap::SOFT_STOP });
+
+    z_dummy_axes->empty_queue();
     z_dummy_axes->send({ mot_pap::SOFT_STOP });
+
     json::MyJsonDocument res;
     res["ack"] = true;
     return res;

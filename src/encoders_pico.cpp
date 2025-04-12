@@ -119,6 +119,7 @@ void encoders_pico::task([[maybe_unused]] void *pars) {
     while (true) {
         if (xSemaphoreTake(encoders_pico_semaphore, portMAX_DELAY) == pdPASS) {
             struct limits limits = encoders->read_limits_and_ack();
+            __disable_irq();
             if (limits.hard & ENABLED_INPUTS_MASK) {
                 rema::hard_limits_reached();
             }
@@ -146,6 +147,7 @@ void encoders_pico::task([[maybe_unused]] void *pars) {
             }
             //Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
             encoders_irq_pin.clear_pending().enable();
+            __enable_irq();
         }
     }
 }
