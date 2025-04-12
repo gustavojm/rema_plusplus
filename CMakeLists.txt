@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.15)
 
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build." FORCE)
+endif()
+
 set(CMAKE_TOOLCHAIN_FILE "cmake/armgcc.cmake")
 
 # This template attempts to be "fetch_content"-able
@@ -79,7 +83,8 @@ add_compile_definitions(
     CORE_M4     
     __USE_LPCOPEN 
     #CPP_USE_HEAP 
-    __LPC43XX__
+    __LPC43XX__     
+    #LWIP_DEBUG=1
 )
 
 # compile option only for Debug build
@@ -142,8 +147,9 @@ set(EXTERNAL_HEADERS_DIR
     ../../encoders/inc
     #/usr/local/arm-gnu-toolchain-12.3.rel1-x86_64-arm-none-eabi/arm-none-eabi/include
     ../lpc_chip_43xx/inc
-    ../lpc_chip_43xx/inc/config_43xx
+    ../lpc_chip_43xx/inc/config_43xx    
 )
+
 
 if(${PROJECT_NAME}_BUILD_EXECUTABLE)
   add_executable(${PROJECT_NAME} ${SOURCES} ${EXTERNAL_SOURCES})
