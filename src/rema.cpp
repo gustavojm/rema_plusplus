@@ -130,14 +130,16 @@ extern "C" void GPIO1_IRQHandler(void) {
         if (debounce_time_exceeded) {
             if (x_y_axes->is_moving) {
                 x_y_axes->was_stopped_by_probe = true;
+                x_y_axes->stop();
             }
 
             if (z_dummy_axes->is_moving) {
                 z_dummy_axes->was_stopped_by_probe = true;
+                z_dummy_axes->stop();
             }
 
-            x_y_axes->stop();
-            z_dummy_axes->stop();
+            //x_y_axes->stop();
+            //z_dummy_axes->stop();
         }
         __enable_irq();
     }

@@ -21,14 +21,15 @@ void bresenham::task() {
 
             switch (msg_rcv->type) {
             case mot_pap::type::MOVE:
-                vTaskSuspend(supervisor_task_handle);
+                taskENTER_CRITICAL();
                 was_stopped_by_probe = false;
                 was_stopped_by_probe_protection = false;
                 was_soft_stopped = false;
                 speed = msg_rcv->speed;
+                taskEXIT_CRITICAL();
 
                 move(msg_rcv->first_axis_setpoint, msg_rcv->second_axis_setpoint);
-                vTaskResume(supervisor_task_handle);
+                
                 lDebug(Info, "MOVE");
                 break;
 
@@ -79,13 +80,11 @@ void bresenham::task() {
                         second_axis_setpoint -= counts;
                     }
 
-                    vTaskSuspend(supervisor_task_handle);
+                    taskENTER_CRITICAL();
                     was_soft_stopped = true;
+                    taskEXIT_CRITICAL();
                     move(first_axis_setpoint, second_axis_setpoint);
-                    vTaskResume(supervisor_task_handle);
-
-                    // first_axis->soft_stop(y);
-                    // second_axis->soft_stop(y);
+                    
                 }
                 lDebug(Info, "SOFT");
                 break;
@@ -139,11 +138,13 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
         }
     }
 
+    taskENTER_CRITICAL();
     is_moving = true;
     already_there = false;
     first_axis->stall_reset();
     second_axis->stall_reset();
     touching_counter = 0;
+    taskEXIT_CRITICAL();
     first_axis->read_pos_from_encoder();
     second_axis->read_pos_from_encoder();
     first_axis->set_destination_counts(first_axis_setpoint);
@@ -244,7 +245,7 @@ void bresenham::supervise() {
                     (current_freq + kp.run_unattenuated(leader_axis->destination_counts, leader_axis->current_counts, speed)) / 2;
             }
             lDebug(Debug, "Control output = %i: ", current_freq);
-            tmr.change_freq(current_freq);
+            change_freq(current_freq);
         }
     }
 }
@@ -253,25 +254,44 @@ void bresenham::supervise() {
  * @brief   function called by the timer ISR to generate the output pulses
  */
 void bresenham::isr() {
-    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-    TickType_t ticks_now = xTaskGetTickCount();
+    if (is_moving) {
+        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+        TickType_t ticks_now = xTaskGetTickCount();
 
-    already_there = first_axis->check_already_there() && second_axis->check_already_there();
-    if (already_there) {
-        stop();
-        xSemaphoreGiveFromISR(supervisor_semaphore, &xHigherPriorityTaskWoken);
-        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-        return;
-    }
+        uint32_t saved = taskENTER_CRITICAL_FROM_ISR();
+        static volatile bool already_there_shadow = first_axis->check_already_there() && second_axis->check_already_there();
+        already_there = already_there_shadow;
+        taskEXIT_CRITICAL_FROM_ISR(saved);
+        
+        if (already_there_shadow) {
+            stop();
+            xSemaphoreGiveFromISR(supervisor_semaphore, &xHigherPriorityTaskWoken);
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+            return;
+        }
 
-    step();
+        step();
 
-    if ((ticks_now - ticks_last_time) > pdMS_TO_TICKS(step_time.count())) {
-        ticks_last_time = ticks_now;
-        xSemaphoreGiveFromISR(supervisor_semaphore, &xHigherPriorityTaskWoken);
-        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        if ((ticks_now - ticks_last_time) > pdMS_TO_TICKS(step_time.count())) {
+            ticks_last_time = ticks_now;
+            xSemaphoreGiveFromISR(supervisor_semaphore, &xHigherPriorityTaskWoken);
+            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        }
     }
 }
+
+/**
+ * @brief   *DANGER* tmr.change_freq will start the timer if it was stopped
+ * @returns nothing
+ */
+void bresenham::change_freq(int freq) {
+    __disable_irq();
+    if (is_moving) {
+        tmr.change_freq(freq);
+    }
+    __enable_irq();
+}
+
 
 /**
  * @brief   if there is a movement in process, stops it

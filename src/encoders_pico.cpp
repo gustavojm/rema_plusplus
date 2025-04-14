@@ -121,7 +121,13 @@ void encoders_pico::task([[maybe_unused]] void *pars) {
             struct limits limits = encoders->read_limits_and_ack();
             __disable_irq();
             if (limits.hard & ENABLED_INPUTS_MASK) {
-                rema::hard_limits_reached();
+                if (limits.hard & (1 << 0 | 1 << 1 | 1 << 2 | 1 << 3)) {
+                    x_y_axes->stop();
+                }
+
+                if (limits.hard & (1 << 4 | 1 << 5) ) {
+                    z_dummy_axes->stop();
+                }
             }
 
             x_y_axes->first_axis->already_there = limits.targets & (1 << 0);

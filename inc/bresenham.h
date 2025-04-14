@@ -83,6 +83,8 @@ class bresenham {
 
     void pause();
 
+    void change_freq(int freq);
+
     void resume();
 
     void empty_queue();
