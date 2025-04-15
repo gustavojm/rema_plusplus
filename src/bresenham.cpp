@@ -214,10 +214,14 @@ void bresenham::supervise() {
 
             if (rema::touch_probe_protection) {
                 if (rema::is_touch_probe_touching()) {
+                    taskENTER_CRITICAL();
                     touching_counter++;
+                    taskEXIT_CRITICAL();
                     if (touching_counter >= touching_max_count) {
+                        taskENTER_CRITICAL();
                         touching_counter = 0;
                         was_stopped_by_probe_protection = true;
+                        taskEXIT_CRITICAL();
                         stop();
                         lDebug(Warn, "%s: touch probe protection", name);
                         continue;
@@ -259,7 +263,7 @@ void bresenham::isr() {
         TickType_t ticks_now = xTaskGetTickCount();
 
         uint32_t saved = taskENTER_CRITICAL_FROM_ISR();
-        static volatile bool already_there_shadow = first_axis->check_already_there() && second_axis->check_already_there();
+        bool already_there_shadow = first_axis->check_already_there() && second_axis->check_already_there();
         already_there = already_there_shadow;
         taskEXIT_CRITICAL_FROM_ISR(saved);
         

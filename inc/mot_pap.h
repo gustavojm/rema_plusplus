@@ -71,10 +71,12 @@ class mot_pap {
     void set_direction();
 
     void set_destination_counts(int target) {
+        taskENTER_CRITICAL();
         int error = target - current_counts;
         already_there = (std::abs(error) < MOT_PAP_POS_THRESHOLD);
-
         destination_counts = target;
+        taskEXIT_CRITICAL();
+        
         if (is_dummy) {
             return;
         }
