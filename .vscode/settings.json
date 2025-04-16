@@ -15,7 +15,8 @@
         "system_error": "c",
         "lwipopts.h": "c",
         "cstdint": "cpp",
-        "freertos.h": "c"
+        "freertos.h": "c",
+        "*.ipp": "cpp"
     },
     "cmake.configureOnOpen": false,
     "cortex-debug.gdbPath": "/usr/bin/gdb-multiarch"

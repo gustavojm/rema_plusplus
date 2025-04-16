@@ -86,13 +86,13 @@ void bresenham::task() {
                     move(first_axis_setpoint, second_axis_setpoint);
                     
                 }
-                lDebug(Info, "SOFT");
+                lDebug(Info, "SOFT STOP  %s", name);
                 break;
 
             case mot_pap::HARD_STOP:
             default:
                 stop();
-                lDebug(Info, "Hard stop %s", name);
+                lDebug(Info, "HARD STOP %s", name);
                 break;
             }
 

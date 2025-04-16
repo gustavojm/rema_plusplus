@@ -23,7 +23,7 @@ function(set_project_warnings PROJECT_NAME)
       -Wno-sign-compare
       -Wno-unused-parameter 
       -Wno-missing-field-initializers 
-      -Wno-main
+      -Wno-main      
       #-Wno-unused-but-set-variable      
   )
 
