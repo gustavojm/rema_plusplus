@@ -130,11 +130,12 @@ void encoders_pico::task([[maybe_unused]] void *pars) {
                 }
             }
 
+            taskENTER_CRITICAL();
             x_y_axes->first_axis->already_there = limits.targets & (1 << 0);
             x_y_axes->second_axis->already_there = limits.targets & (1 << 1);
-            
-            if (x_y_axes->first_axis->already_there && x_y_axes->second_axis->already_there) {
-                x_y_axes->already_there = true;
+            x_y_axes->already_there = x_y_axes->first_axis->already_there && x_y_axes->second_axis->already_there;            
+            taskEXIT_CRITICAL();
+            if (x_y_axes->already_there) {
                 x_y_axes->stop();
                 lDebug(Info, "%s: already there", x_y_axes->name);
             } else {
@@ -142,9 +143,11 @@ void encoders_pico::task([[maybe_unused]] void *pars) {
                                     // encoders information
             }
 
+            taskENTER_CRITICAL();
             z_dummy_axes->first_axis->already_there = limits.targets & (1 << 2);
-            if (z_dummy_axes->first_axis->already_there) {
-                z_dummy_axes->already_there = true;
+            z_dummy_axes->already_there = z_dummy_axes->first_axis->already_there;
+            taskEXIT_CRITICAL();
+            if (z_dummy_axes->already_there) {
                 z_dummy_axes->stop();
                 lDebug(Info, "%s: already there", z_dummy_axes->name);
             } else {

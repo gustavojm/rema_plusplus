@@ -258,23 +258,23 @@ void bresenham::supervise() {
  * @brief   function called by the timer ISR to generate the output pulses
  */
 void bresenham::isr() {
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    TickType_t ticks_now = xTaskGetTickCount();
+
+    uint32_t saved = taskENTER_CRITICAL_FROM_ISR();
+    bool already_there_shadow = first_axis->check_already_there() && second_axis->check_already_there();
+    already_there = already_there_shadow;
+    taskEXIT_CRITICAL_FROM_ISR(saved);
+    
+    if (already_there_shadow) {
+        stop();
+        xSemaphoreGiveFromISR(supervisor_semaphore, &xHigherPriorityTaskWoken);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        return;
+    }
+
     if (is_moving) {
-        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
-        TickType_t ticks_now = xTaskGetTickCount();
-
-        uint32_t saved = taskENTER_CRITICAL_FROM_ISR();
-        bool already_there_shadow = first_axis->check_already_there() && second_axis->check_already_there();
-        already_there = already_there_shadow;
-        taskEXIT_CRITICAL_FROM_ISR(saved);
-        
-        if (already_there_shadow) {
-            stop();
-            xSemaphoreGiveFromISR(supervisor_semaphore, &xHigherPriorityTaskWoken);
-            portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
-            return;
-        }
-
-        step();
+            step();
 
         if ((ticks_now - ticks_last_time) > pdMS_TO_TICKS(step_time.count())) {
             ticks_last_time = ticks_now;
@@ -338,12 +338,17 @@ void bresenham::resume() {
 
 void bresenham::send(bresenham_msg msg) {
     auto *msg_ptr = new bresenham_msg(msg);
-    if (xQueueSend(queue, &msg_ptr, portMAX_DELAY) == pdPASS) {
-        lDebug(Info, "%s: command sent", name);
+    if (msg_ptr) {
+        if (xQueueSend(queue, &msg_ptr, portMAX_DELAY) == pdPASS) {
+            lDebug(Info, "%s: command sent", name);
+        } else {
+            lDebug(Error, "%s: unable to queue command", name);
+            stop();
+        }   
     } else {
-        lDebug(Error, "%s: unable to queue command", name);
-        stop();
-    }   
+        // Out of memory. Do not log message as it also requires memory allocation
+        stop();     
+    }
 }
 
 void bresenham::empty_queue() {
