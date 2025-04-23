@@ -120,7 +120,7 @@ void encoders_pico::task([[maybe_unused]] void *pars) {
         if (xSemaphoreTake(encoders_pico_semaphore, portMAX_DELAY) == pdPASS) {
             struct limits limits = encoders->read_limits_and_ack();
             __disable_irq();
-            if (limits.hard & ENABLED_INPUTS_MASK) {
+            if (limits.hard & quadrature_encoder_constants::ENABLED_LIMITS_MASK) {
                 if (limits.hard & (1 << 0 | 1 << 1 | 1 << 2 | 1 << 3)) {
                     x_y_axes->stop();
                 }

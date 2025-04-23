@@ -18,8 +18,6 @@ inline gpio_pinint touch_probe_irq_pin = {
     4, 0, (SCU_MODE_INBUFF_EN | SCU_MODE_PULLDOWN | SCU_MODE_FUNC0), 2, 0, PIN_INT1_IRQn
 }; // DIN0 P4_0     PIN1   GPIO2[0]
 
-constexpr int ENABLED_INPUTS_MASK = 0b0011'1111;
-
 class rema {
   public:
     static const int BRAKES_RELEASE_DELAY_MS = 200;
