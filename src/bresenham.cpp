@@ -35,7 +35,7 @@ void bresenham::task() {
 
             case mot_pap::type::SOFT_STOP:
                 if (is_moving) {
-
+                    pause();
                     int x1;
                     int x2;
 
@@ -58,6 +58,9 @@ void bresenham::task() {
 
                     int counts = y;
                     lDebug(Info, "Soft stop %s in %i counts", name, counts);
+
+                    first_axis->read_pos_from_encoder();
+                    second_axis->read_pos_from_encoder();
 
                     int first_axis_setpoint = first_axis->current_counts;
                     int second_axis_setpoint = second_axis->current_counts;
