@@ -51,12 +51,12 @@ void bresenham::task() {
                         x1 = kp.normal_out_min;
                         break;
                     }
-                    int y2 = 1000;
-                    int y1 = 80;
-                    int x = current_freq;
-                    int y = ((static_cast<float>(y2 - y1) / (x2 - x1)) * (x - x1)) + y1;
 
-                    int counts = y;
+                    int y1 = soft_stop_min_counts;
+                    int y2 = soft_stop_max_counts;
+                    int x = current_freq;
+                    int counts = ((static_cast<float>(y2 - y1) / (x2 - x1)) * (x - x1)) + y1;
+
                     lDebug(Info, "Soft stop %s in %i counts", name, counts);
 
                     first_axis->read_pos_from_encoder();

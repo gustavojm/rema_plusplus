@@ -267,6 +267,8 @@ json::MyJsonDocument tcp_server_command::axes_settings_cmd(json::JsonObject cons
     int normal_max = pars["normal_max"];
     int slow_min = pars["slow_min"];
     int slow_max = pars["slow_max"];
+    int soft_stop_min_counts = pars["soft_stop_min_counts"];
+    int soft_stop_max_counts = pars["soft_stop_max_counts"];
 
     if (pars.containsKey("axes")) {
         char const *axes = pars["axes"];
@@ -275,6 +277,9 @@ json::MyJsonDocument tcp_server_command::axes_settings_cmd(json::JsonObject cons
         axes_->kp.set_output_limits(normal_min, normal_max, slow_min, slow_max);
         axes_->kp.set_sample_period(axes_->step_time);
         axes_->kp.set_tunings(prop_gain);
+        axes_->soft_stop_min_counts = soft_stop_min_counts;
+        axes_->soft_stop_max_counts = soft_stop_max_counts;
+
         lDebug_uart_semihost(Debug, "%s settings set", axes_->name);
     } 
         
@@ -284,6 +289,8 @@ json::MyJsonDocument tcp_server_command::axes_settings_cmd(json::JsonObject cons
     res["XY"]["slow_max_freq"] = x_y_axes->kp.slow_out_max;
     res["XY"]["update_time"] = x_y_axes->step_time.count();
     res["XY"]["prop_gain"] = x_y_axes->kp.kp_;
+    res["XY"]["soft_stop_min_counts"] = x_y_axes->soft_stop_min_counts;
+    res["XY"]["soft_stop_max_counts"] = x_y_axes->soft_stop_max_counts;
 
     res["Z"]["normal_min_freq"] = z_dummy_axes->kp.normal_out_min;
     res["Z"]["normal_max_freq"] = z_dummy_axes->kp.normal_out_max;
@@ -291,6 +298,8 @@ json::MyJsonDocument tcp_server_command::axes_settings_cmd(json::JsonObject cons
     res["Z"]["slow_max_freq"] = z_dummy_axes->kp.slow_out_max;
     res["Z"]["update_time"] = z_dummy_axes->step_time.count();
     res["Z"]["prop_gain"] = z_dummy_axes->kp.kp_;
+    res["Z"]["soft_stop_min_counts"] = z_dummy_axes->soft_stop_min_counts;
+    res["Z"]["soft_stop_max_counts"] = z_dummy_axes->soft_stop_max_counts;
     return res;
 }
 

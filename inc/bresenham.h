@@ -112,6 +112,8 @@ class bresenham {
     class kp kp;
     volatile int error;
     volatile enum mot_pap::speed speed = mot_pap::speed::NORMAL;
+    int soft_stop_min_counts;
+    int soft_stop_max_counts;
 
   private:
     void calculate();

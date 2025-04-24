@@ -50,6 +50,9 @@ bresenham &z_axis_init() {
         60000                    //!< Slow Max output
     };
 
+    z_dummy_axes->soft_stop_min_counts = 25;
+    z_dummy_axes->soft_stop_max_counts = 500;
+
     return *z_dummy_axes;
 }
 
