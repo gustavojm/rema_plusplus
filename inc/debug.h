@@ -50,9 +50,9 @@
 #define UART_DMA_TX_INTERRUPT_PRIORITY                                                                                    \
     (configLIBRARY_MAX_SYSCALL_INTERRUPT_PRIORITY + 1) // Has to have higher priority than timers ( now +2 )
 
-const int UART_DEBUG_QUEUE_SIZE = 50;
-const int NET_DEBUG_QUEUE_SIZE = 50;
-const int NET_DEBUG_MAX_MSG_SIZE = 255;
+const int UART_DEBUG_QUEUE_SIZE = 25;
+const int NET_DEBUG_QUEUE_SIZE = 25;
+const int NET_DEBUG_MAX_MSG_SIZE = 512;
 
 inline TaskHandle_t uart_DMA_TX_task_handle;
 
@@ -151,7 +151,7 @@ static inline char *make_message(const char *fmt, ...) {
         return NULL;
     }
     va_end(ap);
-    p[size+1] = '\0';
+    p[size] = '\0';
 
     return p;
 }
