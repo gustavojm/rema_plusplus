@@ -18,16 +18,21 @@ void bresenham::task() {
     while (true) {
         if (xQueueReceive(queue, &msg_rcv, portMAX_DELAY) == pdPASS) {
             lDebug(Info, "%s: command received", name);
-
+            int joystic_movement_shadow = false;
             switch (msg_rcv->type) {
+
+            case mot_pap::type::MOVE_JOYSTICK:
+                joystic_movement_shadow = true;
+                [[fallthrough]];
+
             case mot_pap::type::MOVE:
                 taskENTER_CRITICAL();
                 was_stopped_by_probe = false;
                 was_stopped_by_probe_protection = false;
                 was_soft_stopped = false;
                 speed = msg_rcv->speed;
+                joystick_movement = joystic_movement_shadow;
                 taskEXIT_CRITICAL();
-
                 move(msg_rcv->first_axis_setpoint, msg_rcv->second_axis_setpoint);
                 
                 lDebug(Info, "MOVE");
@@ -35,7 +40,6 @@ void bresenham::task() {
 
             case mot_pap::type::SOFT_STOP:
                 if (is_moving) {
-                    pause();
                     int x1;
                     int x2;
 
@@ -58,6 +62,7 @@ void bresenham::task() {
                     int counts = ((static_cast<float>(y2 - y1) / (x2 - x1)) * (x - x1)) + y1;
 
                     lDebug(Info, "Soft stop %s in %i counts", name, counts);
+                    pause();
 
                     first_axis->read_pos_from_encoder();
                     second_axis->read_pos_from_encoder();
@@ -82,8 +87,10 @@ void bresenham::task() {
                     if (second_axis->destination_counts < second_axis->current_counts) {
                         second_axis_setpoint -= counts;
                     }
+                    resume();
 
                     taskENTER_CRITICAL();
+                    joystick_movement = true;
                     was_soft_stopped = true;
                     taskEXIT_CRITICAL();
                     move(first_axis_setpoint, second_axis_setpoint);
@@ -307,6 +314,7 @@ void bresenham::change_freq(int freq) {
 void bresenham::stop() {
     __disable_irq();
     is_moving = false;
+    joystick_movement = false;
     tmr.stop();
     current_freq = 0;
     if (has_brakes) {

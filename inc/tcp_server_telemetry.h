@@ -61,6 +61,9 @@ class tcp_server_telemetry : public tcp_server {
             ans["telemetry"]["limits"]["out"] = static_cast<bool>(limits.hard & 1 << 5);
             ans["telemetry"]["limits"]["probe"] = touch_probe_irq_pin.read();
 
+            ans["telemetry"]["joystick_movement"]["x_y"] = x_y_axes->joystick_movement;
+            ans["telemetry"]["joystick_movement"]["z"] = z_dummy_axes->joystick_movement;
+
             ans["telemetry"]["control_enabled"] = rema::control_enabled;
             ans["telemetry"]["stall_control"] = rema::stall_control;
             ans["telemetry"]["brakes_mode"] = static_cast<int>(rema::brakes_mode);

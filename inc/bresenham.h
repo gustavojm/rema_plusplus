@@ -103,6 +103,7 @@ class bresenham {
     mot_pap *leader_axis = nullptr;
     class tmr tmr;
     volatile bool already_there = false;
+    volatile bool joystick_movement = false;
     volatile bool was_soft_stopped = false;
     volatile bool was_stopped_by_probe = false;
     volatile bool was_stopped_by_probe_protection = false;

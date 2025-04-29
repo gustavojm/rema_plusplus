@@ -27,7 +27,7 @@ class mot_pap {
         NONE,
     };
 
-    enum type { MOVE, SOFT_STOP, HARD_STOP };
+    enum type { MOVE_JOYSTICK, MOVE, SOFT_STOP, HARD_STOP };
     enum speed { SLOW, NORMAL };
 
     /**

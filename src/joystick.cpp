@@ -12,31 +12,31 @@ void joystick_message_handler(uint8_t *data, uint32_t len, websocket_msg_type ty
     case '_':
         axes_ = x_y_axes;
         msg.first_axis_setpoint = x_y_axes->first_axis->current_counts;
-        msg.type = mot_pap::type::MOVE;
+        msg.type = mot_pap::type::MOVE_JOYSTICK;
         break;
 
     case 'L':
         axes_ = x_y_axes;
         msg.first_axis_setpoint = BIG_NEGATIVE_NUMBER;
-        msg.type = mot_pap::type::MOVE;
+        msg.type = mot_pap::type::MOVE_JOYSTICK;
         break;
 
     case 'R':
         axes_ = x_y_axes;
         msg.first_axis_setpoint = BIG_POSITIVE_NUMBER;
-        msg.type = mot_pap::type::MOVE;
+        msg.type = mot_pap::type::MOVE_JOYSTICK;
         break;
 
     case 'I':
         axes_ = z_dummy_axes;
         msg.first_axis_setpoint = BIG_POSITIVE_NUMBER;
-        msg.type = mot_pap::type::MOVE;
+        msg.type = mot_pap::type::MOVE_JOYSTICK;
         break;
 
     case 'O':
         axes_ = z_dummy_axes;
         msg.first_axis_setpoint = BIG_NEGATIVE_NUMBER;
-        msg.type = mot_pap::type::MOVE;
+        msg.type = mot_pap::type::MOVE_JOYSTICK;
         break;
 
     case 'S':
@@ -55,19 +55,19 @@ void joystick_message_handler(uint8_t *data, uint32_t len, websocket_msg_type ty
 
     case '_':
         msg.second_axis_setpoint = x_y_axes->second_axis->current_counts;
-        msg.type = mot_pap::type::MOVE;
+        msg.type = mot_pap::type::MOVE_JOYSTICK;
         break;
 
     case 'U':
         axes_ = x_y_axes;
         msg.second_axis_setpoint = BIG_POSITIVE_NUMBER;
-        msg.type = mot_pap::type::MOVE;
+        msg.type = mot_pap::type::MOVE_JOYSTICK;
         break;
 
     case 'D':
         axes_ = x_y_axes;
         msg.second_axis_setpoint = BIG_NEGATIVE_NUMBER;
-        msg.type = mot_pap::type::MOVE;
+        msg.type = mot_pap::type::MOVE_JOYSTICK;
         break;
 
     case 'S':
