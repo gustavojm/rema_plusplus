@@ -123,35 +123,28 @@ void debugClose();
 #define debug(fmt, ...) lDebug(Info, fmt, ##__VA_ARGS__)
 
 static inline char *make_message(const char *fmt, ...) {
-    int size = 0;
-    char *p = NULL;
     va_list ap;
 
     /* Determine required size */
 
     va_start(ap, fmt);
-    size = vsnprintf(p, size, fmt, ap);
+    int needed_size = vsnprintf(nullptr, 0, fmt, ap);
     va_end(ap);
 
-    if (size < 0)
-        return NULL;
+    if (needed_size < 0)
+        return nullptr;
 
+    size_t size = static_cast<size_t>(needed_size) + 1;        // +1 for null terminator
     if (size > NET_DEBUG_MAX_MSG_SIZE)
-        size = NET_DEBUG_MAX_MSG_SIZE - 1;
+        size = NET_DEBUG_MAX_MSG_SIZE;
 
-    size++; /* For '\0' */
-    p = new char[size];
-    if (p == NULL)
-        return NULL;
+    char *p = new char[size];
+    if (!p)
+        return nullptr;
 
     va_start(ap, fmt);
     size = vsnprintf(p, size, fmt, ap);
-    if (size < 0) {
-        delete[] p;
-        return NULL;
-    }
     va_end(ap);
-    p[size] = '\0';
 
     return p;
 }

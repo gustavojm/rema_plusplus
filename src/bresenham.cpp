@@ -175,7 +175,7 @@ void bresenham::move(int first_axis_setpoint, int second_axis_setpoint) {
             current_freq =
                 (current_freq + kp.run_unattenuated(leader_axis->destination_counts, leader_axis->current_counts, speed)) / 2;
         }
-        lDebug(Debug, "Control output = %i: ", current_freq);
+        lDebug(Debug, "Control output = %i ", current_freq);
 
         ticks_last_time = xTaskGetTickCount();
         tmr.change_freq(current_freq);
@@ -258,7 +258,7 @@ void bresenham::supervise() {
                 current_freq =
                     (current_freq + kp.run_unattenuated(leader_axis->destination_counts, leader_axis->current_counts, speed)) / 2;
             }
-            lDebug(Debug, "Control output = %i: ", current_freq);
+            lDebug(Debug, "Control output = %i ", current_freq);
             change_freq(current_freq);
         }
     }
