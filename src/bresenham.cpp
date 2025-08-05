@@ -93,8 +93,11 @@ void bresenham::task() {
                     joystick_movement = true;
                     was_soft_stopped = true;
                     taskEXIT_CRITICAL();
+
+                    vTaskSuspend(supervisor_task_handle);
                     move(first_axis_setpoint, second_axis_setpoint);
-                    
+                    vTaskResume(supervisor_task_handle);
+
                 }
                 lDebug(Info, "SOFT STOP  %s", name);
                 break;
