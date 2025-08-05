@@ -1,6 +1,6 @@
 #include "kp.h"
 
-const int RAMP_STEPS = 100;
+const int RAMP_STEPS = 50;
 const float RAMP_RATE = 1 / static_cast<float>(RAMP_STEPS);
 
 kp::kp(int kp, std::chrono::milliseconds sample_period_ms, int normal_min, int normal_max, int slow_min, int slow_max) {
