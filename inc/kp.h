@@ -31,6 +31,9 @@ class kp {
     //! @brief		Proportional constant
     float kp_;
 
+    //! @brief		Output attenuation steps
+    int ramp_steps;
+
     //! @brief		The sample period (in milliseconds) between successive
     //! kp::run() calls.
     std::chrono::milliseconds sample_period_ms;
@@ -62,7 +65,7 @@ class kp {
     //! can't set up
     //!    			reliable defaults, so we need to have the user
     //!    set them.
-    kp(int kp, std::chrono::milliseconds sample_period_ms, int normal_min, int normal_max, int slow_min, int slow_max);
+    kp(int kp, int steps, std::chrono::milliseconds sample_period_ms, int normal_min, int normal_max, int slow_min, int slow_max);
 
     void restart();
 
@@ -82,9 +85,5 @@ class kp {
     //! to be adjusted.
     //! @details	It's called automatically from the init function, but tunings
     //! can also 			be adjusted on the fly during normal operation
-    void set_tunings(float kp);
-
-    //! @brief		Returns the actual (not time-scaled) proportional
-    //! constant.
-    int get_kp();
+    void set_tunings(float kp, int steps);
 };

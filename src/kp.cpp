@@ -1,15 +1,12 @@
 #include "kp.h"
 
-const int RAMP_STEPS = 50;
-const float RAMP_RATE = 1 / static_cast<float>(RAMP_STEPS);
-
-kp::kp(int kp, std::chrono::milliseconds sample_period_ms, int normal_min, int normal_max, int slow_min, int slow_max) {
+kp::kp(int kp, int steps, std::chrono::milliseconds sample_period_ms, int normal_min, int normal_max, int slow_min, int slow_max) {
     set_output_limits(normal_min, normal_max, slow_min, slow_max);
 
     sample_period_ms = sample_period_ms;
 
     // Set tunings with provided constants
-    set_tunings(kp);
+    set_tunings(kp, steps);
 }
 
 void kp::restart() {
@@ -19,6 +16,7 @@ void kp::restart() {
 int kp::run(int setpoint, int input, enum mot_pap::speed speed) {
     int out_min;
     int out_max;
+    float ramp_rate = 1 / static_cast<float>(kp::ramp_steps);
 
     switch (speed) {
     case mot_pap::speed::SLOW:
@@ -51,7 +49,7 @@ int kp::run(int setpoint, int input, enum mot_pap::speed speed) {
     if (num_times_ran < INT_MAX)
         num_times_ran++;
 
-    float attenuation = (num_times_ran < RAMP_STEPS) ? num_times_ran * RAMP_RATE : 1;
+    float attenuation = (num_times_ran < ramp_steps) ? num_times_ran * ramp_rate : 1;
     int out = output * attenuation;
     if (out < out_min) {
         return out_min;
@@ -94,12 +92,13 @@ int kp::run_unattenuated(int setpoint, int input, enum mot_pap::speed speed) {
 
 //! @brief		Sets the KP tunings.
 //! @warning	Make sure samplePeriodMs is set before calling this function.
-void kp::set_tunings(float kp) {
-    if (kp < 0)
+void kp::set_tunings(float kp, int steps) {
+    if (kp < 0 || steps < 0)
         return;
 
     kp_ = kp;
-
+    ramp_steps = steps;
+    
     // Printing floats generates hard faults...
     // lDebug(Info, "KP: %f", kp_);
 }

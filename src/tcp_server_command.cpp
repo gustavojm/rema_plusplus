@@ -262,6 +262,7 @@ json::MyJsonDocument tcp_server_command::set_coords_cmd(json::JsonObject const p
 json::MyJsonDocument tcp_server_command::axes_settings_cmd(json::JsonObject const pars) {
     json::MyJsonDocument res;
     double prop_gain = pars["prop_gain"];
+    int ramp_steps = pars["ramp_steps"];
     int update = pars["update"];
     int normal_min = pars["normal_min"];
     int normal_max = pars["normal_max"];
@@ -276,7 +277,7 @@ json::MyJsonDocument tcp_server_command::axes_settings_cmd(json::JsonObject cons
         axes_->step_time = std::chrono::milliseconds(update);
         axes_->kp.set_output_limits(normal_min, normal_max, slow_min, slow_max);
         axes_->kp.set_sample_period(axes_->step_time);
-        axes_->kp.set_tunings(prop_gain);
+        axes_->kp.set_tunings(prop_gain, ramp_steps);
         axes_->soft_stop_min_counts = soft_stop_min_counts;
         axes_->soft_stop_max_counts = soft_stop_max_counts;
 
@@ -289,6 +290,7 @@ json::MyJsonDocument tcp_server_command::axes_settings_cmd(json::JsonObject cons
     res["XY"]["slow_max_freq"] = x_y_axes->kp.slow_out_max;
     res["XY"]["update_time"] = x_y_axes->step_time.count();
     res["XY"]["prop_gain"] = x_y_axes->kp.kp_;
+    res["XY"]["ramp_steps"] = x_y_axes->kp.ramp_steps;
     res["XY"]["soft_stop_min_counts"] = x_y_axes->soft_stop_min_counts;
     res["XY"]["soft_stop_max_counts"] = x_y_axes->soft_stop_max_counts;
 
@@ -298,6 +300,7 @@ json::MyJsonDocument tcp_server_command::axes_settings_cmd(json::JsonObject cons
     res["Z"]["slow_max_freq"] = z_dummy_axes->kp.slow_out_max;
     res["Z"]["update_time"] = z_dummy_axes->step_time.count();
     res["Z"]["prop_gain"] = z_dummy_axes->kp.kp_;
+    res["Z"]["ramp_steps"] = z_dummy_axes->kp.ramp_steps;
     res["Z"]["soft_stop_min_counts"] = z_dummy_axes->soft_stop_min_counts;
     res["Z"]["soft_stop_max_counts"] = z_dummy_axes->soft_stop_max_counts;
     return res;

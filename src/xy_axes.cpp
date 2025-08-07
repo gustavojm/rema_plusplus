@@ -41,6 +41,7 @@ bresenham &xy_axes_init() {
     x_y_axes = new (xy_axes_buf) bresenham("xy_axes", &x_axis, &y_axis, xy_axes_tmr, true);
     x_y_axes->kp = {
         100,                 //!< Kp
+        50,                  //!< Ramp Steps
         x_y_axes->step_time, //!< Update rate (ms)
         10000,               //!< Normal Min output
         60000,               //!< Normal Max output

@@ -43,6 +43,7 @@ bresenham &z_axis_init() {
     z_dummy_axes = new (z_dummy_axes_buf) bresenham("z_dummy_axes", &z_axis, &dummy_axis, z_dummy_axes_tmr);
     z_dummy_axes->kp = {
         100,                     //!< Kp
+        50,                      //!< Ramp Steps
         z_dummy_axes->step_time, //!< Update rate (ms)
         10000,                   //!< Normal Min output
         60000,                   //!< Normal Max output
