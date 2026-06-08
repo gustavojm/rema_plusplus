@@ -1,5 +1,15 @@
 #include "joystick.h"
 
+/* Joystick messages
+
+    LU  _U   RU      I_
+    L_       R_
+    LD  _D   RD      O_
+
+    _  = Do not move this axis
+    S  = STOP
+*/
+
 void joystick_message_handler(uint8_t *data, uint32_t len, websocket_msg_type type) {
     lDebug(Debug, "Joystick received: %.*s", len, data);
 

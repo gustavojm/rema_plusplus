@@ -7,8 +7,8 @@
 function(set_project_warnings PROJECT_NAME)
 
   set(BOTH_LANGS_WARNINGS
-      -Wall
-      -Wextra  # reasonable and standard
+      #-Wall
+      #-Wextra  # reasonable and standard
       #-Wshadow # warn the user if a variable declaration shadows one from a
                # parent context
       #-Wcast-align     # warn for potential performance problem casts
