@@ -9,8 +9,13 @@ const char *header = "HTTP/1.1 101 Switching Protocols\r\n"
 char *websocket_server::get_key(char *buf, size_t *len) {
     char *p = strstr(buf, "Sec-WebSocket-Key: ");
     if (p) {
-        p = p + strlen("Sec-WebSocket-Key: ");
-        *len = strchr(p, '\r') - p;
+        p += strlen("Sec-WebSocket-Key: ");
+        char *end = strchr(p, '\r');
+        if (end) {
+            *len = end - p;
+        } else {
+            p = NULL;
+        }
     }
     return p;
 }
@@ -30,7 +35,7 @@ char *websocket_server::create_key_accept(char *inbuf) {
     
     sha1_ctx_t ctx;
     sha1_init(&ctx);
-    sha1_update(&ctx, (uint8_t *)concat_key, 60);
+    sha1_update(&ctx, (uint8_t *)concat_key, strlen(concat_key));
     sha1_final(&ctx, (uint8_t *)hash);
 
     base64_encode((uint8_t *)hash, 20, hash_base64);
@@ -140,12 +145,6 @@ void websocket_server::send_message(websocket_message *msg) {
     outbuf_ptr = set_data_to_frame(msg->message, msg->msg_size, outbuf_ptr);
     size_t packet_size = outbuf_ptr - send_buf;
 
-    // Set send timeout using setsockopt
-    struct timeval timeout;
-    timeout.tv_sec = 0;
-    timeout.tv_usec = 500000; // 500 ms
-    lwip_setsockopt(client.socket, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
-    
     int bytes_sent = lwip_send(client.socket, send_buf, packet_size, 0);
     if (bytes_sent < 0) {
         lDebug(Error, "Write failed with err %d (\"%s\")", errno, strerror(errno));
@@ -285,6 +284,10 @@ void websocket_server::task() {
                 
                 if (client_sock >= 0) {
                     client.socket = client_sock;
+                    struct timeval timeout;
+                    timeout.tv_sec = 0;
+                    timeout.tv_usec = 500000;
+                    lwip_setsockopt(client.socket, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof(timeout));
                     lDebug(Info, "New client connected");
                 }
             }
